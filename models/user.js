@@ -2,21 +2,16 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 const Address = mongoose.Schema(
   {
-    FirstName: { type: String, required: true },
-    LastName: { type: String,  },
-    Email: { type: String, required: true },
-    PhoneNo: { type: String, required: true },
-    Address1: { type: String, required: true },
-    Address2: { type: String, },
-    City: { type: String, required: true },
-    Country: { type: String, required: true },
-    State: { type: String, required: true },
-    Zip: { type: String, required: true },
+    phoneNo: { type: String, required: true },
+    address1: { type: String, required: true },
+    address2: { type: String, },
+    city: { type: String, required: true },
+    country: { type: String, required: true },
+    state: { type: String, required: true },
+    zip: { type: String, required: true },
+    longitude : {type : String, required : true},
+    latitude : { type : String, required : true}
   }
-  // ,
-  // {
-  //   timestamps: true,
-  // }
 );
 
 
@@ -34,13 +29,18 @@ const userSchema = mongoose.Schema(
       required: true,
       unique: true,
     },
+    phone : {
+      type : Number,
+      required : true,
+      unique: true
+    },
     password: {
       type: String,
     },
     userType: {
-      type: String,
+      type: [String],
       required: true,
-      default: "customer",
+      default: ["customer"],
     }
   },
   {
