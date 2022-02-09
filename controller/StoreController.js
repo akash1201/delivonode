@@ -42,6 +42,12 @@ const registerStore = asyncHandler(async(req, res)=>{
                               res.status(500).json({message : 'Phone No already in use', status : 500})
                     }else{
                               let store = await Store.create(req.body);
+                              res.json({
+                                     _id : store._id,
+                                     token : generateToken(store._id),
+                                     email : email,
+                                     phoneNo : phoneNo
+                              })
                               res.json({store : store});
                     }
           }catch(err){
