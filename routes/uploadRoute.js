@@ -1,7 +1,11 @@
-import path from 'path'
-import express from 'express'
-import multer from 'multer'
-import fs from 'fs'
+//import path from 'path'
+const path= require('path');
+//import express from 'express'
+const express= require('express')
+//import multer from 'multer'
+const multer= require('multer')
+//import fs from 'fs'
+const fs= require('fs')
 const router = express.Router()
 var data;
 var date = new Date();

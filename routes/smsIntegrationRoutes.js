@@ -1,5 +1,7 @@
-import express from 'express';
-import {sendOtp} from '../controller/SmsIntegrationController.js';
+//import express from 'express';
+const express= require('express');
+//import {sendOtp} from '../controller/SmsIntegrationController.js';
+const {sendOtp}= require('../controller/SmsIntegrationController.js');
 
 const router = express.Router();
 

@@ -1,8 +1,11 @@
-import asyncHandler from 'express-async-handler';
-import Store from '../models/Store.js';
+//import asyncHandler from 'express-async-handler';
+const asyncHandler= require('express-async-handler');
+//import Store from '../models/Store.js';
+const store= require('../models/Store.js');
 
 //custom
-import generateToken from '../utils/generateToken.js';
+//import generateToken from '../utils/generateToken.js';
+const generateToken= require('../utils/generateToken.js');
 
 const login = asyncHandler (async(req, res)=>{
 

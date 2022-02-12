@@ -1,4 +1,5 @@
-import asyncHandler from 'express-async-handler';
+//import asyncHandler from 'express-async-handler';
+const asyncHandler= require('express-async-handler');
 
 const placeOrder = asyncHandler( async(req, res)=>{
 

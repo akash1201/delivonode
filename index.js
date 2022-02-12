@@ -1,18 +1,30 @@
-import path from 'path';
-import express from 'express';
-import dotenv from 'dotenv';
-import multer from 'multer';
-import cors from 'cors';
-import mongoose from 'mongoose';
-import morgan from 'morgan';
-import connectDB from './config/connectDB.js';
-
+//import path from 'path';
+const path= require('path');
+//import express from 'express';
+const express= require('express');
+//import dotenv from 'dotenv';
+const dotenv= require('dotenv');
+//import multer from 'multer';
+const multer = require('multer');
+//import cors from 'cors';
+const cors= require('cors');
+//import mongoose from 'mongoose';
+const mongoose= require('mongoose');
+//import morgan from 'morgan';
+const morgan= require('morgan');
+//import connectDB from './config/connectDB.js';
+const connectDB= require('./config/connectDB.js');
 //routes
-import userRoutes from './routes/userRoutes.js';
-import storeRoutes from './routes/storeRoutes.js';
-import uploadRoute from './routes/uploadRoute.js';
-import otpRoute from './routes/smsIntegrationRoutes.js';
-import productRoute from './routes/productRoutes.js'
+//import userRoutes from './routes/userRoutes.js';
+const userRoutes= require('./routes/userRoutes.js');
+//import storeRoutes from './routes/storeRoutes.js';
+const storeRoutes= require('./routes/storeRoutes.js');
+//import uploadRoute from './routes/uploadRoute.js';
+const uoladRoute= require('./routes/uploadRoute.js');
+//import otpRoute from './routes/smsIntegrationRoutes.js';
+const otproute= require('./routes/smsIntegrationRoutes.js');
+//import productRoute from './routes/productRoutes.js'
+const productroute= require('./routes/productRoutes.js');
 
 dotenv.config();
 connectDB();

@@ -1,6 +1,9 @@
-import asyncHandler from 'express-async-handler';
-import User from '../models/user.js';
-import generateToken from '../utils/generateToken.js'
+//import asyncHandler from 'express-async-handler';
+const asyncHandler= require('express-async-handler');
+//import User from '../models/user.js';
+const user= require('../models/user.js');
+//import generateToken from '../utils/generateToken.js';
+const generateToken= require('../utils/generateToken.js');
 
 
 const register = asyncHandler( async (req, res) => {

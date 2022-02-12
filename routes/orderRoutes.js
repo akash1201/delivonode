@@ -1,5 +1,7 @@
-import express from 'express';
-import {protect} from '../middleware/authMiddleware.js';
+//import express from 'express';
+const express= require('express');
+//import {protect} from '../middleware/authMiddleware.js';
+const {protect}= require('../middleware/authMiddleware.js');
 import {
   placeOrder
 } from '../controller/orderController.js'
