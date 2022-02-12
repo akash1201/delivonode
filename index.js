@@ -47,7 +47,7 @@ app.use(`/api/upload`, uploadRoute);
 app.use(`/api/sms`, otpRoute);
 app.use(`/api/products`, productRoute);
 
-const __dirname = path.resolve()
+// const __dirname = path.resolve()
 app.use('/uploads', express.static(path.join(__dirname, '/uploads')))
 
 
