@@ -26,6 +26,9 @@ const otproute= require('./routes/smsIntegrationRoutes.js');
 //import productRoute from './routes/productRoutes.js'
 const productroute= require('./routes/productRoutes.js');
 
+var util= require('util');
+var encoder = new util.TextEncoder('utf-8');
+
 dotenv.config();
 connectDB();
 
