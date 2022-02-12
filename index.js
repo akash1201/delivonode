@@ -26,6 +26,8 @@ const uploadRoute= require('./routes/uploadRoute');
 //import productRoute from './routes/productRoutes.js'
 const productRoute= require('./routes/productRoutes');
 
+const categoryRoute = require('./routes/categoryRoutes')
+
 
 dotenv.config();
 connectDB();
@@ -47,6 +49,7 @@ app.use(`/api/stores`, storeRoutes);
 app.use(`/api/upload`, uploadRoute);
 // app.use(`/api/sms`, otpRoute);
 app.use(`/api/products`, productRoute);
+app.use(`/api/category`, categoryRoute);
 
 // const __dirname = path.resolve()
 app.use('/uploads', express.static(path.join(__dirname, '/uploads')))

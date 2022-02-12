@@ -1,11 +1,11 @@
 //import asyncHandler from 'express-async-handler';
 const asyncHandler= require('express-async-handler');
 //import Category from '../models/Category.js';
-const category= require('../models/Category.js');
+const Category= require('../models/Category.js');
 //import jwt from 'jsonwebtoken';
 const jwt= require('jsonwebtoken');
 //import Product from '../models/Products.js';
-const product= require('../models/Products.js');
+const Product= require('../models/Products.js');
 
 const addCategory = asyncHandler(async (req, res)=>{
           let category = await Category.create(req.body);
