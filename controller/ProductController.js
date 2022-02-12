@@ -93,4 +93,4 @@ const deleteProduct = asyncHandler (async (req, res)=>{
    }
 });
 
-export {addCategory,addProduct, getProducts,updateProduct,deleteProduct}
+module.exports = {addCategory,addProduct, getProducts,updateProduct,deleteProduct}

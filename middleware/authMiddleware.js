@@ -55,4 +55,4 @@ const vendor = (req,res,next)=>{
   }
 }
 
-export { protect, admin ,vendor}
+module.exports = { protect, admin ,vendor}

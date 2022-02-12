@@ -1,7 +1,8 @@
 //import asyncHandler from 'express-async-handler';
 const asyncHandler= require('express-async-handler');
 //import fetch from 'node-fetch';
-const fetch= require('node-fetch');
+// const fetch= require('node-fetch');
+const fetch = require('node-fetch');
 //import otpGenerator from 'otp-generator';
 const otpGenerator= require('otp-generator');
 //import dotenv from 'dotenv';
@@ -42,4 +43,4 @@ const sendOtp = asyncHandler(async(req, res)=>{
 
 })
 
-export { sendOtp }
+module.exports = { sendOtp }

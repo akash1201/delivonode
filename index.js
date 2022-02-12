@@ -13,18 +13,18 @@ const mongoose= require('mongoose');
 //import morgan from 'morgan';
 const morgan= require('morgan');
 //import connectDB from './config/connectDB.js';
-const connectDB= require('./config/connectDB.js');
+const connectDB= require('./config/connectDB');
 //routes
 //import userRoutes from './routes/userRoutes.js';
-const userRoutes= require('./routes/userRoutes.js');
+const userRoutes= require('./routes/userRoutes');
 //import storeRoutes from './routes/storeRoutes.js';
-const storeRoutes= require('./routes/storeRoutes.js');
+const storeRoutes= require('./routes/storeRoutes');
 //import uploadRoute from './routes/uploadRoute.js';
-const uoladRoute= require('./routes/uploadRoute.js');
+const uploadRoute= require('./routes/uploadRoute');
 //import otpRoute from './routes/smsIntegrationRoutes.js';
-const otproute= require('./routes/smsIntegrationRoutes.js');
+// const otproute= require('./routes/smsIntegrationRoutes');
 //import productRoute from './routes/productRoutes.js'
-const productroute= require('./routes/productRoutes.js');
+const productRoute= require('./routes/productRoutes');
 
 
 dotenv.config();
@@ -45,7 +45,7 @@ app.use(cors());
 app.use('/api/users', userRoutes);
 app.use(`/api/stores`, storeRoutes);
 app.use(`/api/upload`, uploadRoute);
-app.use(`/api/sms`, otpRoute);
+// app.use(`/api/sms`, otpRoute);
 app.use(`/api/products`, productRoute);
 
 // const __dirname = path.resolve()

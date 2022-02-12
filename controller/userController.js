@@ -32,4 +32,4 @@ const login = asyncHandler ( async (req, res) => {
           }
 });
 
-export {register,login}
+module.exports = {register,login}

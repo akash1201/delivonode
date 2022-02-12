@@ -66,4 +66,4 @@ router.post('/products' ,uploadMulti.array('image', 4), (req, res) => {
 
 
 
-export default router
+module.exports = router
