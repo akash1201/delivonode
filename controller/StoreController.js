@@ -2,6 +2,7 @@
 const asyncHandler= require('express-async-handler');
 //import Store from '../models/Store.js';
 const Store= require('../models/Store.js');
+const jwt= require('jsonwebtoken');
 
 //custom
 //import generateToken from '../utils/generateToken.js';
@@ -58,4 +59,18 @@ const registerStore = asyncHandler(async(req, res)=>{
           }
 })
 
-module.exports = { registerStore, login }
+const setStoreStatus = asyncHandler ( async (req, res)=>{
+     try{
+       let token = req.headers.authorization.split(' ')[1]
+       let userid = jwt.verify(token, process.env.JWT_SECRET)
+       console.log(userid.id);
+        
+       await Store.updateOne({_id : userid.id}, {active : req.body.status})
+       res.json({msg : 'Updated'})
+
+     }catch(err){
+          res.status(500).json({status : 500, msg : err.msg});
+     }
+})
+
+module.exports = { registerStore, login, setStoreStatus }
