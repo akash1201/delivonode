@@ -158,6 +158,7 @@ exports.orderDetails = asyncHandler ( async (req, res)=>{
 
                     }
 
+                    
                     res.status(200).json({status : 200, msg : 'success', data : data});
 
           }catch(err){
