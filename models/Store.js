@@ -25,6 +25,7 @@ const StoreSchema = mongoose.Schema(
             vendorType : { type : String, default : 'normal'},
             document : {type : String, required : true},
             cancelledCheque : { type : String, required : true},
+            gst : {type : String},
             liscenseNo : {type : String, required : true,  unique : true},
             longitude : {type : String, required : true},
             latitude : { type : String, required : true}
