@@ -26,6 +26,8 @@ const StoreSchema = mongoose.Schema(
             document : {type : String, required : true},
             cancelledCheque : { type : String, required : true},
             gst : {type : String},
+            ownerAadhar : {type : String, required : true},
+            ownerPan : {type : String, required : true},
             liscenseNo : {type : String, required : true,  unique : true},
             longitude : {type : String, required : true},
             latitude : { type : String, required : true}
