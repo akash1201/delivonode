@@ -30,7 +30,9 @@ const StoreSchema = mongoose.Schema(
             ownerPan : {type : String, required : true},
             liscenseNo : {type : String, required : true,  unique : true},
             longitude : {type : String, required : true},
-            latitude : { type : String, required : true}
+            latitude : { type : String, required : true},
+            accountNo : {type: String, required : true},
+            ifsc : {type: String, required : true}
           }
         );
 
