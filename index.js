@@ -12,6 +12,8 @@ const cors= require('cors');
 const mongoose= require('mongoose');
 //import morgan from 'morgan';
 const morgan= require('morgan');
+
+const bodyParser = require('body-parser');
 //import connectDB from './config/connectDB.js';
 const connectDB= require('./config/connectDB');
 //routes
@@ -31,6 +33,7 @@ const categoryRoute = require('./routes/categoryRoutes')
 const orderRoutes = require('./routes/orderRoutes');
 
 
+
 dotenv.config();
 connectDB();
 
@@ -44,7 +47,7 @@ if (process.env.NODE_ENV === 'development') {
 
 app.use(express.json());
 app.use(cors());
-app.use(express.bodyParser({limit: '50mb'}));
+app.use(bodyParser({limit: '50mb'}));
 
 
 app.use('/api/users', userRoutes);
