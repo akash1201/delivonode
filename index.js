@@ -44,6 +44,7 @@ if (process.env.NODE_ENV === 'development') {
 
 app.use(express.json());
 app.use(cors());
+app.use(express.bodyParser({limit: '50mb'}));
 
 
 app.use('/api/users', userRoutes);
