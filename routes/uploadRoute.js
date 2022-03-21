@@ -53,7 +53,7 @@ const uploadMulti = multer({
 })
 
 router.post('/' ,upload.single('image'), (req, res) => {
-  res.send(`/${req.file.path}`)
+  res.json({data : `/${req.file.path}`})
 })
 
 router.post('/products' ,uploadMulti.array('image', 4), (req, res) => {
