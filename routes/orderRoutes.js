@@ -1,9 +1,13 @@
 //import express from 'express';
-const express= require('express');
+const express = require("express");
 //import {protect} from '../middleware/authMiddleware.js';
-const {protect}= require('../middleware/authMiddleware.js');
+const { protect } = require("../middleware/authMiddleware.js");
 
-const { placeOrder, getOrders, orderDetails } = require ('../controller/orderController');
+const {
+  placeOrder,
+  getOrders,
+  orderDetails,
+} = require("../controller/orderController");
 
 const router = express.Router();
 
