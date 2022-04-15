@@ -67,14 +67,30 @@ exports.getallorders = asyncHandler(async (req, res) => {
     let token = req.headers.authorization.split(" ")[1];
     let storeid = jwt.verify(token, process.env.JWT_SECRET);
     console.log(storeid.id);
-    const orders = await Order.find({}).populate(user);
+    const orders = await Order.find().populate([
+      {
+        path: "products.productId",
+        model: "Product",
+        select: "_id name category",
+      },
+      {
+        path: "products.vendorId",
+        model: "Store",
+        select: "_id",
+      },
+      {
+        path: "products.userId",
+        model: "user",
+        select: "_id name lastname",
+      },
+    ]);
 
     let productList = [];
     orders.forEach((order) => {
       productList = [...productList, ...order.products];
     });
-    productList.filter((ele) => ele.vendorId === storeid);
-    res.send(200).json({ orderInfo: productList });
+    orderInfo = productList.filter((ele) => ele.vendorId._id === storeid.id);
+    res.send(200).json({ orderInfo });
   } catch (error) {
     res.status(500).json({ status: 500, msg: err.message });
   }
@@ -98,7 +114,7 @@ exports.betweendates = asyncHandler(async (req, res) => {
     let count = 0;
     orders.forEach((order) => {
       productList = [...productList, ...order.products];
-      if (order.products.some((ele) => ele.vendorId === storeid)) {
+      if (order.products.some((ele) => ele.vendorId === storeid.id)) {
         count++;
       }
     });
@@ -123,13 +139,24 @@ exports.topselling = asyncHandler(async (req, res) => {
       createdAt: {
         $gte: ISODate("2018-03-06T13:10:40.294Z"),
         $lt: ISODate("2018-05-06T13:10:40.294Z"),
-      },
+      }.populate([
+        {
+          path: "products.productId",
+          model: "Product",
+          select: "_id name image",
+        },
+        {
+          path: "products.vendorId",
+          model: "Store",
+          select: "_id",
+        },
+      ]),
     });
     let productList = [];
     orders.forEach((order) => {
       productList = [...productList, ...order.products];
     });
-    productList.filter((ele) => ele.vendorId === storeid.id);
+    productList.filter((ele) => ele.vendorId._id === storeid.id);
     let size = productList.length();
     let arr = productList.forEach((ele) => ele.products);
     let frequency = new Map();
@@ -140,6 +167,7 @@ exports.topselling = asyncHandler(async (req, res) => {
         frequency.set(arr[i], 1);
       }
     }
+    //  this map returns products with there count so extract from it top 5 repeating elements.
     res.status(200).json({});
   } catch (error) {
     res.status(500).json({ status: 500, msg: err.message });

@@ -31,6 +31,10 @@ const OrderSchema = mongoose.Schema(
         },
       },
     ],
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
     deliveryAgent: {
       type: String,
       required: true,
