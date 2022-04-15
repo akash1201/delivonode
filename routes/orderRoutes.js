@@ -7,12 +7,25 @@ const {
   placeOrder,
   getOrders,
   orderDetails,
+  getallorders,
+  topselling,
+  betweendates,
+  walletAmount,
+  placeOrder,
+  fetchReviews,
+  addReview,
 } = require("../controller/orderController");
 
 const router = express.Router();
 
-router.post(`/place-order`, protect, placeOrder);
+router.post(`/placeorder`, protect, placeOrder);
 router.get(`/get-orders/:type/:pageNo?`, protect, getOrders);
 router.get(`/order-details/:orderId`, protect, orderDetails);
+router.get(`/betweendates`, protect, betweendates);
+router.get(`/topselling`, protect, topselling);
+router.get(`/walletAmount`, protect, walletAmount);
+router.get(`/fetchReviews`, protect, fetchReviews);
+router.post(`/addReview`, protect, addReview);
+router.get(`/getallorders`, protect, getallorders);
 
 module.exports = router;
