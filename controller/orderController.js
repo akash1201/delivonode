@@ -1,31 +1,66 @@
 //import asyncHandler from 'express-async-handler';
 const asyncHandler = require("express-async-handler");
 const jwt = require("jsonwebtoken");
-const { Order, populate } = require("../models/Orders");
+const Order = require("../models/Orders");
 const Reviews = require("../models/Reviews");
+const Complaints = require("../models/Complaints");
+const User = require("../models/user.js");
+
+// Add Complain
+exports.addComplain = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let userid = jwt.verify(token, process.env.JWT_SECRET);
+
+    let obj = {
+      message: req.body.message,
+      storeId: userid.id,
+      phoneNo: req.body.phoneNo,
+    };
+
+    let complain = await Complaints.create(obj);
+    res.json({ status: 200, msg: "Added", data: complain });
+  } catch (err) {
+    console.log(err);
+    res.json({ status: 500, msg: err.message });
+  }
+});
 
 // Add Review to Order (Post req)
 exports.addReview = asyncHandler(async (req, res) => {
-  let token = req.headers.authorization.split(" ")[1];
-  let userid = jwt.verify(token, process.env.JWT_SECRET);
-  if (!userid) {
-    return res.json({ msg: "User not found" });
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let userid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!userid) {
+      return res.json({ msg: "User not found" });
+    }
+    const newReview = new Reviews({
+      userId: userid.id,
+      vendorId: req.body.vendorId,
+      rating: req.body.rating,
+      comment: req.body.comment,
+    });
+    console.log(newReview);
+    res.status(200).json({ msg: "Added Review", newReview });
+  } catch (error) {
+    res.status(500).json({ msg: error });
   }
-  const newReview = new Reviews({
-    userId: userid.id,
-    ...req.body,
-  });
 });
 // Fetch Reviews (Get req)
-
 exports.fetchReviews = asyncHandler(async (req, res) => {
-  let token = req.headers.authorization.split(" ")[1];
-  let storeid = jwt.verify(token, process.env.JWT_SECRET);
-  if (!storeid) {
-    return res.json({ msg: "User not found" });
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let storeid = jwt.verify(token, process.env.JWT_SECRET);
+    console.log(storeid.id);
+    if (!storeid) {
+      return res.json({ msg: "User not found" });
+    }
+    const reviews = await Reviews.find({ vendorId: storeid.id });
+    console.log(reviews);
+    res.status(200).json({ msg: reviews });
+  } catch (error) {
+    res.status(500).json({ msg: error });
   }
-  const reviews = Review.find({ storeId: storeid.id }).populate(userId);
-  res.status(200).json({ msg: reviews });
 });
 
 // Order placing Customer End (Post req)
@@ -33,17 +68,20 @@ exports.placeOrder = asyncHandler(async (req, res) => {
   let token = req.headers.authorization.split(" ")[1];
   let userid = jwt.verify(token, process.env.JWT_SECRET);
   try {
-    const duplicate = await User.findOne({ _id: userid.id });
-    if (!duplicate) {
+    const user = await User.findOne({ _id: userid.id });
+    if (!user) {
       return res.status(500).json({ status: 500, msg: "User not Found" });
     }
-    const newOrder = new Order({
+    let obj = {
+      userId: userid.id,
       ...req.body,
-    });
+    };
+    const newOrder = new Order(obj);
     await newOrder.save();
-    res.status(200).json({ msg: "Order Placed Successfully" });
+    res.status(200).json({ msg: "Order Placed Successfully", newOrder });
   } catch (error) {
-    res.status(500).json({ status: 500, msg: err.message });
+    console.log(error);
+    res.status(500).json({ status: 500, msg: error });
   }
 });
 
@@ -60,6 +98,19 @@ exports.walletAmount = asyncHandler(async (req, res) => {
     res.status(500).json({ status: 500, msg: err.message });
   }
 });
+// Send Terms and Conditions
+exports.terms = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let storeid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!storeid) {
+      return res.status(500).json({ msg: "User not found" });
+    }
+    res.status(200).json({ message: "ngvhvjhbhbjhbkjbekjfbkjbf" });
+  } catch (error) {
+    res.status(500).json({ status: 500, msg: error });
+  }
+});
 
 // Get Order Details for Vendor Side (Get Req)
 exports.getallorders = asyncHandler(async (req, res) => {
@@ -67,32 +118,21 @@ exports.getallorders = asyncHandler(async (req, res) => {
     let token = req.headers.authorization.split(" ")[1];
     let storeid = jwt.verify(token, process.env.JWT_SECRET);
     console.log(storeid.id);
-    const orders = await Order.find().populate([
+
+    const orders = await Order.find({
+      vendorId: storeid.id.toString(),
+    }).populate([
       {
-        path: "products.productId",
-        model: "Product",
-        select: "_id name category",
-      },
-      {
-        path: "products.vendorId",
-        model: "Store",
-        select: "_id",
-      },
-      {
-        path: "products.userId",
-        model: "user",
-        select: "_id name lastname",
+        path: "userId",
+        model: "User",
+        select: "_id name lastname phoneNo",
       },
     ]);
-
-    let productList = [];
-    orders.forEach((order) => {
-      productList = [...productList, ...order.products];
-    });
-    orderInfo = productList.filter((ele) => ele.vendorId._id === storeid.id);
-    res.send(200).json({ orderInfo });
+    console.log(orders);
+    res.status(200).json({ orders });
   } catch (error) {
-    res.status(500).json({ status: 500, msg: err.message });
+    console.log(error);
+    res.status(500).json({ msg: error });
   }
 });
 
@@ -104,23 +144,30 @@ exports.betweendates = asyncHandler(async (req, res) => {
     if (!storeid) {
       return res.send(500).json({ msg: "Store not found" });
     }
-    let orders = await Order.find({
-      createdAt: {
-        $gte: ISODate("2018-03-06T13:10:40.294Z"),
-        $lt: ISODate("2018-05-06T13:10:40.294Z"),
-      },
+    // createdAt: {
+    //   $gte: ISODate("2022-04-24T00:10:40.294Z"),
+    //   $lt: ISODate("2022-04-26T00:10:40.294Z"),
+    // },
+    let orders = await Order.find({ vendorId: storeid.id.toString() }).populate(
+      [
+        {
+          path: "products.productId",
+          model: "Product",
+          select: "_id price name",
+        },
+      ]
+    );
+    let orderNo = orders.length;
+    let itemsold = 0;
+    var earning = 0;
+    orders.forEach((ele) => {
+      itemsold += ele.products.length;
+      let le = ele.products.map((val) => {
+        earning += val.productId.price;
+        return val.productId.price;
+      });
     });
-    let productList = [];
-    let count = 0;
-    orders.forEach((order) => {
-      productList = [...productList, ...order.products];
-      if (order.products.some((ele) => ele.vendorId === storeid.id)) {
-        count++;
-      }
-    });
-    productList.filter((ele) => ele.vendorId === storeid.id);
-    let itemsold = productList.length();
-    res.status(200).json({ orders: count, itemsold: itemsold });
+    res.status(200).json({ orderNo, itemsold, earning });
   } catch (error) {
     res.status(500).json({ status: 500, msg: err.message });
   }
@@ -135,40 +182,34 @@ exports.topselling = asyncHandler(async (req, res) => {
     if (!storeid) {
       return res.send(500).json({ msg: "Store not found" });
     }
-    let orders = await Order.find({
-      createdAt: {
-        $gte: ISODate("2018-03-06T13:10:40.294Z"),
-        $lt: ISODate("2018-05-06T13:10:40.294Z"),
-      }.populate([
+    let orders = await Order.find({ vendorId: storeid.id.toString() }).populate(
+      [
         {
           path: "products.productId",
           model: "Product",
-          select: "_id name image",
+          select: "_id image name",
         },
-        {
-          path: "products.vendorId",
-          model: "Store",
-          select: "_id",
-        },
-      ]),
-    });
+      ]
+    );
     let productList = [];
-    orders.forEach((order) => {
-      productList = [...productList, ...order.products];
+    orders.forEach((ele) => {
+      let le = ele.products.map((val) => {
+        return val.productId.name;
+      });
+      productList = [...productList, ...le];
     });
-    productList.filter((ele) => ele.vendorId._id === storeid.id);
-    let size = productList.length();
-    let arr = productList.forEach((ele) => ele.products);
-    let frequency = new Map();
-    for (let i = 0; i < size; i++) {
-      if (frequency.has(arr[i])) {
-        frequency.set(arr[i], frequency.get(arr[i]) + 1);
-      } else {
-        frequency.set(arr[i], 1);
-      }
+    console.log(productList);
+    // const counts = [];
+    // productList.forEach((x) => {
+    //   counts[x] = (counts[x] || 0) + 1;
+    // });
+    console.log(counts);
+    function compareAge(a, b) {
+      return a - b;
     }
+    console.log(counts.sort((a, b) => a - b));
     //  this map returns products with there count so extract from it top 5 repeating elements.
-    res.status(200).json({});
+    res.status(200).json({ counts });
   } catch (error) {
     res.status(500).json({ status: 500, msg: err.message });
   }

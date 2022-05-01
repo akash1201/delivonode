@@ -27,7 +27,7 @@ const ProductSchema = mongoose.Schema({
   inStock: {
     type: Boolean,
     required: true,
-    default:true,
+    default: true,
   },
   qty: {
     type: Number,

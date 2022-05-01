@@ -1,21 +1,17 @@
 //import mongoose from "mongoose";
-const mongoose= require("mongoose");
+const mongoose = require("mongoose");
 //import bcrypt from "bcryptjs";
-const bcrypt= require("bcryptjs");
-const Address = mongoose.Schema(
-  {
-    phoneNo: { type: String, required: true },
-    address1: { type: String, required: true },
-    address2: { type: String, },
-    city: { type: String, required: true },
-    country: { type: String, required: true },
-    state: { type: String, required: true },
-    zip: { type: String, required: true },
-    longitude : {type : String, required : true},
-    latitude : { type : String, required : true}
-  }
-);
-
+const bcrypt = require("bcryptjs");
+const Address = mongoose.Schema({
+  address1: { type: String, required: true },
+  address2: { type: String },
+  city: { type: String, required: true },
+  country: { type: String, required: true },
+  state: { type: String, required: true },
+  zip: { type: String, required: true },
+  // longitude: { type: String, required: true },
+  // latitude: { type: String, required: true },
+});
 
 const userSchema = mongoose.Schema(
   {
@@ -25,25 +21,23 @@ const userSchema = mongoose.Schema(
     },
     lastName: {
       type: String,
+      required: true,
     },
     email: {
       type: String,
       required: true,
       unique: true,
     },
-    phone : {
-      type : Number,
-      required : true,
-      unique: true
+    address: Address,
+    phoneNo: {
+      type: String,
+      required: true,
+      unique: true,
     },
     password: {
       type: String,
-    },
-    userType: {
-      type: [String],
       required: true,
-      default: ["customer"],
-    }
+    },
   },
   {
     timestamps: true,

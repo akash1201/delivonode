@@ -21,7 +21,13 @@ const StoreSchema = mongoose.Schema({
 
   address: Address,
 
-  licenseNo: { type: String, required: true, unique: true },
+  liscenseNo: {
+    type: String,
+    required: true,
+    index: true,
+    unique: true,
+    sparse: true,
+  },
   gst: { type: String, minlength: 15, unique: true, required: false },
   ownerAadhar: { type: String, required: true, unique: true, minlength: 12 },
   ownerPan: { type: String, required: true, unique: true, minlength: 10 },

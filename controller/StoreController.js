@@ -3,9 +3,6 @@ const asyncHandler = require("express-async-handler");
 //import Store from '../models/Store.js';
 const Store = require("../models/Store.js");
 const jwt = require("jsonwebtoken");
-
-//custom
-//import generateToken from '../utils/generateToken.js';
 const generateToken = require("../utils/generateToken.js");
 const Complaints = require("../models/Complaints.js");
 
@@ -52,7 +49,7 @@ const login = asyncHandler(async (req, res) => {
       res.json({
         _id: store._id,
         token: generateToken(store._id),
-        store: store,
+        store,
       });
     } else {
       res.status(500).json({ message: `Password didn't match`, status: 500 });
@@ -64,13 +61,15 @@ const login = asyncHandler(async (req, res) => {
 
 const registerStore = asyncHandler(async (req, res) => {
   try {
-    let { email, phoneNo } = req.body;
+    let { email } = req.body;
+    console.log(req.body);
 
     let emailExists = await Store.findOne({ email: email });
     if (emailExists) {
       res.status(500).json({ message: "Email already in use" });
     } else {
       let store = await Store.create(req.body);
+      console.log(store);
       res.json({
         _id: store._id,
         token: generateToken(store._id),
@@ -78,7 +77,8 @@ const registerStore = asyncHandler(async (req, res) => {
       });
     }
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.log(err);
+    res.status(500).json({ message: err });
   }
 });
 

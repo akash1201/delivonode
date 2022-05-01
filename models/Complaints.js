@@ -2,7 +2,7 @@
 const mongoose = require("mongoose");
 
 const ComplaintsSchema = mongoose.Schema({
-  store: {
+  storeId: {
     type: String,
     required: true,
   },

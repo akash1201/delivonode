@@ -29,10 +29,10 @@ const addProduct = asyncHandler(async (req, res) => {
     };
 
     let product = await Product.create(obj);
-    res.json({ status: 200, msg: "Added", data: product });
+    res.json({ status: 200, msg: "Added", product });
   } catch (err) {
     console.log(err);
-    res.json({ status: 500, msg: err.message });
+    res.json({ status: 500, msg: err });
   }
 });
 
@@ -45,9 +45,10 @@ const getProducts = asyncHandler(async (req, res) => {
       vendorId: userid.id,
       category: categoryId,
     });
-    res.json({ status: 200, msg: "success", data: products });
+    console.log(products);
+    res.json({ status: 200, msg: "success", products });
   } catch (err) {
-    res.json({ status: 500, msg: err.message, data: [] });
+    res.json({ status: 500, msg: err });
   }
 });
 

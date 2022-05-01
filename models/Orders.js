@@ -1,17 +1,16 @@
 //import mongoose from 'mongoose';
 const mongoose = require("mongoose");
 
-const Address = mongoose.Schema({
-  phoneNo: { type: String, required: true },
-  address1: { type: String, required: true },
-  address2: { type: String },
-  city: { type: String, required: true },
-  country: { type: String, required: true },
-  state: { type: String, required: true },
-  zip: { type: String, required: true },
-  longitude: { type: String, required: true },
-  latitude: { type: String, required: true },
-});
+// const Address = mongoose.Schema({
+//   address1: { type: String, required: true },
+//   address2: { type: String },
+//   city: { type: String, required: true },
+//   country: { type: String, required: true },
+//   state: { type: String, required: true },
+//   zip: { type: String, required: true },
+//   // longitude: { type: String, required: true },
+//   // latitude: { type: String, required: true },
+// });
 
 const OrderSchema = mongoose.Schema(
   {
@@ -21,16 +20,20 @@ const OrderSchema = mongoose.Schema(
           type: mongoose.Schema.Types.ObjectId,
           ref: "Product",
         },
-        vendorId: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Store",
+        quantity: {
+          type: Number,
+          required: true,
         },
-        userId: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "User",
+        price: {
+          type: Number,
+          required: true,
         },
       },
     ],
+    vendorId: {
+      type: String,
+      required: true,
+    },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -55,16 +58,21 @@ const OrderSchema = mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    address: Address,
-    // latitude: {
-    //   type: String,
-    //   required: true,
-    // },
-    // longitude: {
-    //   type: String,
-    //   required: true,
-    // },
+    address: {
+      type: Object,
+      required: true,
+    },
   },
+
+  // latitude: {
+  //   type: String,
+  //   required: true,
+  // },
+  // longitude: {
+  //   type: String,
+  //   required: true,
+  // },
+
   { timestamps: true }
 );
 
