@@ -19,6 +19,7 @@ const connectDB = require("./config/connectDB");
 //routes
 //import userRoutes from './routes/userRoutes.js';
 const userRoutes = require("./routes/userRoutes");
+const deliveryRoutes = require("./routes/deliveryRoutes");
 //import storeRoutes from './routes/storeRoutes.js';
 const storeRoutes = require("./routes/storeRoutes");
 //import uploadRoute from './routes/uploadRoute.js';
@@ -54,6 +55,7 @@ app.use(`/api/upload`, uploadRoute);
 app.use(`/api/products`, productRoute);
 app.use(`/api/category`, categoryRoute);
 app.use(`/api/orders`, orderRoutes);
+app.use(`/api/delivery`, deliveryRoutes);
 
 // const __dirname = path.resolve()
 app.use("/uploads", express.static(path.join(__dirname, "/uploads")));

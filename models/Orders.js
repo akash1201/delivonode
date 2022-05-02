@@ -42,6 +42,14 @@ const OrderSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    deliveryboyId: {
+      type: String,
+      required: true,
+    },
+    orderAccepted: {
+      type: Boolean,
+      default: false,
+    },
     isAccepted: {
       type: Boolean,
       default: false,
@@ -49,6 +57,7 @@ const OrderSchema = mongoose.Schema(
     isDeliveryAgentAssigned: {
       type: Boolean,
       default: false,
+      required: true,
     },
     isUrgent: {
       type: Boolean,

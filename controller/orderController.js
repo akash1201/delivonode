@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 const Order = require("../models/Orders");
 const Reviews = require("../models/Reviews");
 const Complaints = require("../models/Complaints");
-const User = require("../models/user.js");
+const User = require("../models/User.js");
 
 // Add Complain
 exports.addComplain = asyncHandler(async (req, res) => {

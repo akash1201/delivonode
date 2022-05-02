@@ -1,12 +1,13 @@
 //import asyncHandler from 'express-async-handler';
 const asyncHandler = require("express-async-handler");
-const User = require("../models/user.js");
+const User = require("../models/User.js");
 const Address = require("../models/Address.js");
 const Complaints = require("../models/Complaints");
 const Reviews = require("../models/Reviews");
 const generateToken = require("../utils/generateToken.js");
 const jwt = require("jsonwebtoken");
 const Order = require("../models/Orders.js");
+const Delivery = require("../models/Delivery.js");
 const Store = require("../models/Store.js");
 const Product = require("../models/Products.js");
 
@@ -177,7 +178,9 @@ const placeOrder = asyncHandler(async (req, res) => {
   let token = req.headers.authorization.split(" ")[1];
   let userid = jwt.verify(token, process.env.JWT_SECRET);
   try {
+    console.log("6");
     const user = await User.findOne({ _id: userid.id });
+
     if (!user) {
       return res.status(500).json({ status: 500, msg: "User not Found" });
     }
@@ -186,6 +189,14 @@ const placeOrder = asyncHandler(async (req, res) => {
       ...req.body,
     };
     const newOrder = new Order(obj);
+    const delivery = await Delivery.find({ isAvailable: true });
+    console.log(delivery);
+    let item = Math.floor(Math.random() * delivery.length);
+    newOrder.deliveryAgent = delivery[item].name;
+    newOrder.isDeliveryAgentAssigned = true;
+    newOrder.deliveryboyId = delivery[item]._id.toString();
+    delivery[item].orderReference = newOrder._id.toString();
+    await delivery[item].save();
     await newOrder.save();
     res.status(200).json({ msg: "Order Placed Successfully", newOrder });
   } catch (error) {
