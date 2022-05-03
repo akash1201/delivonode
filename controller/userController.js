@@ -104,9 +104,11 @@ const terms = asyncHandler(async (req, res) => {
     if (!userid) {
       return res.status(500).json({ msg: "User not found" });
     }
-    res
-      .status(200)
-      .json({ message: "All the terms and conditions are mentioned here" });
+    let termsofuse =
+      "lorem kwhfiuhwoilfc hfiuwk wehfiwehd wiehfkwenf wiehdfjkmd wehfuih fhirukhk ";
+    let companypolicy =
+      "jhbfwekfh,wekcbz,nmcbdkhfwuefgdjvb,mcnkjshdjc shgduilhilf ksdhfiuwhf shfuihwfc  kushfkjw";
+    res.json({ termsofuse, companypolicy });
   } catch (error) {
     res.status(500).json({ status: 500, msg: error });
   }
@@ -117,7 +119,9 @@ const addComplain = asyncHandler(async (req, res) => {
   try {
     let token = req.headers.authorization.split(" ")[1];
     let userid = jwt.verify(token, process.env.JWT_SECRET);
-
+    if (!userid) {
+      return res.status(500).json({ msg: "Authentication Failed" });
+    }
     let obj = {
       message: req.body.message,
       storeId: userid.id,
@@ -125,7 +129,7 @@ const addComplain = asyncHandler(async (req, res) => {
     };
 
     let complain = await Complaints.create(obj);
-    res.json({ status: 200, msg: "Added", data: complain });
+    res.status(200).json({ complain });
   } catch (err) {
     console.log(err);
     res.json({ status: 500, msg: err.message });
@@ -175,12 +179,10 @@ const myorders = asyncHandler(async (req, res) => {
 
 // Order placing Customer End (Post req)
 const placeOrder = asyncHandler(async (req, res) => {
-  let token = req.headers.authorization.split(" ")[1];
-  let userid = jwt.verify(token, process.env.JWT_SECRET);
   try {
-    console.log("6");
+    let token = req.headers.authorization.split(" ")[1];
+    let userid = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findOne({ _id: userid.id });
-
     if (!user) {
       return res.status(500).json({ status: 500, msg: "User not Found" });
     }
@@ -190,8 +192,8 @@ const placeOrder = asyncHandler(async (req, res) => {
     };
     const newOrder = new Order(obj);
     const delivery = await Delivery.find({ isAvailable: true });
-    console.log(delivery);
     let item = Math.floor(Math.random() * delivery.length);
+    console.log(delivery[item]);
     newOrder.deliveryAgent = delivery[item].name;
     newOrder.isDeliveryAgentAssigned = true;
     newOrder.deliveryboyId = delivery[item]._id.toString();
@@ -205,58 +207,7 @@ const placeOrder = asyncHandler(async (req, res) => {
   }
 });
 
-// // Add Products to Cart
-// const addtoCart = asyncHandler(async (req, res) => {
-//   try {
-//     let token = req.headers.authorization.split(" ")[1];
-//     let userid = jwt.verify(token, process.env.JWT_SECRET);
-//     if (!userid) {
-//       return res.json({ msg: "User not found" });
-//     }
-//     const productId = req.params.productId;
-//     console.log(userid.id);
-//     console.log(productId);
-//     console.log(req.params.vendorId);
-//     console.log(req.params.address);
-//     let cart = await Order.find({ userId: userid.id.toString() });
-
-//     if (cart) {
-//       //cart exists for user
-//       let itemIndex = cart.products.findIndex((p) => p.productId == productId);
-
-//       if (itemIndex > -1) {
-//         //product exists in the cart, update the quantity
-//         let productItem = cart.products[itemIndex];
-//         productItem.quantity = quantity;
-//         cart.products[itemIndex] = productItem;
-//       } else {
-//         //product does not exists in cart, add new item
-//         cart.products.push({ productId, quantity, name, price });
-//       }
-//       cart = await cart.save();
-//       return res.status(201).send(cart);
-//     } else {
-//       // Get address By id
-//       const address = await Address.find({
-//         _id: req.params.address.toString(),
-//       });
-//       //no cart for user, create new cart
-//       const newCart = await Order.create({
-//         userId: userid.id,
-//         products: [{ productId }],
-//         vendorId: req.params.vendorId,
-//         address: address,
-//         ...req.body,
-//       });
-//     }
-//     res.status(200).json({ msg: "Order Placed" });
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).json({ error });
-//   }
-// });
-
-// Fetch Stores based on cateogry
+// Fetch By category
 const fetchBycategory = asyncHandler(async (req, res) => {
   try {
     let token = req.headers.authorization.split(" ")[1];

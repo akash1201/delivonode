@@ -3,29 +3,9 @@ const asyncHandler = require("express-async-handler");
 const jwt = require("jsonwebtoken");
 const Order = require("../models/Orders");
 const Reviews = require("../models/Reviews");
-const Complaints = require("../models/Complaints");
+const Product = require("../models/Products.js");
 const User = require("../models/User.js");
 
-// Add Review to Order (Post req)
-exports.addReview = asyncHandler(async (req, res) => {
-  try {
-    let token = req.headers.authorization.split(" ")[1];
-    let userid = jwt.verify(token, process.env.JWT_SECRET);
-    if (!userid) {
-      return res.json({ msg: "User not found" });
-    }
-    const newReview = new Reviews({
-      userId: userid.id,
-      vendorId: req.body.vendorId,
-      rating: req.body.rating,
-      comment: req.body.comment,
-    });
-    console.log(newReview);
-    res.status(200).json({ msg: "Added Review", newReview });
-  } catch (error) {
-    res.status(500).json({ msg: error });
-  }
-});
 // Fetch Reviews (Get req)
 exports.fetchReviews = asyncHandler(async (req, res) => {
   try {
@@ -40,28 +20,6 @@ exports.fetchReviews = asyncHandler(async (req, res) => {
     res.status(200).json({ msg: reviews });
   } catch (error) {
     res.status(500).json({ msg: error });
-  }
-});
-
-// Order placing Customer End (Post req)
-exports.placeOrder = asyncHandler(async (req, res) => {
-  let token = req.headers.authorization.split(" ")[1];
-  let userid = jwt.verify(token, process.env.JWT_SECRET);
-  try {
-    const user = await User.findOne({ _id: userid.id });
-    if (!user) {
-      return res.status(500).json({ status: 500, msg: "User not Found" });
-    }
-    let obj = {
-      userId: userid.id,
-      ...req.body,
-    };
-    const newOrder = new Order(obj);
-    await newOrder.save();
-    res.status(200).json({ msg: "Order Placed Successfully", newOrder });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ status: 500, msg: error });
   }
 });
 
@@ -84,8 +42,9 @@ exports.getallorders = asyncHandler(async (req, res) => {
   try {
     let token = req.headers.authorization.split(" ")[1];
     let storeid = jwt.verify(token, process.env.JWT_SECRET);
-    console.log(storeid.id);
-
+    if (!storeid) {
+      return res.status(500).json("Authnetication Failed");
+    }
     const orders = await Order.find({
       vendorId: storeid.id.toString(),
     }).populate([
@@ -95,7 +54,6 @@ exports.getallorders = asyncHandler(async (req, res) => {
         select: "_id name lastname phoneNo",
       },
     ]);
-    console.log(orders);
     res.status(200).json({ orders });
   } catch (error) {
     console.log(error);
@@ -109,7 +67,7 @@ exports.betweendates = asyncHandler(async (req, res) => {
     let token = req.headers.authorization.split(" ")[1];
     let storeid = jwt.verify(token, process.env.JWT_SECRET);
     if (!storeid) {
-      return res.send(500).json({ msg: "Store not found" });
+      return res.send(500).json("Authentication Failed");
     }
     // createdAt: {
     //   $gte: ISODate("2022-04-24T00:10:40.294Z"),
@@ -130,8 +88,8 @@ exports.betweendates = asyncHandler(async (req, res) => {
     orders.forEach((ele) => {
       itemsold += ele.products.length;
       let le = ele.products.map((val) => {
-        earning += val.productId.price;
-        return val.productId.price;
+        earning += val.price;
+        return earning;
       });
     });
     res.status(200).json({ orderNo, itemsold, earning });
@@ -141,44 +99,63 @@ exports.betweendates = asyncHandler(async (req, res) => {
 });
 
 //Get Top Selling Products (Get req)
-
 exports.topselling = asyncHandler(async (req, res) => {
   try {
     let token = req.headers.authorization.split(" ")[1];
     let storeid = jwt.verify(token, process.env.JWT_SECRET);
     if (!storeid) {
-      return res.send(500).json({ msg: "Store not found" });
+      return res.send(500).json("Authentication Failed");
     }
-    let orders = await Order.find({ vendorId: storeid.id.toString() }).populate(
-      [
-        {
-          path: "products.productId",
-          model: "Product",
-          select: "_id image name",
+    let orders = await Order.aggregate([
+      { $match: { vendorId: storeid.id.toString() } },
+      {
+        $unwind: {
+          path: "$products",
         },
-      ]
-    );
-    let productList = [];
-    orders.forEach((ele) => {
-      let le = ele.products.map((val) => {
-        return val.productId.name;
-      });
-      productList = [...productList, ...le];
+      },
+      {
+        $group: {
+          _id: "$products.productId",
+          totalSold: {
+            $sum: "$products.quantity",
+          },
+        },
+      },
+      {
+        $sort: {
+          totalSold: -1,
+        },
+      },
+      {
+        $limit: 5,
+      },
+    ]);
+    let details = await Product.populate(orders, {
+      path: "_id",
+      select: { _id: 5, name: 5, image: 5 },
     });
-    console.log(productList);
-    // const counts = [];
-    // productList.forEach((x) => {
-    //   counts[x] = (counts[x] || 0) + 1;
+    res.status(200).json({ details });
+
+    // let orders = await Order.find({ vendorId: storeid.id.toString() }).populate(
+    //   [
+    //     {
+    //       path: "products.productId",
+    //       model: "Product",
+    //       select: "_id image name",
+    //     },
+    //   ]
+    // );
+    // let productList = [];
+    // orders.forEach((ele) => {
+    //   let le = ele.products.map((val) => {
+    //     return val.productId.name;
+    //   });
+    //   productList = [...productList, ...le];
     // });
-    console.log(counts);
-    function compareAge(a, b) {
-      return a - b;
-    }
-    console.log(counts.sort((a, b) => a - b));
-    //  this map returns products with there count so extract from it top 5 repeating elements.
-    res.status(200).json({ counts });
+    // res.status(200).json({ productList });
   } catch (error) {
-    res.status(500).json({ status: 500, msg: err.message });
+    console.log(error);
+    res.status(500).json({ error });
   }
 });
 

@@ -1,5 +1,6 @@
 //import mongoose from 'mongoose';
 const mongoose = require("mongoose");
+const geocoder = require("../utils/geocoder.js");
 
 // const Address = mongoose.Schema({
 //   address1: { type: String, required: true },
@@ -71,19 +72,32 @@ const OrderSchema = mongoose.Schema(
       type: Object,
       required: true,
     },
+    location: {
+      type: {
+        type: String,
+        enum: ["Point"],
+      },
+      coordinates: {
+        type: [Number],
+        index: "2dsphere",
+      },
+      formattedAddress: String,
+    },
   },
-
-  // latitude: {
-  //   type: String,
-  //   required: true,
-  // },
-  // longitude: {
-  //   type: String,
-  //   required: true,
-  // },
 
   { timestamps: true }
 );
+
+OrderSchema.pre("save", async function (next) {
+  const loc = await geocoder.geocode(this.address);
+  console.log(loc, "123456");
+  this.location = {
+    type: "Point",
+    coordinates: [loc[0].longitude, loc[0].latitude],
+    formattedAddress: loc[0].formattedAddress,
+  };
+  next();
+});
 
 const Order = mongoose.model("Order", OrderSchema);
 module.exports = Order;
