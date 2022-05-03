@@ -8,30 +8,47 @@ const jwt = require("jsonwebtoken");
 const Product = require("../models/Products.js");
 
 const addCategory = asyncHandler(async (req, res) => {
-  let category = await Category.create(req.body);
-  res.json(category);
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let storeid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!storeid) {
+      return res.status(500).json({ msg: "Authentication Failed" });
+    }
+    // let categoryexists = await Category.find({ name: req.body.name });
+
+    // console.log(categoryexists);
+    // if (categoryexists) {
+    //   return res.status(500).json("Category Already Exists");
+    // }
+    let category = await Category.create(req.body);
+    res.status(200).json("New category Added");
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error });
+  }
 });
 
 const addProduct = asyncHandler(async (req, res) => {
   try {
     let token = req.headers.authorization.split(" ")[1];
-    let userid = jwt.verify(token, process.env.JWT_SECRET);
-    console.log(userid.id);
-
+    let storeid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!storeid) {
+      return res.status(500).json({ msg: "Authentication Failed" });
+    }
     let obj = {
       name: req.body.name,
       image: req.body.image,
       category: req.body.category,
-      vendorId: userid.id,
+      vendorId: storeid.id,
       price: req.body.price,
       qty: req.body.qty,
       unit: req.body.unit,
+      discount: req.body.discount,
+      inStock: req.body.inStock,
     };
-
     let product = await Product.create(obj);
-    res.json({ status: 200, msg: "Added", product });
+    res.json("New Product Added");
   } catch (err) {
-    console.log(err);
     res.json({ status: 500, msg: err });
   }
 });
@@ -39,14 +56,16 @@ const addProduct = asyncHandler(async (req, res) => {
 const getProducts = asyncHandler(async (req, res) => {
   try {
     let token = req.headers.authorization.split(" ")[1];
-    let userid = jwt.verify(token, process.env.JWT_SECRET);
+    let storeid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!storeid) {
+      return res.status(500).json({ msg: "Authentication Failed" });
+    }
     let categoryId = req.params.categoryId;
     let products = await Product.find({
-      vendorId: userid.id,
+      vendorId: storeid.id,
       category: categoryId,
     });
-    console.log(products);
-    res.json({ status: 200, msg: "success", products });
+    res.status(200).json({ products });
   } catch (err) {
     res.json({ status: 500, msg: err });
   }
@@ -55,21 +74,20 @@ const getProducts = asyncHandler(async (req, res) => {
 const updateProduct = asyncHandler(async (req, res) => {
   try {
     let token = req.headers.authorization.split(" ")[1];
-    let userid = jwt.verify(token, process.env.JWT_SECRET);
-    let exists = await Product.findOne({
-      vendorId: userid.id,
-      _id: req.params.productId,
-    });
+    let storeid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!storeid) {
+      return res.status(500).json({ msg: "Authentication Failed" });
+    }
+    let exists = await Product.findById({ _id: req.params.productId });
     if (exists) {
       exists.name = req.body.name || exists.name;
       exists.price = req.body.price || exists.price;
       exists.qty = req.body.qty || exists.qty;
       exists.unit = req.body.unit || exists.unit;
       exists.discount = req.body.discount || exists.discount;
-
+      exists.inStock = req.body.inStock || exists.inStock;
       let product = await exists.save();
-
-      res.json({ status: 200, msg: "Updated", data: product });
+      res.json("Product Updated");
     } else {
       res.status(404).json({ status: 404, msg: "Product not found" });
     }
@@ -81,19 +99,18 @@ const updateProduct = asyncHandler(async (req, res) => {
 const deleteProduct = asyncHandler(async (req, res) => {
   try {
     let token = req.headers.authorization.split(" ")[1];
-    let userid = jwt.verify(token, process.env.JWT_SECRET);
-
-    let product = await Product.findOne({
-      vendorId: userid.id,
-      _id: req.params.productId,
-    });
+    let storeid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!storeid) {
+      return res.status(500).json({ msg: "Authentication Failed" });
+    }
+    let product = await Product.findById({ _id: req.params.productId });
     if (product) {
       await Product.deleteOne({ _id: req.params.productId });
-      return res.json({ msg: "Deleted", status: 200 });
+      return res.status(200).json("Product Deleted");
     }
-    res.status(404).json({ status: 404, msg: "Product not found" });
+    res.status(404).json("Product not found");
   } catch (err) {
-    res.status(400).json({ msg: err.message, status: 500 });
+    res.status(400).json({ err });
   }
 });
 

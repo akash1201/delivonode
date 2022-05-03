@@ -28,7 +28,5 @@ router.get(`/walletAmount`, protect, walletAmount);
 router.get(`/fetchReviews`, protect, fetchReviews);
 router.post(`/addReview`, protect, addReview);
 router.get(`/getallorders`, protect, getallorders);
-router.get(`/terms`, protect, terms);
-router.post("/addComplain", protect, addComplain);
 
 module.exports = router;

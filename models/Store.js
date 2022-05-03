@@ -2,25 +2,24 @@
 const mongoose = require("mongoose");
 //import bcrypt from "bcryptjs";
 const bcrypt = require("bcryptjs");
+const geocoder = require("../utils/geocoder.js");
 
 const Address = mongoose.Schema({
-  address1: { type: String, required: true },
-  address2: { type: String },
+  streetName: { type: String, required: true },
+  streetNumber: { type: String },
   city: { type: String, required: true },
-  country: { type: String, required: true },
-  state: { type: String, required: true },
-  zip: { type: String, required: true, maxlength: 6, minlength: 6 },
+  countryCode: { type: String, required: true },
+  stateCode: { type: String, required: true },
+  zipcode: { type: String, required: true },
 });
 
 const StoreSchema = mongoose.Schema({
   fullName: { type: String, required: true },
   storeName: { type: String, required: true },
-  phoneNo: { type: String, required: true, unique: true, minlength: 10 },
+  phoneNo: { type: String, required: true, minlength: 10 },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true, minlength: 6 },
-
   address: Address,
-
   liscenseNo: {
     type: String,
     required: true,
@@ -39,20 +38,32 @@ const StoreSchema = mongoose.Schema({
   upiId: { type: String, unique: true, required: false },
   storeManager: { type: String, required: true },
   whatsappUpdate: { type: Boolean, required: true },
-  //
   categories: { type: String, required: true },
   services: { type: String, required: true },
   active: { type: Boolean, default: true },
-  document: { type: Buffer, contentType: String, required: true },
-  cancelledCheque: { type: Buffer, contentType: String, required: true },
-  uploadAadharfront: { type: Buffer, contentType: String, required: true },
+  document: { type: String, required: true },
+  cancelledCheque: { type: String, required: true },
+  uploadAadharfront: { type: String, required: true },
+  uploadIds: { type: String, required: true },
+  uploadAadharback: { type: String, required: true },
+  uploadGSTcertificate: { type: String, required: true },
+  uploadPan: { type: String, required: true },
+  // uploadAadharfront: { type: Buffer, contentType: String, required: true },
   // uploadIds: { type: Buffer, contentType: String, required: false },
   // uploadAadharback: { type: Buffer, contentType: String, required: true },
   // uploadGSTcertificate: { type: Buffer, contentType: String, required: false },
   // uploadPan: { type: Buffer, contentType: String, required: true },
-
-  // longitude: { type: String, required: true },
-  // latitude: { type: String, required: true },
+  location: {
+    type: {
+      type: String,
+      enum: ["Point"],
+    },
+    coordinates: {
+      type: [Number],
+      index: "2dsphere",
+    },
+    formattedAddress: String,
+  },
 });
 
 StoreSchema.methods.matchPassword = async function (enteredPassword) {
@@ -63,9 +74,16 @@ StoreSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {
     next();
   }
-
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
+  const loc = await geocoder.geocode(this.address);
+  console.log(loc, "123456");
+  this.location = {
+    type: "Point",
+    coordinates: [loc[0].longitude, loc[0].latitude],
+    formattedAddress: loc[0].formattedAddress,
+  };
+  next();
 });
 
 const Store = mongoose.model("Store", StoreSchema);

@@ -8,13 +8,20 @@ const Complaints = require("../models/Complaints.js");
 
 // Terms and Conditions
 const terms = asyncHandler(async (req, res) => {
-  let token = req.headers.authorization.split(" ")[1];
-  let storeid = jwt.verify(token, process.env.JWT_SECRET);
-  if (!storeid) {
-    return res.status(500).json({ msg: "Authentication Failed" });
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let storeid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!storeid) {
+      return res.status(500).json({ msg: "Authentication Failed" });
+    }
+    let termsofuse =
+      "lorem kwhfiuhwoilfc hfiuwk wehfiwehd wiehfkwenf wiehdfjkmd wehfuih fhirukhk ";
+    let companypolicy =
+      "jhbfwekfh,wekcbz,nmcbdkhfwuefgdjvb,mcnkjshdjc shgduilhilf ksdhfiuwhf shfuihwfc  kushfkjw";
+    res.json({ termsofuse, companypolicy });
+  } catch (error) {
+    res.status(500).json({ error });
   }
-  let conditions = "lorem";
-  res.json({ msg: conditions });
 });
 
 // Support
@@ -27,25 +34,30 @@ const support = asyncHandler(async (req, res) => {
     }
     let store = await Store.findById(storeid.id);
     if (!store) {
-      return res.status(500).json({ msg: "Store not Found Failed" });
+      return res.status(500).json({ msg: "Store not Found" });
     }
     const complain = new Complaints({
-      store: storeid.id,
-      phoneNo: store.phoneNo,
-      message: req.body,
+      storeId: storeid.id,
+      phoneNo: req.body.phoneNo,
+      message: req.body.message,
     });
     await complain.save();
     res.status(200).json({ msg: "Complaint Registered" });
   } catch (error) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ error });
   }
 });
 
+// login
 const login = asyncHandler(async (req, res) => {
-  let { email, password } = req.body;
-  const store = await Store.findOne({ email: email });
-  if (store) {
+  try {
+    let { email, password } = req.body;
+    const store = await Store.findOne({ email: email });
+    if (!store) {
+      return res.status(500).json("User not found");
+    }
     if (await store.matchPassword(password)) {
+      store.password = null;
       res.json({
         _id: store._id,
         token: generateToken(store._id),
@@ -54,22 +66,22 @@ const login = asyncHandler(async (req, res) => {
     } else {
       res.status(500).json({ message: `Password didn't match`, status: 500 });
     }
-  } else {
-    res.status(404).json({ message: "Email Not Found", status: 404 });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error });
   }
 });
 
+// register
 const registerStore = asyncHandler(async (req, res) => {
   try {
     let { email } = req.body;
-    console.log(req.body);
-
     let emailExists = await Store.findOne({ email: email });
     if (emailExists) {
       res.status(500).json({ message: "Email already in use" });
     } else {
       let store = await Store.create(req.body);
-      console.log(store);
+      store.password = null;
       res.json({
         _id: store._id,
         token: generateToken(store._id),
@@ -78,7 +90,7 @@ const registerStore = asyncHandler(async (req, res) => {
     }
   } catch (err) {
     console.log(err);
-    res.status(500).json({ message: err });
+    res.status(500).json({ err });
   }
 });
 
@@ -95,4 +107,4 @@ const setStoreStatus = asyncHandler(async (req, res) => {
   }
 });
 
-module.exports = { registerStore, login, setStoreStatus };
+module.exports = { registerStore, login, setStoreStatus, terms, support };

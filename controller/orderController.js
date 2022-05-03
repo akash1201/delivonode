@@ -6,26 +6,6 @@ const Reviews = require("../models/Reviews");
 const Complaints = require("../models/Complaints");
 const User = require("../models/User.js");
 
-// Add Complain
-exports.addComplain = asyncHandler(async (req, res) => {
-  try {
-    let token = req.headers.authorization.split(" ")[1];
-    let userid = jwt.verify(token, process.env.JWT_SECRET);
-
-    let obj = {
-      message: req.body.message,
-      storeId: userid.id,
-      phoneNo: req.body.phoneNo,
-    };
-
-    let complain = await Complaints.create(obj);
-    res.json({ status: 200, msg: "Added", data: complain });
-  } catch (err) {
-    console.log(err);
-    res.json({ status: 500, msg: err.message });
-  }
-});
-
 // Add Review to Order (Post req)
 exports.addReview = asyncHandler(async (req, res) => {
   try {
@@ -96,19 +76,6 @@ exports.walletAmount = asyncHandler(async (req, res) => {
     res.status(200).json({ amount: $500 });
   } catch (error) {
     res.status(500).json({ status: 500, msg: err.message });
-  }
-});
-// Send Terms and Conditions
-exports.terms = asyncHandler(async (req, res) => {
-  try {
-    let token = req.headers.authorization.split(" ")[1];
-    let storeid = jwt.verify(token, process.env.JWT_SECRET);
-    if (!storeid) {
-      return res.status(500).json({ msg: "User not found" });
-    }
-    res.status(200).json({ message: "ngvhvjhbhbjhbkjbekjfbkjbf" });
-  } catch (error) {
-    res.status(500).json({ status: 500, msg: error });
   }
 });
 
