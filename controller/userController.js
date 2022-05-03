@@ -50,20 +50,25 @@ const register = asyncHandler(async (req, res) => {
 
 // Login
 const login = asyncHandler(async (req, res) => {
-  let { email, password } = req.body;
-  const user = await User.findOne({ email: email });
-  if (user) {
+  try {
+    let { email, password } = req.body;
+    const user = await User.findOne({ email: email });
+    if (!user) {
+      return res.status(500).json("User not found");
+    }
     if (await user.matchPassword(password)) {
+      user.password = null;
       res.json({
         _id: user._id,
         token: generateToken(user._id),
-        user: user,
+        user,
       });
     } else {
       res.status(500).json({ message: `Password didn't match`, status: 500 });
     }
-  } else {
-    res.status(404).json({ message: "Email Not Found", status: 404 });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error });
   }
 });
 
@@ -77,7 +82,7 @@ const newAddress = asyncHandler(async (req, res) => {
       userId: userid.id,
       ...req.body,
     });
-    res.json({ status: 200, address });
+    res.status(200).json({ address });
   } catch (error) {
     console.error(error);
     res.status(500).json({ msg: "Internal server error" });
@@ -142,7 +147,7 @@ const addReview = asyncHandler(async (req, res) => {
     let token = req.headers.authorization.split(" ")[1];
     let userid = jwt.verify(token, process.env.JWT_SECRET);
     if (!userid) {
-      return res.json({ msg: "User not found" });
+      return res.json("User not found");
     }
     const newReview = new Reviews({
       userId: userid.id,
@@ -150,7 +155,7 @@ const addReview = asyncHandler(async (req, res) => {
       rating: req.body.rating,
       comment: req.body.comment,
     });
-    res.status(200).json({ msg: "Added Review", newReview });
+    res.status(200).json("New Review Added");
   } catch (error) {
     res.status(500).json({ msg: error });
   }
@@ -173,7 +178,7 @@ const myorders = asyncHandler(async (req, res) => {
     ]);
     res.status(200).json({ orders });
   } catch (error) {
-    res.status(500).json({ msg: error });
+    res.status(500).json({ error });
   }
 });
 
@@ -215,7 +220,6 @@ const fetchBycategory = asyncHandler(async (req, res) => {
     if (!userid) {
       return res.json("Login to continue");
     }
-    // let categoryId: req.params.categoryId;
     let options = await Store.find({ categories: req.params.categoryId });
     res.status(200).json({ options });
   } catch (error) {

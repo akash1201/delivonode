@@ -29,20 +29,25 @@ const register = asyncHandler(async (req, res) => {
 
 // Login
 const login = asyncHandler(async (req, res) => {
-  let { email, password } = req.body;
-  const delivery = await Delivery.findOne({ email: email });
-  if (delivery) {
+  try {
+    let { email, password } = req.body;
+    const delivery = await Delivery.findOne({ email: email });
+    if (!delivery) {
+      return res.status(500).json("User not found");
+    }
     if (await delivery.matchPassword(password)) {
+      delivery.password = null;
       res.json({
         _id: delivery._id,
         token: generateToken(delivery._id),
-        delivery: delivery,
+        delivery,
       });
     } else {
       res.status(500).json({ message: `Password didn't match`, status: 500 });
     }
-  } else {
-    res.status(404).json({ message: "Email Not Found", status: 404 });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error });
   }
 });
 
@@ -54,9 +59,11 @@ const terms = asyncHandler(async (req, res) => {
     if (!deliveryid) {
       return res.status(500).json({ msg: "User not found" });
     }
-    res
-      .status(200)
-      .json({ message: "All the terms and conditions are mentioned here" });
+    let termsofuse =
+      "lorem kwhfiuhwoilfc hfiuwk wehfiwehd wiehfkwenf wiehdfjkmd wehfuih fhirukhk ";
+    let companypolicy =
+      "jhbfwekfh,wekcbz,nmcbdkhfwuefgdjvb,mcnkjshdjc shgduilhilf ksdhfiuwhf shfuihwfc  kushfkjw";
+    res.json({ termsofuse, companypolicy });
   } catch (error) {
     res.status(500).json({ status: 500, msg: error });
   }

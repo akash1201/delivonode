@@ -51,6 +51,10 @@ const OrderSchema = mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    isPicked: {
+      type: Boolean,
+      default: false,
+    },
     isAccepted: {
       type: Boolean,
       default: false,

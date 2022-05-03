@@ -26,6 +26,10 @@ const deliverySchema = mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    isPicked: {
+      type: Boolean,
+      default: false,
+    },
     orderReference: {
       type: String,
     },

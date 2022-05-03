@@ -11,13 +11,11 @@ exports.fetchReviews = asyncHandler(async (req, res) => {
   try {
     let token = req.headers.authorization.split(" ")[1];
     let storeid = jwt.verify(token, process.env.JWT_SECRET);
-    console.log(storeid.id);
     if (!storeid) {
-      return res.json({ msg: "User not found" });
+      return res.json("Authentication Failed");
     }
     const reviews = await Reviews.find({ vendorId: storeid.id });
-    console.log(reviews);
-    res.status(200).json({ msg: reviews });
+    res.status(200).json(reviews);
   } catch (error) {
     res.status(500).json({ msg: error });
   }
