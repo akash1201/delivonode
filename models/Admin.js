@@ -1,19 +1,14 @@
-//import mongoose from "mongoose";
 const mongoose = require("mongoose");
-//import bcrypt from "bcryptjs";
 const bcrypt = require("bcryptjs");
 
-const geocoder = require("../utils/geocoder.js");
-
-const deliverySchema = mongoose.Schema(
+const AdminSchema = mongoose.Schema(
   {
-    name: {
+    firstName: {
       type: String,
       required: true,
     },
-    isApproved: {
-      type: Boolean,
-      default: false,
+    lastName: {
+      type: String,
     },
     email: {
       type: String,
@@ -28,16 +23,9 @@ const deliverySchema = mongoose.Schema(
     password: {
       type: String,
     },
-    isAvailable: {
+    isAdmin: {
       type: Boolean,
       default: true,
-    },
-    isPicked: {
-      type: Boolean,
-      default: false,
-    },
-    orderReference: {
-      type: String,
     },
   },
   {
@@ -45,11 +33,10 @@ const deliverySchema = mongoose.Schema(
   }
 );
 
-deliverySchema.methods.matchPassword = async function (enteredPassword) {
+AdminSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
-
-deliverySchema.pre("save", async function (next) {
+AdminSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {
     next();
   }
@@ -57,6 +44,6 @@ deliverySchema.pre("save", async function (next) {
   this.password = await bcrypt.hash(this.password, salt);
 });
 
-const Delivery = mongoose.model("Delivery", deliverySchema);
+const Admin = mongoose.model("Admin", AdminSchema);
 
-module.exports = Delivery;
+module.exports = Admin;

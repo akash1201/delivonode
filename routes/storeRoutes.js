@@ -7,6 +7,7 @@ const {
   setStoreStatus,
   terms,
   support,
+  showMap,
 } = require("../controller/StoreController.js");
 const { protect } = require("../middleware/authMiddleware.js");
 
@@ -17,5 +18,6 @@ router.post(`/login`, login);
 router.get("/terms", terms);
 router.post("/support", support);
 router.put(`/set-status`, protect, setStoreStatus);
+router.get("/showMap", showMap);
 
 module.exports = router;

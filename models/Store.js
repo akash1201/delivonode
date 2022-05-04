@@ -20,6 +20,10 @@ const StoreSchema = mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true, minlength: 6 },
   address: Address,
+  isApproved: {
+    type: Boolean,
+    default: false,
+  },
   liscenseNo: {
     type: String,
     required: true,

@@ -6,6 +6,7 @@ const Category = require("../models/Category.js");
 const jwt = require("jsonwebtoken");
 //import Product from '../models/Products.js';
 const Product = require("../models/Products.js");
+const Store = require("../models/Store.js");
 
 const addCategory = asyncHandler(async (req, res) => {
   try {
@@ -13,6 +14,10 @@ const addCategory = asyncHandler(async (req, res) => {
     let storeid = jwt.verify(token, process.env.JWT_SECRET);
     if (!storeid) {
       return res.status(500).json({ msg: "Authentication Failed" });
+    }
+    const store = await Store.find({ _id: storeid.id.toString() });
+    if (store.isApproved == false) {
+      return res.status(500).json("Registeration approval pending by admin");
     }
     // let categoryexists = await Category.find({ name: req.body.name });
 
@@ -34,6 +39,10 @@ const addProduct = asyncHandler(async (req, res) => {
     let storeid = jwt.verify(token, process.env.JWT_SECRET);
     if (!storeid) {
       return res.status(500).json({ msg: "Authentication Failed" });
+    }
+    const store = await Store.find({ _id: storeid.id.toString() });
+    if (store.isApproved == false) {
+      return res.status(500).json("Registeration approval pending by admin");
     }
     let obj = {
       name: req.body.name,
@@ -60,6 +69,10 @@ const getProducts = asyncHandler(async (req, res) => {
     if (!storeid) {
       return res.status(500).json({ msg: "Authentication Failed" });
     }
+    const store = await Store.find({ _id: storeid.id.toString() });
+    if (store.isApproved == false) {
+      return res.status(500).json("Registeration approval pending by admin");
+    }
     let categoryId = req.params.categoryId;
     let products = await Product.find({
       vendorId: storeid.id,
@@ -77,6 +90,10 @@ const updateProduct = asyncHandler(async (req, res) => {
     let storeid = jwt.verify(token, process.env.JWT_SECRET);
     if (!storeid) {
       return res.status(500).json({ msg: "Authentication Failed" });
+    }
+    const store = await Store.find({ _id: storeid.id.toString() });
+    if (store.isApproved == false) {
+      return res.status(500).json("Registeration approval pending by admin");
     }
     let exists = await Product.findById({ _id: req.params.productId });
     if (exists) {
@@ -102,6 +119,10 @@ const deleteProduct = asyncHandler(async (req, res) => {
     let storeid = jwt.verify(token, process.env.JWT_SECRET);
     if (!storeid) {
       return res.status(500).json({ msg: "Authentication Failed" });
+    }
+    const store = await Store.find({ _id: storeid.id.toString() });
+    if (store.isApproved == false) {
+      return res.status(500).json("Registeration approval pending by admin");
     }
     let product = await Product.findById({ _id: req.params.productId });
     if (product) {

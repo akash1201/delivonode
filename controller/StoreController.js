@@ -24,6 +24,24 @@ const terms = asyncHandler(async (req, res) => {
   }
 });
 
+// Send Location to display Map
+const showMap = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let storeid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!storeid) {
+      return res.status(500).json({ msg: "Authentication Failed" });
+    }
+    let store = await Store.findById(storeid.id);
+    if (store.isApproved == false) {
+      return res.status(500).json("Registeration approval pending by admin");
+    }
+    let location = store.location.coordinates;
+    res.status(200).json({ location });
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
 // Support
 const support = asyncHandler(async (req, res) => {
   try {
@@ -35,6 +53,9 @@ const support = asyncHandler(async (req, res) => {
     let store = await Store.findById(storeid.id);
     if (!store) {
       return res.status(500).json({ msg: "Store not Found" });
+    }
+    if (store.isApproved == false) {
+      return res.status(500).json("Registeration approval pending by admin");
     }
     const complain = new Complaints({
       storeId: storeid.id,
@@ -107,4 +128,11 @@ const setStoreStatus = asyncHandler(async (req, res) => {
   }
 });
 
-module.exports = { registerStore, login, setStoreStatus, terms, support };
+module.exports = {
+  registerStore,
+  login,
+  setStoreStatus,
+  terms,
+  support,
+  showMap,
+};

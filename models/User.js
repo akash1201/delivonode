@@ -2,6 +2,8 @@
 const mongoose = require("mongoose");
 //import bcrypt from "bcryptjs";
 const bcrypt = require("bcryptjs");
+
+const geocoder = require("../utils/geocoder.js");
 const Address = mongoose.Schema({
   address1: { type: String, required: true },
   address2: { type: String },
@@ -9,8 +11,6 @@ const Address = mongoose.Schema({
   country: { type: String, required: true },
   state: { type: String, required: true },
   zip: { type: String, required: true },
-  // longitude: { type: String, required: true },
-  // latitude: { type: String, required: true },
 });
 
 const userSchema = mongoose.Schema(
@@ -18,6 +18,10 @@ const userSchema = mongoose.Schema(
     name: {
       type: String,
       required: true,
+    },
+    isApproved: {
+      type: Boolean,
+      default: false,
     },
     lastName: {
       type: String,
@@ -53,6 +57,7 @@ userSchema.pre("save", async function (next) {
 
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
+  next();
 });
 
 const User = mongoose.model("User", userSchema);

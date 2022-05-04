@@ -24,6 +24,7 @@ const deliveryRoutes = require("./routes/deliveryRoutes");
 const storeRoutes = require("./routes/storeRoutes");
 //import uploadRoute from './routes/uploadRoute.js';
 const uploadRoute = require("./routes/uploadRoute");
+const adminRoutes = require("./routes/adminRoutes");
 //import otpRoute from './routes/smsIntegrationRoutes.js';
 // const otproute= require('./routes/smsIntegrationRoutes');
 //import productRoute from './routes/productRoutes.js'
@@ -56,6 +57,7 @@ app.use(`/api/products`, productRoute);
 app.use(`/api/category`, categoryRoute);
 app.use(`/api/orders`, orderRoutes);
 app.use(`/api/delivery`, deliveryRoutes);
+app.use(`/api/admin`, adminRoutes);
 
 // const __dirname = path.resolve()
 app.use("/uploads", express.static(path.join(__dirname, "/uploads")));

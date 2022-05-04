@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 const Order = require("../models/Orders");
 const Reviews = require("../models/Reviews");
 const Product = require("../models/Products.js");
-const User = require("../models/User.js");
+const Store = require("../models/Store.js");
 
 // Fetch Reviews (Get req)
 exports.fetchReviews = asyncHandler(async (req, res) => {
@@ -43,6 +43,10 @@ exports.getallorders = asyncHandler(async (req, res) => {
     if (!storeid) {
       return res.status(500).json("Authnetication Failed");
     }
+    const store = await Store.find({ _id: storeid.id.toString() });
+    if (store.isApproved == false) {
+      return res.status(500).json("Registeration approval pending by admin");
+    }
     const orders = await Order.find({
       vendorId: storeid.id.toString(),
     }).populate([
@@ -66,6 +70,10 @@ exports.betweendates = asyncHandler(async (req, res) => {
     let storeid = jwt.verify(token, process.env.JWT_SECRET);
     if (!storeid) {
       return res.send(500).json("Authentication Failed");
+    }
+    const store = await Store.find({ _id: storeid.id.toString() });
+    if (store.isApproved == false) {
+      return res.status(500).json("Registeration approval pending by admin");
     }
     // createdAt: {
     //   $gte: ISODate("2022-04-24T00:10:40.294Z"),
@@ -103,6 +111,10 @@ exports.topselling = asyncHandler(async (req, res) => {
     let storeid = jwt.verify(token, process.env.JWT_SECRET);
     if (!storeid) {
       return res.send(500).json("Authentication Failed");
+    }
+    const store = await Store.find({ _id: storeid.id.toString() });
+    if (store.isApproved == false) {
+      return res.status(500).json("Registeration approval pending by admin");
     }
     let orders = await Order.aggregate([
       { $match: { vendorId: storeid.id.toString() } },
