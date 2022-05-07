@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 //import bcrypt from "bcryptjs";
 const bcrypt = require("bcryptjs");
 const geocoder = require("../utils/geocoder.js");
+// const { NumberContext } = require("twilio/lib/rest/pricing/v2/voice/number");
 
 const Address = mongoose.Schema({
   streetName: { type: String, required: true },
@@ -11,6 +12,8 @@ const Address = mongoose.Schema({
   countryCode: { type: String, required: true },
   stateCode: { type: String, required: true },
   zipcode: { type: String, required: true },
+  latitude: { type: String, required: true },
+  longitude: { type: String, required: true },
 });
 
 const StoreSchema = mongoose.Schema({
@@ -25,11 +28,8 @@ const StoreSchema = mongoose.Schema({
     default: false,
   },
   liscenseNo: {
-    type: String,
+    type: Number,
     required: true,
-    index: true,
-    unique: true,
-    sparse: true,
   },
   gst: { type: String, minlength: 15, unique: true, required: false },
   ownerAadhar: { type: String, required: true, unique: true, minlength: 12 },
@@ -45,29 +45,31 @@ const StoreSchema = mongoose.Schema({
   categories: { type: String, required: true },
   services: { type: String, required: true },
   active: { type: Boolean, default: true },
-  document: { type: String, required: true },
+  // document: { type: String, required: true },
   cancelledCheque: { type: String, required: true },
   uploadAadharfront: { type: String, required: true },
-  uploadIds: { type: String, required: true },
+  uploadMenu: { type: String, required: true },
   uploadAadharback: { type: String, required: true },
   uploadGSTcertificate: { type: String, required: true },
   uploadPan: { type: String, required: true },
+  terms: { type: Boolean, default: true },
+  policy: { type: Boolean, default: true },
   // uploadAadharfront: { type: Buffer, contentType: String, required: true },
   // uploadIds: { type: Buffer, contentType: String, required: false },
   // uploadAadharback: { type: Buffer, contentType: String, required: true },
   // uploadGSTcertificate: { type: Buffer, contentType: String, required: false },
   // uploadPan: { type: Buffer, contentType: String, required: true },
-  location: {
-    type: {
-      type: String,
-      enum: ["Point"],
-    },
-    coordinates: {
-      type: [Number],
-      index: "2dsphere",
-    },
-    formattedAddress: String,
-  },
+  // location: {
+  //   type: {
+  //     type: String,
+  //     enum: ["Point"],
+  //   },
+  //   coordinates: {
+  //     type: [Number],
+  //     index: "2dsphere",
+  //   },
+  //   formattedAddress: String,
+  // },
 });
 
 StoreSchema.methods.matchPassword = async function (enteredPassword) {
@@ -80,13 +82,13 @@ StoreSchema.pre("save", async function (next) {
   }
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
-  const loc = await geocoder.geocode(this.address);
-  console.log(loc, "123456");
-  this.location = {
-    type: "Point",
-    coordinates: [loc[0].longitude, loc[0].latitude],
-    formattedAddress: loc[0].formattedAddress,
-  };
+  // const loc = await geocoder.geocode(this.address);
+  // console.log(loc, "123456");
+  // this.location = {
+  //   type: "Point",
+  //   coordinates: [loc[0].longitude, loc[0].latitude],
+  //   formattedAddress: loc[0].formattedAddress,
+  // };
   next();
 });
 

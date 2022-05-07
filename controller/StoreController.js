@@ -106,7 +106,6 @@ const registerStore = asyncHandler(async (req, res) => {
       res.json({
         _id: store._id,
         token: generateToken(store._id),
-        store,
       });
     }
   } catch (err) {

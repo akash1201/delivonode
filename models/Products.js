@@ -17,7 +17,7 @@ const ProductSchema = mongoose.Schema({
     required: true,
   },
   vendorId: {
-    type: String,
+    type: Buffer,
     required: true,
   },
   price: {
