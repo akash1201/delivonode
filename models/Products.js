@@ -8,6 +8,10 @@ const ProductSchema = mongoose.Schema({
     type: String,
     required: true,
   },
+  subcategory: {
+    type: String,
+    required: true,
+  },
   name: {
     type: String,
     required: true,
@@ -17,7 +21,7 @@ const ProductSchema = mongoose.Schema({
     required: true,
   },
   vendorId: {
-    type: Buffer,
+    type: String,
     required: true,
   },
   price: {

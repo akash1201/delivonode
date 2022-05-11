@@ -15,62 +15,63 @@ const geocoder = require("../utils/geocoder.js");
 
 const OrderSchema = mongoose.Schema(
   {
-    products: [
-      {
-        productId: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Product",
-        },
-        quantity: {
-          type: Number,
-          required: true,
-        },
-        price: {
-          type: Number,
-          required: true,
-        },
-      },
-    ],
-    vendorId: {
-      type: String,
+    products: {
+      type: Array,
       required: true,
+    },
+    vendorId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Store",
     },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
-    deliveryAgent: {
+    Total: {
+      type: Number,
+      default: 0,
+    },
+    status: {
       type: String,
       required: true,
     },
-    deliveryboyId: {
+    // deliveryAgent: {
+    //   type: String,
+    //   required: true,
+    // },
+    // deliveryboyId: {
+    //   type: String,
+    //   required: true,
+    // },
+
+    // orderAccepted: {
+    //   type: Boolean,
+    //   default: false,
+    // },
+    // isPicked: {
+    //   type: Boolean,
+    //   default: false,
+    // },
+    // isAccepted: {
+    //   type: Boolean,
+    //   default: false,
+    // },
+    // isDeliveryAgentAssigned: {
+    //   type: Boolean,
+    //   default: false,
+    //   required: true,
+    // },
+    // isUrgent: {
+    //   type: Boolean,
+    //   default: false,
+    // },
+    // isDelivered: {
+    //   type: Boolean,
+    //   default: false,
+    // },
+    deliveryPartner: {
       type: String,
       required: true,
-    },
-    orderAccepted: {
-      type: Boolean,
-      default: false,
-    },
-    isPicked: {
-      type: Boolean,
-      default: false,
-    },
-    isAccepted: {
-      type: Boolean,
-      default: false,
-    },
-    isDeliveryAgentAssigned: {
-      type: Boolean,
-      default: false,
-      required: true,
-    },
-    isUrgent: {
-      type: Boolean,
-      default: false,
-    },
-    isDelivered: {
-      type: Boolean,
-      default: false,
     },
     address: {
       type: Object,

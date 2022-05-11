@@ -9,6 +9,7 @@ const {
   getallorders,
   topselling,
   betweendates,
+  updateOrderStatus,
   walletAmount,
   fetchReviews,
 } = require("../controller/orderController");
@@ -19,6 +20,7 @@ const router = express.Router();
 // router.get(`/order-details/:orderId`, protect, orderDetails);
 router.get(`/betweendates`, protect, betweendates);
 router.get(`/topselling`, protect, topselling);
+router.put(`/updateOrderStatus`, updateOrderStatus);
 router.get(`/walletAmount`, protect, walletAmount);
 router.get(`/fetchReviews`, protect, fetchReviews);
 router.get(`/getallorders`, protect, getallorders);

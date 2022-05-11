@@ -9,6 +9,8 @@ const Store = require("../models/Store.js");
 const Product = require("../models/Products.js");
 const sendMail = require("../utils/sendMail.js");
 const Admin = require("../models/Admin.js");
+const Category = require("../models/Category.js");
+const Coupons = require("../models/Coupons.js");
 const sendSMS = require("../utils/sendSMS.js");
 
 // Register
@@ -51,6 +53,95 @@ const login = asyncHandler(async (req, res) => {
     }
   } catch (error) {
     console.log(error);
+    res.status(500).json({ error });
+  }
+});
+
+// Create Category
+const createCategory = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let adminid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!adminid) {
+      return res.json("Login to continue");
+    }
+    const category = await Category.create(req.body);
+    res.status(200).json("New Cateogry is Created");
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+
+// Delete Category
+const deleteCategory = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let adminid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!adminid) {
+      return res.json("Login to continue");
+    }
+    let category = await Category.findById({ _id: req.params.categoryId });
+    if (category) {
+      await Category.deleteOne({ _id: req.params.categoryId });
+      return res.status(200).json("Category Deleted");
+    }
+    res.status(500).json("Category not found");
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+
+// Update Category
+const updateCategory = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let adminid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!adminid) {
+      return res.json("Login to continue");
+    }
+    let exists = await Category.findById({ _id: req.params.categoryId });
+    if (exists) {
+      exists.name = req.body.name || exists.name;
+      exists.subcateogry = req.body.subcateogry || exists.subcateogry;
+      exists.image = req.body.image || exists.image;
+      let product = await exists.save();
+      res.json("Category Updated");
+    }
+    res.status(500).json("Category not found");
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+
+// Create Coupons
+const createCoupons = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let adminid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!adminid) {
+      return res.json("Login to continue");
+    }
+    const coupon = await Coupons.create(req.body);
+    res.status(200).json("New Coupon is Created");
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+// Delete Coupons
+const deleteCoupons = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let adminid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!adminid) {
+      return res.json("Login to continue");
+    }
+    let category = await Coupons.findById({ _id: req.params.couponId });
+    if (category) {
+      await Coupons.deleteOne({ _id: req.params.couponId });
+      return res.status(200).json("Coupon Deleted");
+    }
+    res.status(500).json("Coupon not found");
+  } catch (error) {
     res.status(500).json({ error });
   }
 });
@@ -268,6 +359,11 @@ const addressComplaints = asyncHandler(async (req, res) => {
   }
 });
 module.exports = {
+  createCategory,
+  updateCategory,
+  deleteCategory,
+  createCoupons,
+  deleteCoupons,
   register,
   login,
   viewVendors,

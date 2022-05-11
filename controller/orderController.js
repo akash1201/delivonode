@@ -29,7 +29,7 @@ exports.walletAmount = asyncHandler(async (req, res) => {
     if (!storeid) {
       return res.status(500).json({ msg: "User not found" });
     }
-    res.status(200).json({ amount: $500 });
+    res.status(200).json({ amount: "$500" });
   } catch (error) {
     res.status(500).json({ status: 500, msg: err.message });
   }
@@ -43,10 +43,10 @@ exports.getallorders = asyncHandler(async (req, res) => {
     if (!storeid) {
       return res.status(500).json("Authnetication Failed");
     }
-    const store = await Store.find({ _id: storeid.id.toString() });
-    if (store.isApproved == false) {
-      return res.status(500).json("Registeration approval pending by admin");
-    }
+    // const store = await Store.find({ _id: storeid.id.toString() });
+    // if (store.isApproved == false) {
+    //   return res.status(500).json("Registeration approval pending by admin");
+    // }
     const orders = await Order.find({
       vendorId: storeid.id.toString(),
     }).populate([
@@ -56,7 +56,27 @@ exports.getallorders = asyncHandler(async (req, res) => {
         select: "_id name lastname phoneNo",
       },
     ]);
-    res.status(200).json({ orders });
+    res.status(200).json({ orders, date: "20 June", time: "11:35 am" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ msg: error });
+  }
+});
+exports.updateOrderStatus = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let storeid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!storeid) {
+      return res.status(500).json("Authnetication Failed");
+    }
+    // const store = await Store.find({ _id: storeid.id.toString() });
+    // if (store.isApproved == false) {
+    //   return res.status(500).json("Registeration approval pending by admin");
+    // }
+    const order = await Order.findById(req.params.orderId);
+    order.status = "Order Accepted";
+    await order.save();
+    res.status(200).json("Order Accepted By Store");
   } catch (error) {
     console.log(error);
     res.status(500).json({ msg: error });
@@ -71,10 +91,10 @@ exports.betweendates = asyncHandler(async (req, res) => {
     if (!storeid) {
       return res.send(500).json("Authentication Failed");
     }
-    const store = await Store.find({ _id: storeid.id.toString() });
-    if (store.isApproved == false) {
-      return res.status(500).json("Registeration approval pending by admin");
-    }
+    // const store = await Store.findById(storeid.id);
+    // if (store.isApproved == false) {
+    //   return res.status(500).json("Registeration approval pending by admin");
+    // }
     // createdAt: {
     //   $gte: ISODate("2022-04-24T00:10:40.294Z"),
     //   $lt: ISODate("2022-04-26T00:10:40.294Z"),
@@ -90,13 +110,10 @@ exports.betweendates = asyncHandler(async (req, res) => {
     );
     let orderNo = orders.length;
     let itemsold = 0;
-    var earning = 0;
+    let earning = 0;
     orders.forEach((ele) => {
+      earning += ele.Total;
       itemsold += ele.products.length;
-      let le = ele.products.map((val) => {
-        earning += val.price;
-        return earning;
-      });
     });
     res.status(200).json({ orderNo, itemsold, earning });
   } catch (error) {
@@ -112,10 +129,10 @@ exports.topselling = asyncHandler(async (req, res) => {
     if (!storeid) {
       return res.send(500).json("Authentication Failed");
     }
-    const store = await Store.find({ _id: storeid.id.toString() });
-    if (store.isApproved == false) {
-      return res.status(500).json("Registeration approval pending by admin");
-    }
+    // const store = await Store.find({ _id: storeid.id.toString() });
+    // if (store.isApproved == false) {
+    //   return res.status(500).json("Registeration approval pending by admin");
+    // }
     let orders = await Order.aggregate([
       { $match: { vendorId: storeid.id.toString() } },
       {
@@ -145,172 +162,8 @@ exports.topselling = asyncHandler(async (req, res) => {
       select: { _id: 5, name: 5, image: 5 },
     });
     res.status(200).json({ details });
-
-    // let orders = await Order.find({ vendorId: storeid.id.toString() }).populate(
-    //   [
-    //     {
-    //       path: "products.productId",
-    //       model: "Product",
-    //       select: "_id image name",
-    //     },
-    //   ]
-    // );
-    // let productList = [];
-    // orders.forEach((ele) => {
-    //   let le = ele.products.map((val) => {
-    //     return val.productId.name;
-    //   });
-    //   productList = [...productList, ...le];
-    // });
-    // res.status(200).json({ productList });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error });
   }
 });
-
-// exports.getOrders = asyncHandler(async (req, res) => {
-//   try {
-//     let token = req.headers.authorization.split(" ")[1];
-//     let storeid = jwt.verify(token, process.env.JWT_SECRET);
-//     console.log(storeid.id);
-
-//     let pageNo = req.params.pageNo ? req.params.pageNo : 1;
-
-//     let type = req.params.type;
-//     if (type == "all") {
-//       let data = [
-//         {
-//           _id: userid.id,
-//           name: "Devesh Goplani",
-//           userId: userid.id,
-//           date: new Date(),
-//           paymenType: "COD",
-//           status: "accepted",
-//         },
-//         {
-//           _id: userid.id,
-//           name: "Devesh Goplani",
-//           userId: userid.id,
-//           date: new Date(),
-//           payment_type: "COD",
-//           status: "accepted",
-//           totalAmount: 100,
-//           itemCount: 5,
-//         },
-//         {
-//           _id: userid.id,
-//           name: "Akash Chhetri",
-//           userId: userid.id,
-//           date: new Date(),
-//           payment_type: "COD",
-//           status: "accepted",
-//           totalAmount: 150,
-//           itemCount: 6,
-//         },
-//         {
-//           _id: userid.id,
-//           name: "Harshit Gupta",
-//           userId: userid.id,
-//           date: new Date(),
-//           payment_type: "COD",
-//           status: "accepted",
-//           totalAmount: 150,
-//           itemCount: 1,
-//         },
-//       ];
-
-//       res.status(200).json({ status: 200, msg: "Success", data: data });
-//     } else if (type == "pending") {
-//       let data = [
-//         {
-//           _id: userid.id,
-//           name: "Devesh Goplani",
-//           userId: userid.id,
-//           date: new Date(),
-//           payment_type: "COD",
-//           status: "pending",
-//         },
-//         {
-//           _id: userid.id,
-//           name: "Devesh Goplani",
-//           userId: userid.id,
-//           date: new Date(),
-//           payment_type: "COD",
-//           status: "pending",
-//           totalAmount: 100,
-//           itemCount: 5,
-//         },
-//         {
-//           _id: userid.id,
-//           name: "Akash Chhetri",
-//           userId: userid.id,
-//           date: new Date(),
-//           payment_type: "COD",
-//           status: "pending",
-//           totalAmount: 150,
-//           itemCount: 6,
-//         },
-//         {
-//           _id: userid.id,
-//           name: "Harshit Gupta",
-//           userId: userid.id,
-//           date: new Date(),
-//           payment_type: "COD",
-//           status: "pending",
-//           totalAmount: 150,
-//           itemCount: 1,
-//         },
-//       ];
-
-//       res.status(200).json({ status: 200, msg: "Success", data: data });
-//     } else {
-//       res.status(400).json({ status: 400, msg: "Invalid type" });
-//     }
-//   } catch (err) {
-//     res.status(500).json({ status: 500, msg: err.message });
-//   }
-// });
-
-// exports.orderDetails = asyncHandler(async (req, res) => {
-//   try {
-//     let orderId = req.params.orderId;
-//     let token = req.headers.authorization.split(" ")[1];
-//     let userid = jwt.verify(token, process.env.JWT_SECRET);
-//     console.log(userid.id);
-
-//     let data = {
-//       _id: userid.id,
-//       userId: userid.id,
-//       name: "Devesh Goplani",
-//       contact: "7431979503",
-//       items: [
-//         {
-//           name: "Onion",
-//           amount: 1,
-//           unit: "kg",
-//           qty: 1,
-//           price: 3,
-//         },
-//         {
-//           name: "Potato",
-//           amount: 1,
-//           unit: "kg",
-//           qty: 1,
-//           price: 3,
-//         },
-//       ],
-//       paymentType: "COD",
-//       note: "Please keep tomato in separate bags",
-//       deliveryDetails: {
-//         name: "Ram Nath",
-//         _id: userid.id,
-//         phoneNo: "7545678976",
-//       },
-//     };
-
-//     res.status(200).json({ status: 200, msg: "success", data: data });
-//   } catch (err) {
-//     res.status(500).json({ msg: err.message });
-//   }
-// });

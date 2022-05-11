@@ -2,6 +2,11 @@ const express = require("express");
 const {
   register,
   login,
+  createCategory,
+  deleteCategory,
+  updateCategory,
+  createCoupons,
+  deleteCoupons,
   viewVendors,
   approveVendors,
   disapproveVendors,
@@ -20,6 +25,11 @@ const router = express.Router();
 
 router.post(`/register`, register);
 router.post(`/login`, login);
+router.post(`/createCategory`, createCategory);
+router.put(`/deleteCategory/:categoryId`, deleteCategory);
+router.post(`/updateCategory`, updateCategory);
+router.post(`/createCoupons`, createCoupons);
+router.put(`/deleteCoupons/:couponId`, deleteCoupons);
 router.get("/viewVendors", viewVendors);
 router.get("/viewDelivery", viewDelivery);
 router.get("/viewCustomers", viewCustomers);

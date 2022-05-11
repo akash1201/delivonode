@@ -33,9 +33,9 @@ const showMap = asyncHandler(async (req, res) => {
       return res.status(500).json({ msg: "Authentication Failed" });
     }
     let store = await Store.findById(storeid.id);
-    if (store.isApproved == false) {
-      return res.status(500).json("Registeration approval pending by admin");
-    }
+    // if (store.isApproved == false) {
+    //   return res.status(500).json("Registeration approval pending by admin");
+    // }
     let location = store.location.coordinates;
     res.status(200).json({ location });
   } catch (error) {
@@ -54,9 +54,9 @@ const support = asyncHandler(async (req, res) => {
     if (!store) {
       return res.status(500).json({ msg: "Store not Found" });
     }
-    if (store.isApproved == false) {
-      return res.status(500).json("Registeration approval pending by admin");
-    }
+    // if (store.isApproved == false) {
+    //   return res.status(500).json("Registeration approval pending by admin");
+    // }
     const complain = new Complaints({
       storeId: storeid.id,
       phoneNo: req.body.phoneNo,

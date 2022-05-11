@@ -9,30 +9,30 @@ const jwt = require("jsonwebtoken");
 const Product = require("../models/Products.js");
 const Store = require("../models/Store.js");
 
-const addCategory = asyncHandler(async (req, res) => {
-  try {
-    let token = req.headers.authorization.split(" ")[1];
-    let storeid = jwt.verify(token, process.env.JWT_SECRET);
-    if (!storeid) {
-      return res.status(500).json({ msg: "Authentication Failed" });
-    }
-    const store = await Store.find({ _id: storeid.id.toString() });
-    if (store.isApproved == false) {
-      return res.status(500).json("Registeration approval pending by admin");
-    }
-    // let categoryexists = await Category.find({ name: req.body.name });
+// const addCategory = asyncHandler(async (req, res) => {
+//   try {
+//     let token = req.headers.authorization.split(" ")[1];
+//     let storeid = jwt.verify(token, process.env.JWT_SECRET);
+//     if (!storeid) {
+//       return res.status(500).json({ msg: "Authentication Failed" });
+//     }
+//     const store = await Store.find({ _id: storeid.id.toString() });
+//     if (store.isApproved == false) {
+//       return res.status(500).json("Registeration approval pending by admin");
+//     }
+//     // let categoryexists = await Category.find({ name: req.body.name });
 
-    // console.log(categoryexists);
-    // if (categoryexists) {
-    //   return res.status(500).json("Category Already Exists");
-    // }
-    let category = await Category.create(req.body);
-    res.status(200).json("New category Added");
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ error });
-  }
-});
+//     // console.log(categoryexists);
+//     // if (categoryexists) {
+//     //   return res.status(500).json("Category Already Exists");
+//     // }
+//     let category = await Category.create(req.body);
+//     res.status(200).json("New category Added");
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).json({ error });
+//   }
+// });
 
 const addProduct = asyncHandler(async (req, res) => {
   try {
@@ -41,7 +41,7 @@ const addProduct = asyncHandler(async (req, res) => {
     if (!storeid) {
       return res.status(500).json({ msg: "Authentication Failed" });
     }
-    const store = await Store.find({ _id: storeid.id.toString() });
+    // const store = await Store.find({ _id: storeid.id.toString() });
     // if (store.isApproved == false) {
     //   return res.status(500).json("Registeration approval pending by admin");
     // }
@@ -50,6 +50,7 @@ const addProduct = asyncHandler(async (req, res) => {
       name: req.body.name,
       image: req.body.image,
       category: req.body.category,
+      subcategory: req.body.subcategory,
       vendorId: storeid.id,
       price: req.body.price,
       qty: req.body.qty,
@@ -58,8 +59,9 @@ const addProduct = asyncHandler(async (req, res) => {
       inStock: req.body.inStock,
     };
     let product = await Product.create(obj);
-    console.log(product);
-    res.json({ data: product });
+    // console.log(product);
+    // res.json({ data: product });
+    res.json({ product });
   } catch (err) {
     res.json({ status: 500, msg: err });
   }
@@ -72,14 +74,13 @@ const getProducts = asyncHandler(async (req, res) => {
     if (!storeid) {
       return res.status(500).json({ msg: "Authentication Failed" });
     }
-    const store = await Store.find({ _id: storeid.id.toString() });
+    // const store = await Store.findById(storeid.id);
     // if (store.isApproved == false) {
     //   return res.status(500).json("Registeration approval pending by admin");
     // }
-    let categoryId = req.params.categoryId;
     let products = await Product.find({
       vendorId: storeid.id,
-      category: categoryId,
+      subcategory: req.params.categoryName,
     });
     res.status(200).json({ products });
   } catch (err) {
@@ -94,11 +95,11 @@ const updateProduct = asyncHandler(async (req, res) => {
     if (!storeid) {
       return res.status(500).json({ msg: "Authentication Failed" });
     }
-    const store = await Store.find({ _id: storeid.id.toString() });
+    // const store = await Store.find({ _id: storeid.id.toString() });
     // if (store.isApproved == false) {
     //   return res.status(500).json("Registeration approval pending by admin");
     // }
-    let exists = await Product.findById({ _id: req.params.productId });
+    let exists = await Product.findById(req.params.productId);
     if (exists) {
       exists.name = req.body.name || exists.name;
       exists.price = req.body.price || exists.price;
@@ -106,8 +107,8 @@ const updateProduct = asyncHandler(async (req, res) => {
       exists.unit = req.body.unit || exists.unit;
       exists.discount = req.body.discount || exists.discount;
       exists.inStock = req.body.inStock || exists.inStock;
-      let product = await exists.save();
-      res.json("Product Updated");
+      await exists.save();
+      res.status(200).json("Product Updated");
     } else {
       res.status(404).json({ status: 404, msg: "Product not found" });
     }
@@ -123,11 +124,11 @@ const deleteProduct = asyncHandler(async (req, res) => {
     if (!storeid) {
       return res.status(500).json({ msg: "Authentication Failed" });
     }
-    const store = await Store.find({ _id: storeid.id.toString() });
+    // const store = await Store.findById(storeid.id);
     // if (store.isApproved == false) {
     //   return res.status(500).json("Registeration approval pending by admin");
     // }
-    let product = await Product.findById({ _id: req.params.productId });
+    let product = await Product.findById(req.params.productId);
     if (product) {
       await Product.deleteOne({ _id: req.params.productId });
       return res.status(200).json("Product Deleted");
@@ -139,7 +140,6 @@ const deleteProduct = asyncHandler(async (req, res) => {
 });
 
 module.exports = {
-  addCategory,
   addProduct,
   getProducts,
   updateProduct,

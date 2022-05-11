@@ -55,10 +55,11 @@ const uploadMulti = multer({
 });
 
 router.post("/", upload.single("image"), (req, res) => {
+  console.log(req.file);
   res.json({ imagedata: `${req.file.path}` });
 });
 
-router.post("/products", uploadMulti.array("image", 4), (req, res) => {
+router.post("/products", uploadMulti.array("image", 5), (req, res) => {
   res.send({ imagedata: req.file });
 });
 
