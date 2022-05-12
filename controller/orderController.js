@@ -14,8 +14,14 @@ exports.fetchReviews = asyncHandler(async (req, res) => {
     if (!storeid) {
       return res.json("Authentication Failed");
     }
-    const reviews = await Reviews.find({ vendorId: storeid.id });
-    res.status(200).json(reviews);
+    const reviews = await Reviews.find({ vendorId: storeid.id }).populate([
+      {
+        path: "userId",
+        model: "User",
+        select: "_id name",
+      },
+    ]);
+    res.status(200).json({ reviews });
   } catch (error) {
     res.status(500).json({ msg: error });
   }
@@ -64,17 +70,30 @@ exports.getallorders = asyncHandler(async (req, res) => {
 });
 exports.updateOrderStatus = asyncHandler(async (req, res) => {
   try {
+    console.log(req.headers, "111");
     let token = req.headers.authorization.split(" ")[1];
     let storeid = jwt.verify(token, process.env.JWT_SECRET);
     if (!storeid) {
       return res.status(500).json("Authnetication Failed");
     }
-    // const store = await Store.find({ _id: storeid.id.toString() });
-    // if (store.isApproved == false) {
-    //   return res.status(500).json("Registeration approval pending by admin");
-    // }
     const order = await Order.findById(req.params.orderId);
     order.status = "Order Accepted";
+    await order.save();
+    res.status(200).json("Order Accepted By Store");
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ msg: error });
+  }
+});
+exports.declineOrderStatus = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let storeid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!storeid) {
+      return res.status(500).json("Authnetication Failed");
+    }
+    const order = await Order.findById(req.params.orderId);
+    order.status = "Order Declined";
     await order.save();
     res.status(200).json("Order Accepted By Store");
   } catch (error) {

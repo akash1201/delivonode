@@ -178,6 +178,11 @@ const myorders = asyncHandler(async (req, res) => {
         model: "Store",
         select: "_id categories storeName address lattitude longitude",
       },
+      {
+        path: "userId",
+        model: "User",
+        select: "_id name lastName",
+      },
     ]);
     res.status(200).json({ orders, date: "20 June", time: "11:35 am" });
   } catch (error) {

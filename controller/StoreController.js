@@ -79,10 +79,12 @@ const login = asyncHandler(async (req, res) => {
     }
     if (await store.matchPassword(password)) {
       store.password = null;
+      let categories = store.categories;
       res.json({
         _id: store._id,
         token: generateToken(store._id),
         store,
+        categories,
       });
     } else {
       res.status(500).json({ message: `Password didn't match`, status: 500 });

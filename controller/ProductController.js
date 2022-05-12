@@ -9,31 +9,6 @@ const jwt = require("jsonwebtoken");
 const Product = require("../models/Products.js");
 const Store = require("../models/Store.js");
 
-// const addCategory = asyncHandler(async (req, res) => {
-//   try {
-//     let token = req.headers.authorization.split(" ")[1];
-//     let storeid = jwt.verify(token, process.env.JWT_SECRET);
-//     if (!storeid) {
-//       return res.status(500).json({ msg: "Authentication Failed" });
-//     }
-//     const store = await Store.find({ _id: storeid.id.toString() });
-//     if (store.isApproved == false) {
-//       return res.status(500).json("Registeration approval pending by admin");
-//     }
-//     // let categoryexists = await Category.find({ name: req.body.name });
-
-//     // console.log(categoryexists);
-//     // if (categoryexists) {
-//     //   return res.status(500).json("Category Already Exists");
-//     // }
-//     let category = await Category.create(req.body);
-//     res.status(200).json("New category Added");
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).json({ error });
-//   }
-// });
-
 const addProduct = asyncHandler(async (req, res) => {
   try {
     let token = req.headers.authorization.split(" ")[1];
@@ -41,11 +16,6 @@ const addProduct = asyncHandler(async (req, res) => {
     if (!storeid) {
       return res.status(500).json({ msg: "Authentication Failed" });
     }
-    // const store = await Store.find({ _id: storeid.id.toString() });
-    // if (store.isApproved == false) {
-    //   return res.status(500).json("Registeration approval pending by admin");
-    // }
-
     let obj = {
       name: req.body.name,
       image: req.body.image,
@@ -59,9 +29,7 @@ const addProduct = asyncHandler(async (req, res) => {
       inStock: req.body.inStock,
     };
     let product = await Product.create(obj);
-    // console.log(product);
-    // res.json({ data: product });
-    res.json({ product });
+    res.status(200).json({ product });
   } catch (err) {
     res.json({ status: 500, msg: err });
   }
@@ -74,15 +42,62 @@ const getProducts = asyncHandler(async (req, res) => {
     if (!storeid) {
       return res.status(500).json({ msg: "Authentication Failed" });
     }
-    // const store = await Store.findById(storeid.id);
-    // if (store.isApproved == false) {
-    //   return res.status(500).json("Registeration approval pending by admin");
-    // }
     let products = await Product.find({
       vendorId: storeid.id,
-      subcategory: req.params.categoryName,
+      category: req.params.categoryName,
     });
     res.status(200).json({ products });
+  } catch (err) {
+    res.json({ status: 500, msg: err });
+  }
+});
+const getSubcategories = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let storeid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!storeid) {
+      return res.status(500).json({ msg: "Authentication Failed" });
+    }
+    let store = await Store.findById(storeid.id);
+    let mycategory = store.categories;
+    if (mycategory === "Vegetables & Fruits") {
+      let subCategory = [
+        "Green-Vegetable",
+        "Summer-Fruits",
+        "Winter-Vegetables",
+        "Herbs",
+      ];
+      res.status(200).json({ subCategory });
+    }
+    if (mycategory === "Meat & Fish") {
+      let subCategory = ["Latin-Fish", "Prawns"];
+      res.status(200).json({ subCategory });
+    }
+    if (mycategory === "Pet Supplies") {
+      let subCategory = ["Dog-Supplies", "Cat-Supplies", "Bones", "Belt"];
+      res.status(200).json({ subCategory });
+    }
+    if (mycategory === "Pharma Medicines") {
+      let subCategory = [
+        "Vitamin-Supplements",
+        "Bandages",
+        "Energy-Drink",
+        "Thyroid",
+      ];
+      res.status(200).json({ subCategory });
+    }
+    if (mycategory === "Food & Meals") {
+      let subCategory = [
+        "Chinese-Food",
+        "Continental",
+        "Thai",
+        "Italian",
+        "Indian",
+      ];
+      res.status(200).json({ subCategory });
+    } else {
+      res.status(500).json("Choose coorect category");
+    }
   } catch (err) {
     res.json({ status: 500, msg: err });
   }
@@ -142,6 +157,7 @@ const deleteProduct = asyncHandler(async (req, res) => {
 module.exports = {
   addProduct,
   getProducts,
+  getSubcategories,
   updateProduct,
   deleteProduct,
 };
