@@ -96,7 +96,7 @@ const myAddress = asyncHandler(async (req, res) => {
   try {
     let token = req.headers.authorization.split(" ")[1];
     let userid = jwt.verify(token, process.env.JWT_SECRET);
-    const myaddress = await Address.find({ userId: userid.id.toString() });
+    const myaddress = await Address.findById(userid.id);
     res.json({ status: 200, myaddress });
   } catch (error) {
     console.error(error);
@@ -117,6 +117,32 @@ const terms = asyncHandler(async (req, res) => {
     let companypolicy =
       "jhbfwekfh,wekcbz,nmcbdkhfwuefgdjvb,mcnkjshdjc shgduilhilf ksdhfiuwhf shfuihwfc  kushfkjw";
     res.json({ termsofuse, companypolicy });
+  } catch (error) {
+    res.status(500).json({ status: 500, msg: error });
+  }
+});
+const wallet = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let userid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!userid) {
+      return res.status(500).json({ msg: "User not found" });
+    }
+    const orders = await Order.find({ userId: userid.id, status: "Delivered" });
+    res.json({ availableBalance: "$ 114", orders });
+  } catch (error) {
+    res.status(500).json({ status: 500, msg: error });
+  }
+});
+const myaccount = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let userid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!userid) {
+      return res.status(500).json({ msg: "User not found" });
+    }
+    const user = await User.findById(userid.id);
+    res.json({ user });
   } catch (error) {
     res.status(500).json({ status: 500, msg: error });
   }
@@ -183,6 +209,11 @@ const myorders = asyncHandler(async (req, res) => {
         model: "User",
         select: "_id name lastName",
       },
+      {
+        path: "deliveryPartner",
+        model: "Delivery",
+        select: "_id name",
+      },
     ]);
     res.status(200).json({ orders, date: "20 June", time: "11:35 am" });
   } catch (error) {
@@ -234,7 +265,7 @@ const placeOrder = asyncHandler(async (req, res) => {
   try {
     let token = req.headers.authorization.split(" ")[1];
     let userid = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findOne({ _id: userid.id });
+    const user = await User.findById(userid.id);
     if (!user) {
       return res.status(500).json({ status: 500, msg: "User not Found" });
     }
@@ -242,7 +273,6 @@ const placeOrder = asyncHandler(async (req, res) => {
       userId: userid.id,
       status: "shopping",
     });
-    console.log(cart);
     let subTotal = 0;
     cart.products.forEach((ele) => (subTotal += ele.price));
     const serviceFee = (subTotal / 100) * 15;
@@ -255,22 +285,12 @@ const placeOrder = asyncHandler(async (req, res) => {
     let obj = {
       userId: userid.id,
       products: cart.products,
-      vendorId: req.body.vendorId,
+      vendorId: cart.vendorId,
       status: "Order Placed",
       Total: Total,
       address: req.body.address,
-      deliveryPartner: "George Anderson",
     };
     const newOrder = await Order.create(obj);
-    // const delivery = await Delivery.find({ isAvailable: true });
-    // let item = Math.floor(Math.random() * delivery.length);
-    // console.log(delivery[item]);
-    // newOrder.deliveryAgent = delivery[item].name;
-    // newOrder.isDeliveryAgentAssigned = true;
-    // newOrder.deliveryboyId = delivery[item]._id.toString();
-    // delivery[item].orderReference = newOrder._id.toString();
-    // await delivery[item].save();
-    // await newOrder.save();
     res.status(200).json("Order Placed Successfully");
   } catch (error) {
     res.status(500).json({ error });
@@ -338,6 +358,7 @@ const addtoCart = asyncHandler(async (req, res) => {
       const newProduct = {
         productId: req.params.productid,
         quantity: 1,
+        // can change this quantity
         price: currProduct.price,
       };
       const newCart = await Cart.create({
@@ -383,20 +404,34 @@ const viewCart = asyncHandler(async (req, res) => {
     }
     const cartexists = await Cart.find({
       userId: userid.id,
-      status: "shopping",
+      status: "Order Placed",
     }).populate([
       {
         path: "products.productId",
         model: "Product",
         select: "_id name price image qty unit",
       },
+      {
+        path: "vendorId",
+        model: "Store",
+        select: "_id storeName",
+      },
+      // {
+      //   path: "userId",
+      //   model: "User",
+      //   select: "_id name",
+      // },
     ]);
     console.log(cartexists[0].products);
     let subTotal = 0;
     cartexists[0].products.forEach((ele) => (subTotal += ele.price));
     const serviceFee = (subTotal / 100) * 15;
     const Total = subTotal + serviceFee;
-    res.status(200).json({ cartexists, subTotal, serviceFee, Total });
+    const productCart = cartexists[0];
+    const storename = cartexists[0].vendorId.storeName;
+    res
+      .status(200)
+      .json({ productCart, storename, subTotal, serviceFee, Total });
   } catch (error) {
     res.status(500).json({ error });
   }
@@ -449,6 +484,7 @@ const fetchCategories = asyncHandler(async (req, res) => {
     if (!userid) {
       return res.json("Login to continue");
     }
+    let category = [];
     const categories = await Category.distinct("name");
     res.status(200).json({ categories });
   } catch (error) {
@@ -505,4 +541,6 @@ module.exports = {
   fetchBycategory,
   fetchProducts,
   placeOrder,
+  wallet,
+  myaccount,
 };

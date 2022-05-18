@@ -5,6 +5,7 @@ const Order = require("../models/Orders");
 const Reviews = require("../models/Reviews");
 const Product = require("../models/Products.js");
 const Store = require("../models/Store.js");
+const Delivery = require("../models/Delivery.js");
 
 // Fetch Reviews (Get req)
 exports.fetchReviews = asyncHandler(async (req, res) => {
@@ -79,6 +80,13 @@ exports.updateOrderStatus = asyncHandler(async (req, res) => {
     const order = await Order.findById(req.params.orderId);
     order.status = "Order Accepted";
     await order.save();
+    const delivery = await Delivery.find({ isAvailable: true });
+    const deliveryman = delivery[Math.floor(Math.random() * delivery.length)];
+    const orderAssignedTo = await Delivery.findById(deliveryman._id);
+    order.deliveryPartner = deliveryman._id;
+    orderAssignedTo.isAvailable = false;
+    orderAssignedTo.status = "Assigned";
+    await orderAssignedTo.save();
     res.status(200).json("Order Accepted By Store");
   } catch (error) {
     console.log(error);

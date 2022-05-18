@@ -162,6 +162,22 @@ const viewVendors = asyncHandler(async (req, res) => {
   }
 });
 
+// View Particular Vendor
+const viewParticularVendor = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let adminid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!adminid) {
+      return res.json("Login to continue");
+    }
+    const vendor = await Store.findById(req.params.vendorId);
+    // Can add a query to show only approved vendors
+    res.status(200).json({ vendor });
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+
 // Approve Vendors
 const approveVendors = asyncHandler(async (req, res) => {
   try {
@@ -170,11 +186,11 @@ const approveVendors = asyncHandler(async (req, res) => {
     if (!adminid) {
       return res.json("Login to continue");
     }
-    const vendor = await Store.find({ _id: req.params.storeId.toString() });
+    const vendor = await Store.findById(req.params.vendorId);
     vendor.isApproved = true;
-    await Promise.all([
-      sendMail("Your registration request has been approved", vendor.email),
-    ]);
+    // await Promise.all([
+    //   sendMail("Your registration request has been approved", vendor.email),
+    // ]);
     await vendor.save();
     res.status(200).json("Vendor Registration Approved");
   } catch (error) {
@@ -190,11 +206,11 @@ const disapproveVendors = asyncHandler(async (req, res) => {
     if (!adminid) {
       return res.json("Login to continue");
     }
-    const vendor = await Store.find({ _id: req.params.storeId.toString() });
+    const vendor = await Store.findById(req.params.vendorId);
     vendor.isApproved = false;
-    await Promise.all([
-      sendMail("Your registration request was not approved", vendor.email),
-    ]);
+    // await Promise.all([
+    //   sendMail("Your registration request was not approved", vendor.email),
+    // ]);
     await vendor.save();
     res.status(200).json("Vendor Registration was disapproved");
   } catch (error) {
@@ -248,15 +264,13 @@ const approveDelivery = asyncHandler(async (req, res) => {
     if (!adminid) {
       return res.json("Login to continue");
     }
-    const delivery = await Delivery.find({
-      _id: req.params.deliveryId.toString(),
-    });
-    console.log(delivery);
+    const delivery = await Delivery.findById(req.params.deliveryId);
+
     delivery.isApproved = true;
-    console.log(delivery);
-    await Promise.all([
-      sendMail("Your registration request has been approved", delivery.email),
-    ]);
+
+    // await Promise.all([
+    //   sendMail("Your registration request has been approved", delivery.email),
+    // ]);
     await delivery.save();
     res.status(200).json("Delivery Person Approved");
   } catch (error) {
@@ -272,13 +286,11 @@ const disapproveDelivery = asyncHandler(async (req, res) => {
     if (!adminid) {
       return res.json("Login to continue");
     }
-    const delivery = await Delivery.find({
-      _id: req.params.deliveryId.toString(),
-    });
+    const delivery = await Delivery.findById(req.params.deliveryId);
     delivery.isApproved = false;
-    await Promise.all([
-      sendMail("Your registration request was not approved", delivery.email),
-    ]);
+    // await Promise.all([
+    //   sendMail("Your registration request was not approved", delivery.email),
+    // ]);
     await delivery.save();
     res.status(200).json("Delivery Registration was disapproved");
   } catch (error) {
@@ -377,4 +389,5 @@ module.exports = {
   viewCustomers,
   viewComplaints,
   addressComplaints,
+  viewParticularVendor,
 };

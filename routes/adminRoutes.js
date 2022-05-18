@@ -14,6 +14,7 @@ const {
   viewDelivery,
   approveDelivery,
   disapproveDelivery,
+  viewParticularVendor,
   removeDelivery,
   viewCustomers,
   viewComplaints,
@@ -31,14 +32,15 @@ router.post(`/updateCategory`, updateCategory);
 router.post(`/createCoupons`, createCoupons);
 router.put(`/deleteCoupons/:couponId`, deleteCoupons);
 router.get("/viewVendors", viewVendors);
+router.get(`/viewParticularVendor/:vendorId`, viewParticularVendor);
 router.get("/viewDelivery", viewDelivery);
 router.get("/viewCustomers", viewCustomers);
 router.get("/viewComplaints", viewComplaints);
 router.put(`/removeVendor/:vendorId`, removeVendor);
 router.put(`/removeDelivery/:deliveryId`, removeDelivery);
 router.put(`/addressComplaints/:complaintId`, addressComplaints);
-router.put(`/approveVendors/:vendorId`, approveVendors);
-router.put(`/approveDelivery/:deliveryId`, approveDelivery);
-router.put(`/disapproveVendors/:vendorId`, disapproveVendors);
-router.put(`/disapproveDelivery/:deliveryId`, disapproveDelivery);
+router.post(`/approveVendors/:vendorId`, approveVendors);
+router.post(`/approveDelivery/:deliveryId`, approveDelivery);
+router.post(`/disapproveVendors/:vendorId`, disapproveVendors);
+router.post(`/disapproveDelivery/:deliveryId`, disapproveDelivery);
 module.exports = router;

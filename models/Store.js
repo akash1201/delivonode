@@ -31,6 +31,15 @@ const StoreSchema = mongoose.Schema({
     type: Number,
     required: true,
   },
+  openingTime: {
+    type: String,
+    required: true,
+  },
+  closingTime: {
+    type: String,
+    required: true,
+  },
+
   gst: { type: String, minlength: 15, unique: true, required: false },
   ownerAadhar: { type: String, required: true, unique: true, minlength: 12 },
   ownerPan: { type: String, required: true, unique: true, minlength: 10 },
@@ -45,7 +54,6 @@ const StoreSchema = mongoose.Schema({
   categories: { type: String, required: true },
   services: { type: String, required: true },
   active: { type: Boolean, default: true },
-  // document: { type: String, required: true },
   cancelledCheque: { type: String, required: true },
   uploadAadharfront: { type: String, required: true },
   uploadMenu: { type: String, required: true },
@@ -59,17 +67,7 @@ const StoreSchema = mongoose.Schema({
   // uploadAadharback: { type: Buffer, contentType: String, required: true },
   // uploadGSTcertificate: { type: Buffer, contentType: String, required: false },
   // uploadPan: { type: Buffer, contentType: String, required: true },
-  // location: {
-  //   type: {
-  //     type: String,
-  //     enum: ["Point"],
-  //   },
-  //   coordinates: {
-  //     type: [Number],
-  //     index: "2dsphere",
-  //   },
-  //   formattedAddress: String,
-  // },
+  
 });
 
 StoreSchema.methods.matchPassword = async function (enteredPassword) {

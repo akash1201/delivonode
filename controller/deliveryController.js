@@ -15,6 +15,7 @@ const register = asyncHandler(async (req, res) => {
         .json({ msg: "User already exists,please try to login" });
     } else {
       let delivery = await Delivery.create(req.body);
+      delivery.password = null;
       res.status(200).json({
         _id: delivery._id,
         token: generateToken(delivery._id),
@@ -60,9 +61,9 @@ const terms = asyncHandler(async (req, res) => {
       return res.status(500).json({ msg: "User not found" });
     }
     const delivery = await Delivery.find({ _id: deliveryid.id.toString() });
-    if (delivery.isApproved == false) {
-      return res.status(500).json("Registeration approval pending by admin");
-    }
+    // if (delivery.isApproved == false) {
+    //   return res.status(500).json("Registeration approval pending by admin");
+    // }
     let termsofuse =
       "lorem kwhfiuhwoilfc hfiuwk wehfiwehd wiehfkwenf wiehdfjkmd wehfuih fhirukhk ";
     let companypolicy =
@@ -73,23 +74,47 @@ const terms = asyncHandler(async (req, res) => {
   }
 });
 
+// Go Offline
+const goOffline = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let deliveryid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!deliveryid) {
+      return res.status(500).json({ msg: "User not found" });
+    }
+    let delivery = await Delivery.findById(deliveryid.id);
+    // if (delivery.isApproved == false) {
+    //   return res.status(500).json("Registeration approval pending by admin");
+    // }
+    delivery.isAvailable = false;
+    delivery.status = "Not Available";
+    await delivery.save();
+    res.status(200).json("Offline");
+  } catch (error) {
+    res.status(500).json({ msg: "Internal server error" });
+  }
+});
 // Assigned Order
 const assigned = asyncHandler(async (req, res) => {
   try {
     let token = req.headers.authorization.split(" ")[1];
     let deliveryid = jwt.verify(token, process.env.JWT_SECRET);
-    const delivery = await Delivery.findOne({ _id: deliveryid.id.toString() });
-    if (delivery.isApproved == false) {
-      return res.status(500).json("Registeration approval pending by admin");
-    }
+    const delivery = await Delivery.findById(deliveryid.id);
     if ((delivery.isAvailable = false)) {
-      const order = await Order.findOne({
-        _id: delivery.orderReference.toString(),
-      });
-      if ((order.orderAccepted = true)) {
-        const location = order.location.coordinates;
-        res.status(200).json({ order, location });
-      }
+      let order = await Order.findOne({
+        deliveryPartner: deliveryid.id,
+        status: "Order Accepted",
+      }).populate([
+        {
+          path: "vendorId",
+          model: "Store",
+          select: "_id storeName address",
+        },
+      ]);
+      let deliveryaddress = order.address;
+      let storeaddress = order.vendorId.address;
+      let storename = order.vendorId.storeName;
+      return res.status(200).json({ deliveryaddress, storeaddress, storename });
     }
   } catch (error) {
     res.status(500).json({ msg: "Internal server error" });
@@ -104,23 +129,37 @@ const accepted = asyncHandler(async (req, res) => {
     if (!deliveryid) {
       return res.status(500).json({ msg: "User not found" });
     }
-    let delivery = await Delivery.findOne({ _id: deliveryid.id.toString() });
-    if (delivery.isApproved == false) {
-      return res.status(500).json("Registeration approval pending by admin");
+    let delivery = await Delivery.findById(deliveryid.id);
+    if ((delivery.isAvailable = false)) {
+      let order = await Order.findOne({
+        deliveryPartner: deliveryid.id,
+        status: "Order Accepted",
+      }).populate([
+        {
+          path: "vendorId",
+          model: "Store",
+          select: "_id storeName address",
+        },
+        {
+          path: "products.productId",
+          model: "Product",
+          select: "_id price image qty unit name",
+        },
+      ]);
+      delivery.status = "Accepted";
+      delivery.orderReference = order._id;
+      await delivery.save();
+      order.status = "Pickup Arranged";
+      let deliveryaddress = order.address;
+      let storeaddress = order.vendorId.address;
+      await order.save();
+      let products = order.products;
+      return res.status(200).json({ products, deliveryaddress, storeaddress });
     }
-    let order = await Order.findOne({
-      _id: delivery.orderReference.toString(),
-    });
-    delivery.isAvailable = false;
-    await delivery.save();
-    order.orderAccepted = true;
-    await order.save();
-    res.status(200).json("Order Accepted");
   } catch (error) {
     res.status(500).json({ msg: "Internal server error" });
   }
 });
-
 // Marked as Picked
 const picked = asyncHandler(async (req, res) => {
   try {
@@ -129,18 +168,68 @@ const picked = asyncHandler(async (req, res) => {
     if (!deliveryid) {
       return res.status(500).json({ msg: "User not found" });
     }
-    let delivery = await Delivery.findOne({ _id: deliveryid.id.toString() });
-    if (delivery.isApproved == false) {
-      return res.status(500).json("Registeration approval pending by admin");
+    let delivery = await Delivery.findById(deliveryid.id);
+    if ((delivery.isAvailable = false)) {
+      let order = await Order.findOne({
+        deliveryPartner: deliveryid.id,
+        status: "Pickup Arranged",
+      }).populate([
+        {
+          path: "vendorId",
+          model: "Store",
+          select: "_id storeName address",
+        },
+      ]);
+      delivery.status = "Picked";
+      await delivery.save();
+      order.status = "Out for Delivery";
+      await order.save();
+      let deliveryaddress = order.address;
+      let storeaddress = order.vendorId.address;
+      return res.status(200).json({ deliveryaddress, storeaddress });
     }
-    let order = await Order.findOne({
-      _id: delivery.orderReference.toString(),
-    });
-    delivery.isPicked = true;
+  } catch (error) {
+    res.status(500).json({ msg: "Internal server error" });
+  }
+});
+
+// Marked as Delivered
+const delivered = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let deliveryid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!deliveryid) {
+      return res.status(500).json({ msg: "User not found" });
+    }
+    let delivery = await Delivery.findById(deliveryid.id);
+    if ((delivery.isAvailable = false)) {
+      let order = await Order.findOne({
+        deliveryPartner: deliveryid.id,
+        status: "Out for Delivery",
+      });
+      order.status = "Delivered";
+      await order.save();
+      delivery.status = "Delivered";
+      delivery.isAvailable = true;
+      await delivery.save();
+      return res.status(200).json("Order Delivered");
+    }
+  } catch (error) {
+    res.status(500).json({ msg: "Internal server error" });
+  }
+});
+
+// Current Delivery
+const currDelivery = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let deliveryid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!deliveryid) {
+      return res.status(500).json({ msg: "User not found" });
+    }
+    let delivery = await Delivery.findById(deliveryid.id);
     await delivery.save();
-    order.isPicked = true;
-    await order.save();
-    res.status(200).json("Order Picked");
+    return res.status(200).json("Order Delivered");
   } catch (error) {
     res.status(500).json({ msg: "Internal server error" });
   }
@@ -154,33 +243,24 @@ const ordersDelivered = asyncHandler(async (req, res) => {
     if (!deliveryid) {
       return res.status(500).json({ msg: "User not found" });
     }
-    let delivery = await Delivery.findOne({ _id: deliveryid.id.toString() });
-    if (delivery.isApproved == false) {
-      return res.status(500).json("Registeration approval pending by admin");
-    }
-    let orders = await Order.find({ deliveryboyId: deliveryid.id.toString() });
-    res.status(200).json({ order: orders.length() });
+    let delivery = await Delivery.findById(deliveryid.id);
+    // if (delivery.isApproved == false) {
+    //   return res.status(500).json("Registeration approval pending by admin");
+    // }
+    let orders = await Order.findOne({
+      deliveryPartner: deliveryid.id,
+      status: "Delivered",
+    }).populate([
+      {
+        path: "products.productId",
+        model: "Product",
+        select: "_id price image qty unit name",
+      },
+    ]);
+    let order = orders.length;
+    res.status(200).json({ order, orders });
   } catch (error) {
     res.status(500).json({ msg: "Internal server error" });
-  }
-});
-
-// Send Location to display Map
-const showMap = asyncHandler(async (req, res) => {
-  try {
-    let token = req.headers.authorization.split(" ")[1];
-    let deliveryid = jwt.verify(token, process.env.JWT_SECRET);
-    if (!deliveryid) {
-      return res.status(500).json({ msg: "Authentication Failed" });
-    }
-    let delivery = await Delivery.findById(deliveryid.id);
-    if (delivery.isApproved == false) {
-      return res.status(500).json("Registeration approval pending by admin");
-    }
-    let location = store.location.coordinates;
-    res.status(200).json({ location });
-  } catch (error) {
-    res.status(500).json({ error });
   }
 });
 
@@ -191,5 +271,6 @@ module.exports = {
   accepted,
   picked,
   assigned,
+  goOffline,
   ordersDelivered,
 };

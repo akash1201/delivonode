@@ -5,12 +5,12 @@ const bcrypt = require("bcryptjs");
 
 const geocoder = require("../utils/geocoder.js");
 const Address = mongoose.Schema({
-  address1: { type: String, required: true },
-  address2: { type: String },
+  streetName: { type: String, required: true },
+  streetNumber: { type: String },
   city: { type: String, required: true },
-  country: { type: String, required: true },
-  state: { type: String, required: true },
-  zip: { type: String, required: true },
+  countryCode: { type: String, required: true },
+  stateCode: { type: String, required: true },
+  zipcode: { type: String, required: true },
 });
 
 const userSchema = mongoose.Schema(

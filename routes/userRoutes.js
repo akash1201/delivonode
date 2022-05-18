@@ -23,6 +23,8 @@ const {
   fetchBycategory,
   fetchProducts,
   placeOrder,
+  wallet,
+  myaccount,
 } = require("../controller/userController");
 const { protect } = require("../middleware/authMiddleware.js");
 
@@ -32,6 +34,8 @@ router.post("/register", register);
 router.post("/login", login);
 router.get(`/fetchCoupons`, fetchCoupons);
 router.get(`/fetchCategories`, fetchCategories);
+router.get(`/wallet`, wallet);
+router.get(`/myaccount`, myaccount);
 router.get(`/fetchsubCategories/:categoryName`, fetchsubCategories);
 router.post(`/addtoCart/:productid`, addtoCart);
 router.get(`/viewCart`, viewCart);

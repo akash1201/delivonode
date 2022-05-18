@@ -69,10 +69,9 @@ const OrderSchema = mongoose.Schema(
     //   type: Boolean,
     //   default: false,
     // },
-    // deliveryPartner: {
-    //   type: String,
-    //   required: true,
-    // },
+    deliveryPartner: {
+      type: String,
+    },
     address: {
       type: Object,
       required: true,
