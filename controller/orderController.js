@@ -103,7 +103,7 @@ exports.declineOrderStatus = asyncHandler(async (req, res) => {
     const order = await Order.findById(req.params.orderId);
     order.status = "Order Declined";
     await order.save();
-    res.status(200).json("Order Accepted By Store");
+    res.status(200).json("Order Declined By Store");
   } catch (error) {
     console.log(error);
     res.status(500).json({ msg: error });

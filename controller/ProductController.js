@@ -26,7 +26,6 @@ const addProduct = asyncHandler(async (req, res) => {
       qty: req.body.qty,
       unit: req.body.unit,
       discount: req.body.discount,
-      inStock: req.body.inStock,
     };
     let product = await Product.create(obj);
     res.status(200).json({ product });
@@ -143,13 +142,11 @@ const deleteProduct = asyncHandler(async (req, res) => {
     // if (store.isApproved == false) {
     //   return res.status(500).json("Registeration approval pending by admin");
     // }
-    let product = await Product.findById(req.params.productId);
-    if (product) {
-      await Product.deleteOne({ _id: req.params.productId });
-      return res.status(200).json("Product Deleted");
-    }
-    res.status(404).json("Product not found");
+    // let product = await Product.findById(req.params.productId);
+    await Product.deleteOne({ _id: req.params.productId.toString() });
+    return res.status(200).json("Product Deleted");
   } catch (err) {
+    console.log(err);
     res.status(400).json({ err });
   }
 });

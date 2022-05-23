@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 //import bcrypt from "bcryptjs";
 const bcrypt = require("bcryptjs");
 
-const geocoder = require("../utils/geocoder.js");
+// const geocoder = require("../utils/geocoder.js");
 const Address = mongoose.Schema({
   streetName: { type: String, required: true },
   streetNumber: { type: String },
@@ -34,7 +34,6 @@ const userSchema = mongoose.Schema(
     phoneNo: {
       type: Number,
       required: true,
-      unique: true,
     },
     address: Address,
     password: {
@@ -61,5 +60,4 @@ userSchema.pre("save", async function (next) {
 });
 
 const User = mongoose.model("User", userSchema);
-
 module.exports = User;

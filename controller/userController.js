@@ -30,23 +30,21 @@ const register = asyncHandler(async (req, res) => {
       let address = await Address.create({
         userId: user._id,
         addressType: "Home",
-        phoneNo: user.phoneNo,
-        address1: user.address.address1,
-        address2: user.address.address2,
+        streetName: user.address.streetName,
+        streetNumber: user.address.streetNumber,
         city: user.address.city,
-        country: user.address.country,
-        zip: user.address.zip,
-        state: user.address.state,
+        countryCode: user.address.countryCode,
+        zipCode: user.address.zipCode,
+        stateCode: user.address.stateCode,
       });
+      user.password = null;
       res.json({
         _id: user._id,
         token: generateToken(user._id),
         user: user,
-        address: address,
       });
     }
   } catch (error) {
-    console.error(error);
     res.status(500).json({ msg: "Internal server error" });
   }
 });

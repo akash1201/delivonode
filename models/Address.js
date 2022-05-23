@@ -9,15 +9,12 @@ const AddressSchema = mongoose.Schema({
     ref: "User",
   },
   addressType: { type: String, required: true },
-  phoneNo: { type: String, required: true },
-  address1: { type: String, required: true },
-  address2: { type: String },
+  streetName: { type: String, required: true },
+  streetNumber: { type: String },
   city: { type: String, required: true },
-  country: { type: String, required: true },
-  state: { type: String, required: true },
-  zip: { type: String, required: true },
-  //   longitude: { type: String, required: true },
-  //   latitude: { type: String, required: true },
+  countryCode: { type: String, required: true },
+  stateCode: { type: String, required: true },
+  zipcode: { type: String, required: true },
 });
 
 const Address = mongoose.model("Address", AddressSchema);
