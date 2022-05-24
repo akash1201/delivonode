@@ -83,7 +83,6 @@ const login = asyncHandler(async (req, res) => {
       res.json({
         _id: store._id,
         token: generateToken(store._id),
-        store,
         categories,
       });
     } else {
@@ -101,7 +100,7 @@ const registerStore = asyncHandler(async (req, res) => {
     let { email } = req.body;
     let emailExists = await Store.findOne({ email: email });
     if (emailExists) {
-      res.status(500).json({ message: "Email already in use" });
+      return res.status(500).json({ message: "Email already in use" });
     } else {
       let store = await Store.create(req.body);
       store.password = null;

@@ -27,21 +27,24 @@ const register = asyncHandler(async (req, res) => {
       let user = await User.create(req.body);
       console.log(user);
       // Adding an address simultaneously while creating user.
-      let address = await Address.create({
-        userId: user._id,
+      let obj = {
+        userId: user._id.toString(),
         addressType: "Home",
         streetName: user.address.streetName,
         streetNumber: user.address.streetNumber,
         city: user.address.city,
         countryCode: user.address.countryCode,
-        zipCode: user.address.zipCode,
+        zipcode: user.address.zipcode,
         stateCode: user.address.stateCode,
-      });
+      };
+
+      let addressss = await Address.create(obj);
+
       user.password = null;
+
       res.json({
         _id: user._id,
         token: generateToken(user._id),
-        user: user,
       });
     }
   } catch (error) {
@@ -176,12 +179,15 @@ const addReview = asyncHandler(async (req, res) => {
     if (!userid) {
       return res.json("User not found");
     }
-    const newReview = new Reviews({
+    console.log(userid.id);
+    let obj = {
       userId: userid.id,
       vendorId: req.body.vendorId,
       rating: req.body.rating,
       comment: req.body.comment,
-    });
+    };
+    let newReview = await Reviews.create(obj);
+    console.log(newReview);
     res.status(200).json("New Review Added");
   } catch (error) {
     res.status(500).json({ msg: error });
@@ -278,7 +284,6 @@ const placeOrder = asyncHandler(async (req, res) => {
     console.log(Total, "6531");
     cart.status = "Order Placed";
     await cart.save();
-    console.log(cart);
 
     let obj = {
       userId: userid.id,
