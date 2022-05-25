@@ -127,6 +127,36 @@ const createCoupons = asyncHandler(async (req, res) => {
     res.status(500).json({ error });
   }
 });
+// view Coupons
+const viewCoupon = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let adminid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!adminid) {
+      return res.json("Login to continue");
+    }
+
+    const coupon = await Coupons.find();
+    res.status(200).json({ coupon });
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+// view Category
+const viewCategory = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let adminid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!adminid) {
+      return res.json("Login to continue");
+    }
+    const category = await Category.find();
+    res.status(200).json({ category });
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+
 // Delete Coupons
 const deleteCoupons = asyncHandler(async (req, res) => {
   try {
@@ -390,4 +420,6 @@ module.exports = {
   viewComplaints,
   addressComplaints,
   viewParticularVendor,
+  viewCoupon,
+  viewCategory,
 };

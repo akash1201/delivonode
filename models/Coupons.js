@@ -14,7 +14,6 @@ const CouponsSchema = mongoose.Schema({
   backgroundColor: {
     type: Array,
     // Create array of colors
-    required: true,
   },
   image: {
     type: String,
