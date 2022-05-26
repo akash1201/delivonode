@@ -67,7 +67,6 @@ const StoreSchema = mongoose.Schema({
   // uploadAadharback: { type: Buffer, contentType: String, required: true },
   // uploadGSTcertificate: { type: Buffer, contentType: String, required: false },
   // uploadPan: { type: Buffer, contentType: String, required: true },
-  
 });
 
 StoreSchema.methods.matchPassword = async function (enteredPassword) {

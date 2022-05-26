@@ -42,8 +42,8 @@ connectDB();
 const app = express();
 
 if (process.env.NODE_ENV === "development") {
-  // app.use(morgan("dev"));
-  app.use(express.static("build"));
+  app.use(morgan("dev"));
+  // app.use(express.static("build"));
 }
 
 app.use(express.json());
@@ -63,7 +63,7 @@ app.use(`/api/admin`, adminRoutes);
 // const __dirname = path.resolve()
 app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
 
-const PORT = process.env.PORT || 3000;
+const PORT = 5000;
 
 app.listen(
   PORT,

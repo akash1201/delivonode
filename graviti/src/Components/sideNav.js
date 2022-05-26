@@ -43,6 +43,7 @@ function SideNav() {
                 }}
               />
             </li>
+
             <li>
               <a>Product</a>
               <img

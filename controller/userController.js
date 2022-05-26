@@ -447,7 +447,7 @@ const fetchBycategory = asyncHandler(async (req, res) => {
     if (!userid) {
       return res.json("Login to continue");
     }
-    let options = await Store.find({ categories: req.params.cateogryName });
+    let options = await Store.find({ categories: req.params.categoryName });
     res.status(200).json({
       options,
       distance: "5km",

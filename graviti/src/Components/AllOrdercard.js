@@ -1,5 +1,6 @@
 import React from "react";
 import vegetable from "./vegetables.png";
+import tick from "./tick.png";
 
 function AllOrdercard({ ele, index }) {
   return (
@@ -23,6 +24,7 @@ function AllOrdercard({ ele, index }) {
           <div className="order-num">Order No. {index}</div>
           <div className="order-items">Items: {ele.products.length}</div>
           <div className="order-status" style={{ color: "rgb(58, 190, 18)" }}>
+            <img src={tick} style={{ width: "3rem", height: "3rem" }} />
             {ele.status}
           </div>
         </div>

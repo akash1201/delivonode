@@ -2,6 +2,7 @@ import { React } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logoutAction } from "../actions/userActions";
+import logo from "./gblogo.png";
 
 function TopNav() {
   const dispatch = useDispatch();
@@ -16,33 +17,43 @@ function TopNav() {
     }
   };
   return (
-    <div className="topnav">
-      {/* <Link className="activee hamburger" to="/wallet">
-        <i className="fa-solid fa-fw fa-wallet"></i>Burger
-      </Link> */}
-      <Link className="activee" to="/map">
-        <i className="fa-solid fa-fw fa-wallet"></i>Wallet
-      </Link>
-      <Link
-        className="activee"
-        to="/support"
-        data-toggle="modal"
-        data-target="#exampleModalLong"
-      >
-        <i className="fa-solid fa-fw fa-wallet"></i>Help
-      </Link>
-      <Link className="activee" to="/">
-        <i className="fa-solid fa-fw fa-wallet"></i>
-        <button
-          onClick={handleLogout}
+    <div className="gblogo">
+      <div className="gbimage">
+        <img
+          src={logo}
           style={{
-            border: "none",
-            background: "#eeeee4",
+            width: "80%",
+            height: "5rem",
+            backgroundColor: "navy",
           }}
+        />
+      </div>
+
+      <div className="topnav">
+        <Link className="activee" to="/map">
+          <i className="fa-solid fa-fw fa-wallet"></i>Wallet
+        </Link>
+        <Link
+          className="activee"
+          to="/support"
+          data-toggle="modal"
+          data-target="#exampleModalLong"
         >
-          Logout
-        </button>
-      </Link>
+          <i className="fa-solid fa-fw fa-wallet"></i>Help
+        </Link>
+        <Link className="activee" to="/">
+          <i className="fa-solid fa-fw fa-wallet"></i>
+          <button
+            onClick={handleLogout}
+            style={{
+              border: "none",
+              background: "#eeeee4",
+            }}
+          >
+            Logout
+          </button>
+        </Link>
+      </div>
     </div>
   );
 }
