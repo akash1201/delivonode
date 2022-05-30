@@ -1,5 +1,5 @@
 const asyncHandler = require("express-async-handler");
-var messagebird = require("messagebird")(process.env.MESSAGEBIRD_API_KEY);
+var messagebird = require("messagebird")("rdBCKFjEanZJMAqNL5UdXh2tO");
 
 const sendmyOtp = asyncHandler(async (req, res) => {
   var number = req.body.number;
@@ -8,21 +8,15 @@ const sendmyOtp = asyncHandler(async (req, res) => {
     number,
     {
       originator: "Code",
-      template: "Your verification code is %token.",
+      // template: "Your verification code is %token.",
     },
     function (err, response) {
       if (err) {
         // Request has failed
-        console.log(err);
-        res.render("error", {
-          error: err.errors[0].description,
-        });
+        return console.log(err);
       } else {
         // Request was successful
         console.log(response);
-        res.render("step2", {
-          id: response.id,
-        });
       }
     }
   );

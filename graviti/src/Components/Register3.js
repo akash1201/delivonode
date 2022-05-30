@@ -37,6 +37,8 @@ function Register3() {
     uploadGSTcertificate: registerinfo.uploadGSTcertificate,
     liscenseNo: registerinfo.liscenseNo,
     gst: registerinfo.gst,
+    licenseType:registerinfo.licenseType,
+    storeImage:registerinfo.storeImage,
     bankName: "",
     accountHolder: "",
     accountNo: "",

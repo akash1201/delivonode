@@ -28,11 +28,13 @@ function Register2() {
     closingTime: registerinfo.closingTime,
     latitude: registerinfo.latitude,
     longitude: registerinfo.longitude,
+    storeImage:registerinfo.storeImage,
     uploadPan: "",
     uploadGSTcertificate: "",
     uploadMenu: "",
     panNo: "",
     liscenseNo: "",
+    licenseType: "",
     gst: "",
   });
   const getBack = async (e) => {
@@ -70,6 +72,28 @@ function Register2() {
             {/* <span className="title">Store Details</span> */}
             <div className="fields">
               <div className="input-fields">
+                <label for="services">License Type</label>
+                <select
+                  name="services"
+                  id="licenseType"
+                  value={data.licenseType}
+                  onChange={handleChange}
+                  className="options"
+                  style={{
+                    height: "4.5rem",
+                    borderRadius: "5px",
+                    fontSize: "2rem",
+                    padding: "0.5rem",
+                  }}
+                >
+                  <option value="volvo"> Select </option>
+
+                  <option value="Only Delivery">FSSAI</option>
+                  <option value="Only Takeaway">Pharmacy</option>
+                  <option value="All Services">Other</option>
+                </select>
+              </div>
+              <div className="input-fields">
                 <label for="">License Number</label>
                 <input
                   type="text"
@@ -80,43 +104,7 @@ function Register2() {
                   required
                 />
               </div>
-              <div className="input-fields">
-                <label for="">Upload Product Menu</label>
-                <input
-                  type="file"
-                  id="uploadMenu"
-                  name="image"
-                  onChange={handleChange}
-                  placeholder=""
-                  required="required"
-                />
-                <button
-                  type="button"
-                  className="btn-success"
-                  onClick={async () => {
-                    const formData1 = new FormData();
-                    // Update the formData object
-                    formData1.append("image", data.uploadMenu);
-                    // setData({ ...data, [e.target.id]: e.target.files[0] });
-                    const config = {
-                      headers: {
-                        contentType: "multipart/form-data",
-                      },
-                    };
-                    const imagedata1 = await axios.post(
-                      `/api/upload/`,
-                      formData1,
-                      config
-                    );
-                    setData({
-                      ...data,
-                      uploadMenu: imagedata1.data.imagedata,
-                    });
-                  }}
-                >
-                  Upload
-                </button>
-              </div>
+
               <div className="input-fields">
                 <label for="">PAN Card</label>
                 <input
@@ -210,6 +198,43 @@ function Register2() {
                     setData({
                       ...data,
                       uploadGSTcertificate: imagedata5.data.imagedata,
+                    });
+                  }}
+                >
+                  Upload
+                </button>
+              </div>
+              <div className="input-fields">
+                <label for="">Upload Product Menu</label>
+                <input
+                  type="file"
+                  id="uploadMenu"
+                  name="image"
+                  onChange={handleChange}
+                  placeholder=""
+                  required="required"
+                />
+                <button
+                  type="button"
+                  className="btn-success"
+                  onClick={async () => {
+                    const formData1 = new FormData();
+                    // Update the formData object
+                    formData1.append("image", data.uploadMenu);
+                    // setData({ ...data, [e.target.id]: e.target.files[0] });
+                    const config = {
+                      headers: {
+                        contentType: "multipart/form-data",
+                      },
+                    };
+                    const imagedata1 = await axios.post(
+                      `/api/upload/`,
+                      formData1,
+                      config
+                    );
+                    setData({
+                      ...data,
+                      uploadMenu: imagedata1.data.imagedata,
                     });
                   }}
                 >

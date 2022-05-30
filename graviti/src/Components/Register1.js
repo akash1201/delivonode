@@ -1,6 +1,7 @@
 import { React, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
+import axios from "axios";
 
 function Register1() {
   const history = useNavigate();
@@ -28,6 +29,7 @@ function Register1() {
     storeManager: "",
     storeName: "",
     vendorType: "",
+    storeImage: "",
   });
   const [mapdata, setMapdata] = useState({ lat: 28.6139, lng: 77.209 });
   const defaultCenter = {
@@ -50,7 +52,12 @@ function Register1() {
   };
 
   const handleChange = (e) => {
-    setData({ ...data, [e.target.id]: e.target.value });
+    if (e.target.id === "storeImage") {
+      console.log(e.target.files, "1");
+      setData({ ...data, [e.target.id]: e.target.files[0] });
+    } else {
+      setData({ ...data, [e.target.id]: e.target.value });
+    }
   };
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(success);
@@ -166,15 +173,39 @@ function Register1() {
                 <br />
               </div>
               <div className="input-fields">
-                <label for="">Who Manages the Store?</label>
+                <label for="">Upload Store Image</label>
                 <input
-                  type="text"
-                  id="storeManager"
-                  value={data.storeManager}
+                  type="file"
+                  id="storeImage"
                   onChange={handleChange}
-                  placeholder="Enter Store Manager Name"
+                  placeholder="Upload Store Image"
                   required
                 />
+                <button
+                  type="button"
+                  className="btn-success"
+                  onClick={async () => {
+                    const formData = new FormData();
+                    // Update the formData object
+                    formData.append("image", data.storeImage);
+                    const config = {
+                      headers: {
+                        contentType: "multipart/form-data",
+                      },
+                    };
+                    const imagedata1 = await axios.post(
+                      `/api/upload/`,
+                      formData,
+                      config
+                    );
+                    setData({
+                      ...data,
+                      storeImage: imagedata1.data.imagedata,
+                    });
+                  }}
+                >
+                  Upload
+                </button>
               </div>
 
               <div className="input-fields">
@@ -228,8 +259,19 @@ function Register1() {
                   <option value="All Services">All Services</option>
                 </select>
               </div>
+              <div className="input-fields">
+                <label for="">Who Manages the Store?</label>
+                <input
+                  type="text"
+                  id="storeManager"
+                  value={data.storeManager}
+                  onChange={handleChange}
+                  placeholder="Enter Store Manager Name"
+                  required
+                />
+              </div>
             </div>
-            <div style={{ height: "32rem", marginTop: "1.5rem" }}>
+            <div style={{ height: "38rem", marginTop: "1.5rem" }}>
               <LoadScript googleMapsApiKey="AIzaSyB3ZdwasSmzdj5giIxqCmxrJBJVwh5VwqA">
                 <GoogleMap
                   mapContainerStyle={mapStyles}

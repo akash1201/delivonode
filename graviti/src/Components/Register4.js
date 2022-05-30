@@ -49,6 +49,8 @@ function Register4() {
     cancelledCheque: registerinfo.cancelledCheque,
     openingTime: registerinfo.openingTime,
     closingTime: registerinfo.closingTime,
+    licenseType: registerinfo.licenseType,
+    storeImage:registerinfo.storeImage,
     terms: false,
     policy: false,
     whatsappUpdate: false,
@@ -76,10 +78,12 @@ function Register4() {
             longitude: data.longitude,
           },
           services: data.services,
+          licenseType: data.licenseType,
           categories: data.categories,
           active: data.active,
           gst: data.gst,
           email: data.email,
+          storeImage:data.storeImage,
           liscenseNo: data.liscenseNo,
           ownerPan: data.panNo,
           bankName: data.bankName,
@@ -204,7 +208,7 @@ function Register4() {
                 <span className="btnText">Back</span>
                 <i className="uil uil-navigator"></i>
               </button>
-              <button  className="btn-success" type="submit">
+              <button className="btn-success" type="submit">
                 <span className="btnText">Submit</span>
                 <i className="uil uil-navigator"></i>
               </button>
