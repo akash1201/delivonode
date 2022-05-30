@@ -43,6 +43,7 @@ function Register4() {
     bankName: registerinfo.bankName,
     accountHolder: registerinfo.accountHolder,
     accountNo: registerinfo.accountNo,
+    confirmaccountNo: registerinfo.confirmaccountNo,
     ifsc: registerinfo.ifsc,
     upiId: registerinfo.upiId,
     cancelledCheque: registerinfo.cancelledCheque,
@@ -111,35 +112,10 @@ function Register4() {
     <div className="container1">
       <header>Terms of Use</header>
       <form onSubmit={handleSubmit}>
-        <section className="step-wizard">
-          <ul className="step-wizard-list">
-            <li className="step-wizard-item current-item">
-              <span className="progress-count">1</span>
-              <span className="progress-label">Pesonal Details</span>
-            </li>
-            <li className="step-wizard-item current-item">
-              <span className="progress-count">2</span>
-              <span className="progress-label">Store Details</span>
-            </li>
-            <li className="step-wizard-item  current-item">
-              <span className="progress-count">3</span>
-              <span className="progress-label">Store Details</span>
-            </li>
-            <li className="step-wizard-item current-item">
-              <span className="progress-count">4</span>
-              <span className="progress-label">Bank Details</span>
-            </li>
-            <li className="step-wizard-item ">
-              <span className="progress-count">5</span>
-              <span className="progress-label">Terms of Use</span>
-            </li>
-          </ul>
-        </section>
         <div className="form forth">
           <div className="details personal">
-            <span className="title">Terms & Conditions</span>
             <div className="fields">
-              <div>
+              <div style={{ fontSize: "1.7rem" }}>
                 <h2>Company Policy</h2>
                 <p>
                   Lorem Ipsum is simply dummy text of the printing and
@@ -151,7 +127,7 @@ function Register4() {
                   essentially unchanged.
                 </p>
                 <br />
-                <h2>Terms of Use</h2>
+                <h2>Terms & Conditions</h2>
                 <p>
                   Lorem Ipsum is simply dummy text of the printing and
                   typesetting industry. Lorem Ipsum has been the industry's
@@ -224,11 +200,11 @@ function Register4() {
               </div>
             </div>
             <div className="buttons">
-              <button className="nextbtn" onClick={getBack}>
+              <button type="button" className="btn-danger" onClick={getBack}>
                 <span className="btnText">Back</span>
                 <i className="uil uil-navigator"></i>
               </button>
-              <button className="nextbtn" type="submit">
+              <button  className="btn-success" type="submit">
                 <span className="btnText">Submit</span>
                 <i className="uil uil-navigator"></i>
               </button>

@@ -91,6 +91,8 @@ function Register2() {
                   required="required"
                 />
                 <button
+                  type="button"
+                  className="btn-success"
                   onClick={async () => {
                     const formData1 = new FormData();
                     // Update the formData object
@@ -138,6 +140,8 @@ function Register2() {
                   required="required"
                 />
                 <button
+                  type="button"
+                  className="btn-success"
                   onClick={async () => {
                     const formData4 = new FormData();
                     // Update the formData object
@@ -186,6 +190,8 @@ function Register2() {
                   required="required"
                 />
                 <button
+                  type="button"
+                  className="btn-success"
                   onClick={async () => {
                     const formData5 = new FormData();
                     // Update the formData object

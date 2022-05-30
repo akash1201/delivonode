@@ -29,10 +29,10 @@ function Register1() {
     storeName: "",
     vendorType: "",
   });
-  const [mapdata, setMapdata] = useState({ lat: 41.3851, lng: 5.1734 });
+  const [mapdata, setMapdata] = useState({ lat: 28.6139, lng: 77.209 });
   const defaultCenter = {
-    lat: 41.3851,
-    lng: 2.1734,
+    lat: 28.6139,
+    lng: 77.209,
   };
   const mapStyles = {
     height: "80%",
@@ -54,7 +54,7 @@ function Register1() {
   };
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(success);
-  });
+  }, []);
 
   const onMarkerDragEnd = (e) => {
     setMapdata({ lat: e.latLng.lat(), lng: e.latLng.lng() });
@@ -166,7 +166,7 @@ function Register1() {
                 <br />
               </div>
               <div className="input-fields">
-                <label for="">Store Manager</label>
+                <label for="">Who Manages the Store?</label>
                 <input
                   type="text"
                   id="storeManager"
@@ -178,15 +178,23 @@ function Register1() {
               </div>
 
               <div className="input-fields">
-                <label for="categories">Categories</label>
+                <label for="categories">
+                  Which category you would deliver?
+                </label>
                 <select
                   name="categories"
                   id="categories"
                   value={data.categories}
                   onChange={handleChange}
                   className="options"
+                  style={{
+                    height: "5rem",
+                    borderRadius: "5px",
+                    fontSize: "2rem",
+                    padding: "0.5rem",
+                  }}
                 >
-                  <option value="categories">--Select--</option>
+                  <option value="categories"> Select </option>
                   <option value="Foods Beverages">Foods Beverages</option>
                   <option value="Pharma Medicine">Pharma Medicine</option>
                   <option value="Grocery">Grocery</option>
@@ -204,8 +212,14 @@ function Register1() {
                   value={data.services}
                   onChange={handleChange}
                   className="options"
+                  style={{
+                    height: "5rem",
+                    borderRadius: "5px",
+                    fontSize: "2rem",
+                    padding: "0.5rem",
+                  }}
                 >
-                  <option value="volvo">--Select--</option>
+                  <option value="volvo"> Select </option>
                   <option value="Delivery + Takeaway">
                     Delivery + Takeaway
                   </option>

@@ -12,7 +12,7 @@ function Register5() {
     }, 2000);
   };
   return (
-    <div className="container1">
+    <div className="container1" style={{ width: "70%", height: "100%" }}>
       <div className=" container p-3 text-center">
         <h1 className="mb-3">Revised Payment Charge</h1>
         <h6>
@@ -21,8 +21,8 @@ function Register5() {
           back to the formand remove website and app.{" "}
         </h6>
       </div>
-      <div className="container">
-        <table className="table table-bordered">
+      <div className="container" style={{ height: "75%" }}>
+        <table className="table table-bordered" style={{ fontSize: "2.2rem" }}>
           <thead>
             <tr>
               <th scope="col">PAYMENT</th>
@@ -33,33 +33,33 @@ function Register5() {
           <tbody>
             <tr>
               <td>Food & Beverages</td>
-              <td>22%</td>
+              <td>20%</td>
               <td>Unlimited</td>
             </tr>
             <tr>
               <td>Vegetables & Grocery</td>
-              <td>12%</td>
+              <td>10%</td>
               <td>Unlimited</td>
             </tr>
             <tr>
               <td>Meat & Fish</td>
-              <td>22%</td>
+              <td>20%</td>
               <td>Unlimited</td>
             </tr>
             <tr>
               <td>Medicine</td>
-              <td>15%</td>
+              <td>13%</td>
               <td>Unlimited</td>
             </tr>
             <tr>
               <td>Pet supplies</td>
-              <td>15%</td>
+              <td>13%</td>
               <td>Unlimited</td>
             </tr>
             <tr>
               <td>Payment Mechanism Fee</td>
               <td>1.90%</td>
-              <td>Texes of Order Value</td>
+              <td>Taxes on Order Value</td>
             </tr>
           </tbody>
         </table>
@@ -71,7 +71,12 @@ function Register5() {
           </h6>
         </div>
       </div>
-      <button className="nextbtn support_btn" onClick={nowContinue}>
+      <button
+        type="button"
+        className="btn-success"
+        onClick={nowContinue}
+        style={{ fontSize: "2rem" }}
+      >
         <span className="btnText">Continue</span>
         <i className="uil uil-navigator"></i>
       </button>

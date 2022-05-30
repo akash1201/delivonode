@@ -9,6 +9,14 @@ import image6 from "./assets/img/image6.png";
 import image7 from "./assets/img/image7.png";
 import ravity from "./assets/img/ravity.png";
 import logo from "./gblogo.png";
+import medicine from "./medicine.png";
+import pet from "./pet.png";
+import food from "./food.png";
+import meat from "./meat.png";
+import feature1 from "./feature1.png";
+import feature2 from "./feature2.png";
+import feature3 from "./feature3.png";
+import feature4 from "./feature4.png";
 
 function Home() {
   return (
@@ -45,7 +53,7 @@ function Home() {
               style={{
                 width: "100%",
                 fontSize: "2rem",
-                
+
                 borderRadius: "20px",
                 marginTop: "1.5rem",
               }}
@@ -66,7 +74,7 @@ function Home() {
               style={{
                 width: "100%",
                 borderRadius: "20px",
-                
+
                 marginTop: "1.5rem",
                 fontSize: "2rem",
               }}
@@ -165,7 +173,7 @@ function Home() {
                 {/* <!-- <img alt="Image placeholder" src="assets/img/svg/illustrations/illustration-3.svg" className="img-fluid mw-md-120"> --> */}
                 <img
                   alt="Image placeholder"
-                  src={image1}
+                  src={medicine}
                   className="img-fluid mw-md-120"
                 />
               </div>
@@ -206,31 +214,43 @@ function Home() {
         >
           <div
             className="card"
-            style={{ width: "24rem", marginBottom: "1rem" }}
+            style={{
+              width: "27rem",
+              marginBottom: "1rem",
+              backgroundColor: "#eee",
+            }}
           >
-            <img src={image2} className="card-img-top" alt="..." />
+            <img src={food} className="card-img-top" alt="..." />
             <div className="card-body">
-              <h4 className="card-title">Food & Beverages</h4>
+              <h1 className="card-title">Food & Beverages</h1>
               <p className="card-description">short description</p>
             </div>
           </div>
           <div
             className="card"
-            style={{ width: "24rem", marginBottom: "1rem" }}
+            style={{
+              width: "27rem",
+              marginBottom: "1rem",
+              backgroundColor: "#eee",
+            }}
           >
-            <img src={image2} className="card-img-top" alt="..." />
+            <img src={pet} className="card-img-top" alt="..." />
             <div className="card-body">
-              <h4 className="card-title">Food & Beverages</h4>
+              <h1 className="card-title">Pet Supplies</h1>
               <p className="card-description">short description</p>
             </div>
           </div>
           <div
             className="card"
-            style={{ width: "24rem", marginBottom: "1rem" }}
+            style={{
+              width: "27rem",
+              backgroundColor: "#eee",
+              marginBottom: "1rem",
+            }}
           >
-            <img src={image2} className="card-img-top" alt="..." />
+            <img src={meat} className="card-img-top" alt="..." />
             <div className="card-body">
-              <h4 className="card-title">Food & Beverages</h4>
+              <h1 className="card-title">Fish & Meat</h1>
               <p className="card-description">short description</p>
             </div>
           </div>
@@ -244,7 +264,7 @@ function Home() {
                 {/* <!-- <img alt="Image placeholder" src="assets/img/svg/illustrations/illustration-3.svg" className="img-fluid mw-md-120"> --> */}
                 <img
                   alt="Image placeholder"
-                  src={image1}
+                  src={image7}
                   className="img-fluid mw-md-120"
                 />
               </div>
@@ -288,33 +308,54 @@ function Home() {
         >
           <div
             className="card"
-            style={{ width: "28rem", marginBottom: "1rem" }}
+            style={{
+              width: "28rem",
+              marginBottom: "1rem",
+              backgroundColor: "#eee",
+            }}
           >
             <div className="card-body">
-              <h4 className="card-title">Food & Beverages</h4>
-              <p className="card-description">short description</p>
+              <h1 className="card-title">Choose what you want</h1>
+              <p className="card-description">
+                Select items from you favourite stores at gravitybites.co or in
+                the app.
+              </p>
             </div>
-            <img src={image2} className="card-img-top" alt="..." />
+            <img src={feature2} className="card-img-top" alt="..." />
           </div>
           <div
             className="card"
-            style={{ width: "28rem", marginBottom: "1rem" }}
+            style={{
+              width: "28rem",
+              marginBottom: "1rem",
+              backgroundColor: "#eee",
+            }}
           >
             <div className="card-body">
-              <h4 className="card-title">Food & Beverages</h4>
-              <p className="card-description">short description</p>
+              <h1 className="card-title">See real-time updates</h1>
+              <p className="card-description">
+                Personal shoppers pick items from care. Chat as they shop and
+                manage your order.
+              </p>
             </div>
-            <img src={image2} className="card-img-top" alt="..." />
+            <img src={feature4} className="card-img-top" alt="..." />
           </div>
           <div
             className="card"
-            style={{ width: "28rem", marginBottom: "1rem" }}
+            style={{
+              width: "28rem",
+              marginBottom: "1rem",
+              backgroundColor: "#eee",
+            }}
           >
             <div className="card-body">
-              <h4 className="card-title">Food & Beverages</h4>
-              <p className="card-description">short description</p>
+              <h1 className="card-title">Get ypu items same-day</h1>
+              <p className="card-description">
+                Pick a convenient time for you. Enjoy Gravity Bite's 100%
+                quality guarantee on every order.
+              </p>
             </div>
-            <img src={image2} className="card-img-top" alt="..." />
+            <img src={feature3} className="card-img-top" alt="..." />
           </div>
         </div>
         <div className="row container d-flex justify-content-center">
@@ -335,7 +376,7 @@ function Home() {
                 {/* <!-- <img alt="Image placeholder" src="assets/img/svg/illustrations/illustration-3.svg" className="img-fluid mw-md-120"> --> */}
                 <img
                   alt="Image placeholder"
-                  src={image1}
+                  src={feature1}
                   className="img-fluid mw-md-120"
                 />
               </div>

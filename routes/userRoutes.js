@@ -6,6 +6,7 @@ const express = require("express");
 // } from "../controller/userController.js"
 const {
   fetchCategories,
+  payment,
   fetchsubCategories,
   fetchCoupons,
   addtoCart,
@@ -49,5 +50,6 @@ router.get(`/fetchBycategory/:categoryName`, protect, fetchBycategory);
 router.get("/terms", terms);
 router.get(`/fetchProducts/:vendorId/:subcategoryName`, protect, fetchProducts);
 router.post(`/placeOrder`, placeOrder);
+router.post(`/payment`, payment);
 
 module.exports = router;

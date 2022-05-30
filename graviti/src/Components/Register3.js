@@ -40,6 +40,7 @@ function Register3() {
     bankName: "",
     accountHolder: "",
     accountNo: "",
+    confirmaccountNo: "",
     ifsc: "",
     upiId: "",
     cancelledCheque: "",
@@ -103,6 +104,17 @@ function Register3() {
                 />
               </div>
               <div className="input-fields">
+                <label for="">Confirm Account Number</label>
+                <input
+                  type="number"
+                  placeholder="Enter Your account no"
+                  id="accountNo"
+                  value={data.confirmaccountNo}
+                  required="required"
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="input-fields">
                 <label for="">IFSC Code</label>
                 <input
                   type="text"
@@ -115,12 +127,11 @@ function Register3() {
               </div>
 
               <div className="input-fields">
-                <label for="">UPI Id</label>
+                <label for="">UPI Id (Optional)</label>
                 <input
                   type="text"
                   id="upiId"
                   value={data.upiId}
-                  required="required"
                   onChange={handleChange}
                   placeholder="Enter UPI Id"
                 />
@@ -137,6 +148,8 @@ function Register3() {
                   required
                 />
                 <button
+                  type="button"
+                  className="btn-success"
                   onClick={async () => {
                     const formData1 = new FormData();
                     // Update the formData object
@@ -167,7 +180,11 @@ function Register3() {
                 <span className="btnText">Back</span>
                 <i className="uil uil-navigator"></i>
               </button>
-              <button className="nextbtn" type="submit">
+              <button
+                className="nextbtn"
+                type="submit"
+                disabled={!(data.accountNo === data.confirmaccountNo)}
+              >
                 <span className="btnText">Next</span>
                 <i className="uil uil-navigator"></i>
               </button>

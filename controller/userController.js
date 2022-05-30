@@ -13,6 +13,7 @@ const Category = require("../models/Category.js");
 const Product = require("../models/Products.js");
 const Coupons = require("../models/Coupons.js");
 const Cart = require("../models/Cart.js");
+const axios = require("axios");
 
 // Register
 const register = asyncHandler(async (req, res) => {
@@ -300,6 +301,63 @@ const placeOrder = asyncHandler(async (req, res) => {
   }
 });
 
+// Payment Integration
+const payment = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let userid = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(userid.id);
+    if (!user) {
+      return res.status(500).json({ status: 500, msg: "User not Found" });
+    }
+    let myorder = await Order.findOne({
+      userId: userid.id,
+      status: "Order Accepted",
+    }).populate([
+      {
+        path: "userId",
+        model: "User",
+        select: "_id name lastName email phoneNo",
+      },
+    ]);
+    console.log(myorder);
+    // data = {
+    //   order_id: myorder._id,
+    //   order_amount: myorder.Total,
+    //   order_currency: "INR",
+    //   order_note: "Additional order info",
+    //   order_meta: {
+    //     return_url: `https://b8af79f41056.eu.ngrok.io?order_id=${myorder._id}&order_token=`,
+    //     payment_methods:
+    //       " cc, dc, ccc, ppc, nb, upi, paypal, emi, app paylater",
+    //   },
+    //   customer_details: {
+    //     customer_id: myorder.userId._id,
+    //     customer_email: myorder.userId.email,
+    //     customer_phone: myorder.userId.phoneNo,
+    //   },
+    // };
+    // const config = {
+    //   headers: {
+    //     "content-Type": "application/json",
+    //     "x-api-version": "2022-01-01",
+    //     "x-client-id": "2101984bf67c82799cf2ae4627891012",
+    //     "x-client-secret": "6249b20da5cea9d9c1bd7536280e0f3deeb7b74d",
+    //   },
+    // };
+
+    // const payment_info = await axios.post(
+    //   "https://sandbox.cashfree.com/pg/orders",
+    //   data,
+    //   config
+    // );
+    res.status(200).json( "Order Accepted" );
+    // "payment_link": "https://payments-test.cashfree.com/order/#BtJEHHxOB9bFpNsaHmEL"
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+
 // Add First Product to Cart
 const addtoCart = asyncHandler(async (req, res) => {
   try {
@@ -546,4 +604,5 @@ module.exports = {
   placeOrder,
   wallet,
   myaccount,
+  payment,
 };
