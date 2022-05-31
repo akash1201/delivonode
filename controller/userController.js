@@ -13,6 +13,7 @@ const Category = require("../models/Category.js");
 const Product = require("../models/Products.js");
 const Coupons = require("../models/Coupons.js");
 const Cart = require("../models/Cart.js");
+const Prescription = require("../models/Prescription.js");
 const axios = require("axios");
 
 // Register
@@ -75,6 +76,25 @@ const login = asyncHandler(async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({ error });
+  }
+});
+
+// add Prescription
+const addPrescription = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let userid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!userid) {
+      return res.status(500).json({ msg: "User not found" });
+    }
+    let obj = {
+      userId: userid.id,
+      ...req.body,
+    };
+    const prescription = await Prescription.create(obj);
+    res.status(200).json("Prescription added ");
+  } catch (error) {
+    res.status(500).json(error);
   }
 });
 
@@ -606,4 +626,5 @@ module.exports = {
   wallet,
   myaccount,
   payment,
+  addPrescription,
 };

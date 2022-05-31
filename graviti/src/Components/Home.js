@@ -476,9 +476,16 @@ function Home() {
                     </Link>
                   </li>
                   <li>
-                    <a href="#" style={{ color: "black" }}>
+                    {/* <a href="#" style={{ color: "black" }}>
                       Newsletter
-                    </a>
+                    </a> */}
+                    <Link
+                      to="/newsletter"
+                      data-toggle="modal"
+                      data-target="#newsletterModal"
+                    >
+                      Newsletter
+                    </Link>
                   </li>
                   <li>
                     <a href="#" style={{ color: "black" }}>

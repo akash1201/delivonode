@@ -79,7 +79,6 @@ function Register1() {
 
   const handleSubmit2 = (e) => {
     e.preventDefault();
-    setBtnColor("green");
     setData({ ...data, latitude: mapdata.lat, longitude: mapdata.lng });
     setTimeout(() => {
       history("/register2");
@@ -206,6 +205,7 @@ function Register1() {
                       formData,
                       config
                     );
+                    setBtnColor("green");
                     setData({
                       ...data,
                       storeImage: imagedata1.data.imagedata,

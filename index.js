@@ -34,10 +34,8 @@ const categoryRoute = require("./routes/categoryRoutes");
 
 const orderRoutes = require("./routes/orderRoutes");
 
-
 dotenv.config();
 connectDB();
-
 
 //DB connection will come here
 

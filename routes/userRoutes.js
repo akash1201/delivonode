@@ -28,10 +28,11 @@ const {
   myaccount,
 } = require("../controller/userController");
 const { protect } = require("../middleware/authMiddleware.js");
-
+const { signNewsletter } = require("./controller/NewsController.js");
 const router = express.Router();
 
 router.post("/register", register);
+router.post("/signNewsletter", signNewsletter);
 router.post("/login", login);
 router.get(`/fetchCoupons`, fetchCoupons);
 router.get(`/fetchCategories`, fetchCategories);

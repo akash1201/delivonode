@@ -22,6 +22,7 @@ import Register5 from "./Components/Register5.js";
 import Login from "./Components/Login.js";
 import Commission from "./Components/Commission";
 import FooterTerms from "./Components/FooterTerms";
+import NewsLetter from "./Components/NewsLetter.js";
 
 function App() {
   return (
@@ -47,6 +48,7 @@ function App() {
         <Route path="/productModal" element={<ProductModal />}></Route>
         <Route path="/commission" element={<Commission />}></Route>
         <Route path="/myterms" element={<FooterTerms />}></Route>
+        <Route path="/newsletter" element={<NewsLetter />}></Route>
       </Routes>
     </Router>
   );
