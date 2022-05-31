@@ -1,15 +1,18 @@
 import { React } from "react";
 import { Link } from "react-router-dom";
 import image from "./assets/img/delivery-boy.png";
-import image1 from "./assets/img/image1.png";
-import image2 from "./assets/img/image2.png";
-import image3 from "./assets/img/image3.png";
-import image4 from "./assets/img/image4.png";
-import image6 from "./assets/img/image6.png";
-import image7 from "./assets/img/image7.png";
-import ravity from "./assets/img/ravity.png";
+import image2 from "./grocery.png";
+import image7 from "./customdelivery.png";
 import logo from "./gblogo.png";
 import medicine from "./medicine.png";
+import playstore from "./img/playstore.png";
+import facebook from "./img/facebook.png";
+import linkedin from "./img/linkedin.png";
+import twitter from "./img/twitter.png";
+import youtube from "./img/youtube.png";
+import instagram from "./img/instagram.png";
+import downloadstore from "./img/downloadstore.png";
+import appstore from "./img/appstore.png";
 import pet from "./pet.png";
 import food from "./food.png";
 import meat from "./meat.png";
@@ -22,39 +25,41 @@ function Home() {
   return (
     <div>
       <nav
-        className="Home navbar-expand-lg navbar-light bg-light"
+        className="Home navbar-expand-lg navbar-light bg"
         style={{
           width: "100%",
           height: "8rem",
           display: "flex",
           justifyContent: "space-around",
+          backgroundColor: "white",
         }}
       >
-        <img src={logo} style={{ width: "10%", height: "100%" }} />
+        <img src={logo} style={{ width: "15%", height: "100%" }} />
         <div
           style={{
             display: "flex",
             justifyContent: "space-evenly",
             // padding: "1rem",
-            width: "60%",
+            width: "25%",
             height: "100%",
-            backgroundColor: "28A745",
+            backgroundColor: "white",
           }}
         >
           <Link
             to="/login"
-            style={{
-              width: "40%",
-            }}
+            // style={{
+            //   width: "50%",
+            // }}
           >
             <button
               type="button"
               className="login_btn"
               style={{
                 width: "100%",
-                fontSize: "2rem",
+                fontSize: "1.8rem",
+                border: "none",
 
-                borderRadius: "20px",
+                borderRadius: "15px",
                 marginTop: "1.5rem",
               }}
             >
@@ -63,9 +68,9 @@ function Home() {
           </Link>
           <Link
             to="/register"
-            style={{
-              width: "40%",
-            }}
+            // style={{
+            //   width: "50%",
+            // }}
           >
             <button
               type="button"
@@ -73,10 +78,12 @@ function Home() {
               // className="navbar-btn btn btn-sm btn-primary d-none d-lg-inline-block ml-3"
               style={{
                 width: "100%",
-                borderRadius: "20px",
+                borderRadius: "15px",
+                border: "none",
+                backgroundColor: "#93f037",
 
                 marginTop: "1.5rem",
-                fontSize: "2rem",
+                fontSize: "1.8rem",
               }}
             >
               Register
@@ -99,8 +106,8 @@ function Home() {
             </div>
             <div className="col-12 col-md-7 col-lg-6 order-md-1 pr-md-5">
               <h1 className="display-4 text-center text-md-left mb-3">
-                It's time to take your{" "}
-                <strong className="text-primary">business online</strong>
+                Got Delivered{" "}
+                <strong className="text-primary">Everything You Need</strong>
               </h1>
 
               <p className="lead text-center text-md-left text-muted">
@@ -108,7 +115,7 @@ function Home() {
               </p>
 
               <div className="text-center text-md-left mt-5">
-                <a
+                {/* <a
                   href="#"
                   className="btn btn-primary btn-icon"
                   target="_blank"
@@ -117,7 +124,10 @@ function Home() {
                   <span className="btn-inner--icon">
                     <i data-feather="chevron-right"></i>
                   </span>
-                </a>
+                </a> */}
+                <img src={downloadstore} style={{ marginRight: "0.5rem" }} />
+
+                <img src={appstore} />
               </div>
             </div>
           </div>
@@ -137,30 +147,14 @@ function Home() {
               </div>
             </div>
             <div className="col-12 col-md-7 col-lg-6 order-md-1 pr-md-5">
-              {/* className="display-4 text-center text-md-left mb-3" */}
+              <h1 className="display-4 text-center text-md-left mb-3">
+                {/* It's time to take your{" "} */}
+                <strong className="text-primary">Groceries</strong>
+              </h1>
               <h3>
-                This website stores cookies on your computer. These cookies are
-                used to improve your website experience and provide more
-                personalized services to you, both on this website and through
-                other media. To find out more about the cookies we use, see our
-                Privacy Policy.
+                Let go off your hectic grocery shopping. Now order groceries
+                with us and save time with our quick delivery services.
               </h3>
-              <p className="lead text-center text-md-left text-muted">
-                Register in our app, and get started in no time.
-              </p>
-
-              <div className="text-center text-md-left mt-5">
-                <a
-                  href="#"
-                  className="btn btn-primary btn-icon"
-                  target="_blank"
-                >
-                  <span className="btn-inner--text">Download the app</span>
-                  <span className="btn-inner--icon">
-                    <i data-feather="chevron-right"></i>
-                  </span>
-                </a>
-              </div>
             </div>
           </div>
         </div>
@@ -180,29 +174,16 @@ function Home() {
             </div>
             <div className="col-12 col-md-7 col-lg-6 order-md-1 pr-md-5">
               {/* className="display-4 text-center text-md-left mb-3" */}
+              <h1 className="display-4 text-center text-md-left mb-3">
+                {/* It's time to take your{" "} */}
+                <strong className="text-primary">Medicines</strong>
+              </h1>
+              <h6> (You can upload your prescription)</h6>
+              <br />
               <h3>
-                This website stores cookies on your computer. These cookies are
-                used to improve your website experience and provide more
-                personalized services to you, both on this website and through
-                other media. To find out more about the cookies we use, see our
-                Privacy Policy.
+                When you do not fell well. Order Medicines with quick delivery &
+                hassle free experience.
               </h3>
-              <p className="lead text-center text-md-left text-muted">
-                Register in our app, and get started in no time.
-              </p>
-
-              <div className="text-center text-md-left mt-5">
-                <a
-                  href="#"
-                  className="btn btn-primary btn-icon"
-                  target="_blank"
-                >
-                  <span className="btn-inner--text">Download the app</span>
-                  <span className="btn-inner--icon">
-                    <i data-feather="chevron-right"></i>
-                  </span>
-                </a>
-              </div>
             </div>
           </div>
         </div>
@@ -217,13 +198,15 @@ function Home() {
             style={{
               width: "27rem",
               marginBottom: "1rem",
-              backgroundColor: "#eee",
             }}
           >
             <img src={food} className="card-img-top" alt="..." />
             <div className="card-body">
               <h1 className="card-title">Food & Beverages</h1>
-              <p className="card-description">short description</p>
+              <p className="card-description">
+                When you are Hungry, Don't Worry order your favourite food with
+                us.
+              </p>
             </div>
           </div>
           <div
@@ -231,27 +214,31 @@ function Home() {
             style={{
               width: "27rem",
               marginBottom: "1rem",
-              backgroundColor: "#eee",
             }}
           >
             <img src={pet} className="card-img-top" alt="..." />
             <div className="card-body">
               <h1 className="card-title">Pet Supplies</h1>
-              <p className="card-description">short description</p>
+              <p className="card-description">
+                {" "}
+                Make your Pets Strong & Healthy
+              </p>
             </div>
           </div>
           <div
             className="card"
             style={{
               width: "27rem",
-              backgroundColor: "#eee",
               marginBottom: "1rem",
             }}
           >
             <img src={meat} className="card-img-top" alt="..." />
             <div className="card-body">
               <h1 className="card-title">Fish & Meat</h1>
-              <p className="card-description">short description</p>
+              <p className="card-description">
+                Have a Hygienic experience while ordering Meat. We will best
+                quality Luscious Fish & Meat.
+              </p>
             </div>
           </div>
         </div>
@@ -271,24 +258,22 @@ function Home() {
             </div>
             <div className="col-12 col-md-7 col-lg-6 order-md-1 pr-md-5">
               {/* className="display-4 text-center text-md-left mb-3" */}
+              <h1 className="display-4 text-center text-md-left mb-3">
+                {/* It's time to take your{" "} */}
+                <strong className="text-primary">Custom Delivery</strong>
+              </h1>
               <h3>
-                This website stores cookies on your computer. These cookies are
-                used to improve your website experience and provide more
-                personalized services to you, both on this website and through
-                other media. To find out more about the cookies we use, see our
-                Privacy Policy.
+                As a part of the GravityBites Services, GravityBites also gives
+                you an option to avail the Pick Up and Drop Off Services being
+                provided by our Delivery Partners.
               </h3>
-              <p className="lead text-center text-md-left text-muted">
-                Register in our app, and get started in no time.
-              </p>
-
               <div className="text-center text-md-left mt-5">
                 <a
                   href="#"
                   className="btn btn-primary btn-icon"
                   target="_blank"
                 >
-                  <span className="btn-inner--text">Download the app</span>
+                  <span className="btn-inner--text">Arrange Pickup</span>
                   <span className="btn-inner--icon">
                     <i data-feather="chevron-right"></i>
                   </span>
@@ -384,23 +369,17 @@ function Home() {
             <div className="col-12 col-md-7 col-lg-6 order-md-1 pr-md-5">
               {/* className="display-4 text-center text-md-left mb-3" */}
               <h3>
-                This website stores cookies on your computer. These cookies are
-                used to improve your website experience and provide more
-                personalized services to you, both on this website and through
-                other media. To find out more about the cookies we use, see our
-                Privacy Policy.
+                As a part of the GravityBites Services, GravityBites also gives
+                you an option to avail the Pick Up and Drop Off Services being
+                provided by our Delivery Partners.
               </h3>
-              <p className="lead text-center text-md-left text-muted">
-                Register in our app, and get started in no time.
-              </p>
-
               <div className="text-center text-md-left mt-5">
                 <a
                   href="#"
                   className="btn btn-primary btn-icon"
                   target="_blank"
                 >
-                  <span className="btn-inner--text">Download the app</span>
+                  <span className="btn-inner--text">Arrange Pickup</span>
                   <span className="btn-inner--icon">
                     <i data-feather="chevron-right"></i>
                   </span>
@@ -413,23 +392,81 @@ function Home() {
       <div className="position-relative" id="footer-main">
         <div
           className="footer pt-lg-7 footer-primary"
-          style={{ backgroundColor: "#B0E066" }}
+          style={{
+            backgroundColor: "#FFFFFF",
+          }}
         >
           <div className="container pt-3">
             <div className="row">
               <div className="col-lg-6 mb-6 mb-lg-0">
                 <span>
-                  <h3 style={{ color: "white" }}>
-                    <span style={{ color: "#ffffff" }}>Gravity</span>Bites
-                  </h3>
+                  <h1 style={{ color: "#93f037" }}>
+                    <span>Gravity</span>Bites
+                  </h1>
                 </span>
+                <span>
+                  <a href="https://www.instagram.com/gravitybites/?hl=en">
+                    <img
+                      src={instagram}
+                      style={{
+                        width: "2rem",
+                        height: "2rem",
+                        marginRight: "1rem",
+                      }}
+                    />
+                  </a>
+                  <a href="">
+                    <img
+                      src={youtube}
+                      style={{
+                        width: "2rem",
+                        height: "2rem",
+                        marginRight: "1rem",
+                      }}
+                    />
+                  </a>
+                  <a href="https://www.facebook.com/Gravitybites/?ref=pages_you_manage">
+                    <img
+                      src={facebook}
+                      style={{
+                        width: "2rem",
+                        height: "2rem",
+                        marginRight: "1rem",
+                      }}
+                    />
+                  </a>
+                  <a href="">
+                    <img
+                      src={twitter}
+                      style={{
+                        width: "2rem",
+                        height: "2rem",
+                        marginRight: "1rem",
+                      }}
+                    />
+                  </a>
+                  <a href="https://www.linkedin.com/company/gravity-bites-gb/">
+                    <img
+                      src={linkedin}
+                      style={{ width: "2rem", height: "2rem" }}
+                    />
+                  </a>
+                </span>
+                <div>
+                  <img src={downloadstore} style={{ marginRight: "0.5rem" }} />
+
+                  <img src={appstore} />
+                </div>
               </div>
 
               <div className="col-lg-3 col-6 col-sm-4 mb-5 mb-lg-0">
-                <h6 className="heading mb-3" style={{ color: "#ffffff" }}>
+                <h3 className="heading mb-3" style={{ color: "#93f037" }}>
                   <b>COMPANY</b>
-                </h6>
-                <ul className="list-unstyled">
+                </h3>
+                <ul
+                  className="list-unstyled"
+                  style={{ fontSize: "1.8rem", fontWeight: "500" }}
+                >
                   <li>
                     <a href="#" style={{ color: "black" }}>
                       Blog
@@ -441,13 +478,13 @@ function Home() {
                     </a>
                   </li>
                   <li>
-                    <a href="#" style={{ color: "black" }}>
+                    <Link to="/myterms" style={{ color: "black" }}>
                       Term and Condition
-                    </a>
+                    </Link>
                   </li>
                   <li>
                     <a href="#" style={{ color: "black" }}>
-                      Newslatter
+                      Newsletter
                     </a>
                   </li>
                   <li>
@@ -459,27 +496,44 @@ function Home() {
               </div>
 
               <div className="col-lg-3 col-6 col-sm-4 ml-lg-auto mb-5 mb-lg-0">
-                <h6 className="heading mb-3" style={{ color: "#ffffff" }}>
+                <h3 className="heading mb-3" style={{ color: "#93f037" }}>
                   <b>Social Media</b>
-                </h6>
-                <ul className="list-unstyled">
+                </h3>
+                <ul
+                  className="list-unstyled"
+                  style={{ fontSize: "1.8rem", fontWeight: "500" }}
+                >
                   <li>
-                    <a href="#" style={{ color: "black" }}>
+                    <a
+                      href="https://www.facebook.com/Gravitybites/?ref=pages_you_manage"
+                      style={{ color: "black" }}
+                    >
                       Facebook
                     </a>
                   </li>
                   <li>
-                    <a href="#" style={{ color: "black" }}>
+                    <a
+                      href="https://www.instagram.com/gravitybites/?hl=en"
+                      style={{ color: "black" }}
+                    >
                       Instagram
                     </a>
                   </li>
                   <li>
-                    <a href="#" style={{ color: "black" }}>
+                    <a href="" style={{ color: "black" }}>
                       Twitter
                     </a>
                   </li>
                   <li>
-                    <a href="#" style={{ color: "black" }}>
+                    <a
+                      href="https://www.aedin.com/company/gravity-bites-gb/"
+                      style={{ color: "black" }}
+                    >
+                      Linkedin
+                    </a>
+                  </li>
+                  <li>
+                    <a href="" style={{ color: "black" }}>
                       YouTube
                     </a>
                   </li>
@@ -489,7 +543,10 @@ function Home() {
             <hr className="divider divider-fade divider-dark my-4" />
             <div className="row align-items-center justify-content-md-between pb-4">
               <div className="col-md-6">
-                <div className="copyright text-sm font-weight-bold text-center text-md-left">
+                <div
+                  className="copyright text-sm font-weight-bold text-center text-md-left"
+                  style={{ fontWeight: "500", fontSize: "1.5rem" }}
+                >
                   &copy; 2022 <a href="#">GravityBites</a>. All rights reserved
                 </div>
               </div>

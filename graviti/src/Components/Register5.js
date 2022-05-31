@@ -1,8 +1,6 @@
 import { React, useState, useEffect } from "react";
-import TopNav from "./TopNav";
-import SideNav from "./sideNav";
 import { useNavigate, Link } from "react-router-dom";
-import { useSelector } from "react-redux";
+
 
 function Register5() {
   const history = useNavigate();

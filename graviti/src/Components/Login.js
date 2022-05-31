@@ -31,7 +31,6 @@ function Login() {
       <form onSubmit={handleSubmit}>
         <div className="form first">
           <div className="details personal">
-            <span className="title">Personal Details</span>
             <div className="fields">
               <div className="input-fields">
                 <label for="">Email Id</label>
@@ -44,7 +43,8 @@ function Login() {
                   required="required"
                 />
               </div>
-
+            </div>
+            <div className="fields">
               <div className="input-fields">
                 <label for="">Password </label>
                 <input
