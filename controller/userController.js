@@ -20,13 +20,15 @@ const register = asyncHandler(async (req, res) => {
   try {
     let { email } = req.body;
     let duplicate = await User.findOne({ email: email });
+    console.log(duplicate, "4");
     if (duplicate) {
       return res
         .status(500)
         .json({ msg: "User already exists,please try to login" });
     } else {
+      console.log("12");
       let user = await User.create(req.body);
-      console.log(user);
+      console.log(user, "1555");
       // Adding an address simultaneously while creating user.
       let obj = {
         userId: user._id.toString(),
@@ -40,15 +42,14 @@ const register = asyncHandler(async (req, res) => {
       };
 
       let addressss = await Address.create(obj);
-
       user.password = null;
-
       res.json({
         _id: user._id,
         token: generateToken(user._id),
       });
     }
   } catch (error) {
+    console.log(error);
     res.status(500).json({ msg: "Internal server error" });
   }
 });
@@ -351,7 +352,7 @@ const payment = asyncHandler(async (req, res) => {
     //   data,
     //   config
     // );
-    res.status(200).json( "Order Accepted" );
+    res.status(200).json("Order Accepted");
     // "payment_link": "https://payments-test.cashfree.com/order/#BtJEHHxOB9bFpNsaHmEL"
   } catch (error) {
     res.status(500).json({ error });

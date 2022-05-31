@@ -55,13 +55,18 @@ function Register1() {
     if (e.target.id === "storeImage") {
       console.log(e.target.files, "1");
       setData({ ...data, [e.target.id]: e.target.files[0] });
+      setImageColor("green");
     } else {
       setData({ ...data, [e.target.id]: e.target.value });
     }
   };
-  useEffect(() => {
+  // useEffect(() => {
+  //   navigator.geolocation.getCurrentPosition(success);
+  // }, []);
+  const detectLocation = () => {
+    setDetectColor("green");
     navigator.geolocation.getCurrentPosition(success);
-  }, []);
+  };
 
   const onMarkerDragEnd = (e) => {
     setMapdata({ lat: e.latLng.lat(), lng: e.latLng.lng() });
@@ -71,16 +76,18 @@ function Register1() {
     localStorage.setItem("registerinfo", JSON.stringify(data));
     // history("/register2");
   }, [data]);
-  const [bgcolor, setBgcolor] = useState("grey");
 
   const handleSubmit2 = (e) => {
     e.preventDefault();
-    setBgcolor("limegreen");
+    setBtnColor("green");
     setData({ ...data, latitude: mapdata.lat, longitude: mapdata.lng });
     setTimeout(() => {
       history("/register2");
     }, 2000);
   };
+  const [btnColor, setBtnColor] = useState("red");
+  const [imageColor, setImageColor] = useState("red");
+  const [detectColor, setDetectColor] = useState("red");
 
   return (
     <div className="container1">
@@ -184,6 +191,7 @@ function Register1() {
                 <button
                   type="button"
                   className="btn-success"
+                  style={{ backgroundColor: imageColor }}
                   onClick={async () => {
                     const formData = new FormData();
                     // Update the formData object
@@ -220,7 +228,7 @@ function Register1() {
                   className="options"
                   style={{
                     height: "5rem",
-                    borderRadius: "5px",
+                    borderRadius: "10px",
                     fontSize: "2rem",
                     padding: "0.5rem",
                   }}
@@ -245,7 +253,7 @@ function Register1() {
                   className="options"
                   style={{
                     height: "5rem",
-                    borderRadius: "5px",
+                    borderRadius: "10px",
                     fontSize: "2rem",
                     padding: "0.5rem",
                   }}
@@ -266,7 +274,7 @@ function Register1() {
                   id="storeManager"
                   value={data.storeManager}
                   onChange={handleChange}
-                  placeholder="Enter Store Manager Name"
+                  placeholder="Name"
                   required
                 />
               </div>
@@ -287,7 +295,15 @@ function Register1() {
                   ) : null}
                 </GoogleMap>
               </LoadScript>
+              <button
+                className="nextbrn"
+                onClick={detectLocation}
+                style={{ backgroundColor: detectColor }}
+              >
+                Auto Detect
+              </button>
             </div>
+
             <div className="fields">
               <div className="input-fields">
                 <label for="">Store Address (House No)</label>
@@ -361,7 +377,11 @@ function Register1() {
             </div>
 
             <div className="buttons">
-              <button className="backbtn" onClick={getBack}>
+              <button
+                className="backbtn"
+                onClick={getBack}
+                style={{ backgroundColor: "red" }}
+              >
                 <span className="btnText">Back</span>
                 <i className="uil uil-navigator"></i>
               </button>
@@ -369,7 +389,7 @@ function Register1() {
               <button
                 className="nextbtn"
                 onClick={handleSubmit2}
-                style={{ backgroundColor: { bgcolor } }}
+                style={{ backgroundColor: btnColor }}
               >
                 <span className="btnText">Next</span>
                 <i className="uil uil-navigator"></i>

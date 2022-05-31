@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 function Register() {
   const history = useNavigate();
+  const [btnColor, setBtnColor] = useState("red");
   const [data, setData] = useState({
     fullName: "",
     email: "",
@@ -18,6 +19,7 @@ function Register() {
   const handleSubmit = (e) => {
     e.preventDefault();
     localStorage.setItem("registerinfo", JSON.stringify(data));
+    setBtnColor("green");
     setTimeout(() => {
       history("/register1");
     }, 2000);
@@ -90,9 +92,9 @@ function Register() {
             </div>
 
             <button
-              className="nextbtn"
               type="submit"
               disabled={!(data.password === data.confirmpassword)}
+              style={{ backgroundColor: btnColor }}
             >
               <span className="btnText">Next</span>
               <i className="uil uil-navigator"></i>

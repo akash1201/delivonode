@@ -37,8 +37,8 @@ function Register3() {
     uploadGSTcertificate: registerinfo.uploadGSTcertificate,
     liscenseNo: registerinfo.liscenseNo,
     gst: registerinfo.gst,
-    licenseType:registerinfo.licenseType,
-    storeImage:registerinfo.storeImage,
+    licenseType: registerinfo.licenseType,
+    storeImage: registerinfo.storeImage,
     bankName: "",
     accountHolder: "",
     accountNo: "",
@@ -59,10 +59,13 @@ function Register3() {
   const handleSubmit = (e) => {
     e.preventDefault();
     localStorage.setItem("registerinfo", JSON.stringify(data));
+    setBtnColor("green");
     setTimeout(() => {
       history("/register4");
     }, 2000);
   };
+  const [btnColor, setBtnColor] = useState("red");
+  const [imageColor, setImageColor] = useState("red");
   return (
     <div className="container1">
       <header>Bank Details</header>
@@ -110,7 +113,7 @@ function Register3() {
                 <input
                   type="number"
                   placeholder="Enter Your account no"
-                  id="accountNo"
+                  id="confirmaccountNo"
                   value={data.confirmaccountNo}
                   required="required"
                   onChange={handleChange}
@@ -152,6 +155,7 @@ function Register3() {
                 <button
                   type="button"
                   className="btn-success"
+                  style={{ backgroundColor: imageColor }}
                   onClick={async () => {
                     const formData1 = new FormData();
                     // Update the formData object
@@ -167,6 +171,7 @@ function Register3() {
                       formData1,
                       config
                     );
+                    setImageColor("green");
                     setData({
                       ...data,
                       cancelledCheque: imagedata1.data.imagedata,
@@ -178,12 +183,17 @@ function Register3() {
               </div>
             </div>
             <div className="buttons">
-              <button className="nextbtn" onClick={getBack}>
+              <button
+                className="nextbtn"
+                onClick={getBack}
+                style={{ backgroundColor: "red" }}
+              >
                 <span className="btnText">Back</span>
                 <i className="uil uil-navigator"></i>
               </button>
               <button
                 className="nextbtn"
+                style={{ backgroundColor: btnColor }}
                 type="submit"
                 disabled={!(data.accountNo === data.confirmaccountNo)}
               >

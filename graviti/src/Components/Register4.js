@@ -50,7 +50,7 @@ function Register4() {
     openingTime: registerinfo.openingTime,
     closingTime: registerinfo.closingTime,
     licenseType: registerinfo.licenseType,
-    storeImage:registerinfo.storeImage,
+    storeImage: registerinfo.storeImage,
     terms: false,
     policy: false,
     whatsappUpdate: false,
@@ -59,6 +59,7 @@ function Register4() {
   const getBack = async (e) => {
     history("/register3");
   };
+  const [btnColor, setBtnColor] = useState("red");
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (data.terms && data.policy) {
@@ -83,7 +84,7 @@ function Register4() {
           active: data.active,
           gst: data.gst,
           email: data.email,
-          storeImage:data.storeImage,
+          storeImage: data.storeImage,
           liscenseNo: data.liscenseNo,
           ownerPan: data.panNo,
           bankName: data.bankName,
@@ -105,6 +106,7 @@ function Register4() {
           cancelledCheque: data.cancelledCheque,
         })
       );
+      setBtnColor("green");
       setTimeout(() => {
         history("/register5");
       }, 2000);
@@ -122,26 +124,43 @@ function Register4() {
               <div style={{ fontSize: "1.7rem" }}>
                 <h2>Company Policy</h2>
                 <p>
-                  Lorem Ipsum is simply dummy text of the printing and
-                  typesetting industry. Lorem Ipsum has been the industry's
-                  standard dummy text ever since the 1500s, when an unknown
-                  printer took a galley of type and scrambled it to make a type
-                  specimen book. It has survived not only five centuries, but
-                  also the leap into electronic typesetting, remaining
-                  essentially unchanged.
+                  You shall not have more than one active Account (as defined
+                  hereinafter) on the Platform. Additionally, You are prohibited
+                  from selling, trading, or otherwise transferring Your Account
+                  to another party.
                 </p>
                 <br />
                 <h2>Terms & Conditions</h2>
                 <p>
-                  Lorem Ipsum is simply dummy text of the printing and
-                  typesetting industry. Lorem Ipsum has been the industry's
-                  standard dummy text ever since the 1500s, when an unknown
-                  printer took a galley of type and scrambled it to make a type
-                  specimen book. Lorem Ipsum is simply dummy text of the
-                  printing and typesetting industry. Lorem Ipsum has been the
-                  industry's standard dummy text ever since the 1500s, when an
-                  unknown printer took a galley of type and scrambled it to make
-                  a type specimen book.
+                  These terms of use ("Terms of Use") mandate the terms on which
+                  users ("You" or "Your" or "Yourself" or "Users") interested in
+                  browsing or availing GravityBites Services (defined below),
+                  and accessing the platform www.GravityBites.in and the mobile
+                  application owned and operated by GravityBites sole Proprietor
+                  ("GravityBites") collectively referred to as, the "Platform"
+                  connects with the merchants registered on the Platform
+                  ("Tied-up Merchants"), merchants not registered on the
+                  Platform ("Non-tied up Merchants") (together hereinafter
+                  referred to as "Merchants") and with delivery partners
+                  ("Delivery Partners") to avail the GravityBites Services.
+                  Please read the Terms of Use carefully before using the
+                  Platform or registering on the Platform or accessing any
+                  material or information through the Platform. By clicking on
+                  the "I Accept" button, You accept this Terms of Use and agree
+                  to be legally bound by the same. Use of and access to the
+                  Platform is offered to You upon the condition of acceptance of
+                  all the terms, conditions and notices contained in this Terms
+                  of Use and Privacy Policy, along with any amendments made by
+                  GravityBites at its sole discretion and posted on the Platform
+                  from time to time. For the purposes of these Terms of Use, the
+                  term 'GravityBites' or 'Us' or 'We' refers to GravityBites
+                  Digital Private Limited. The term 'You' refers to the user or
+                  visitor of the Website and/or App. When You use our services,
+                  You will be subject to the terms, guidelines and policies
+                  applicable to such service and as set forth in these Terms of
+                  Use. As long as you comply with these Terms of Use, We grant
+                  You a personal, non-exclusive, non-transferable, limited
+                  privilege to enter and use our Platforms and services.
                 </p>
               </div>
               <div className="checkbox">
@@ -204,11 +223,20 @@ function Register4() {
               </div>
             </div>
             <div className="buttons">
-              <button type="button" className="btn-danger" onClick={getBack}>
+              <button
+                type="button"
+                className="btn-danger"
+                onClick={getBack}
+                style={{ backgroundColor: "red" }}
+              >
                 <span className="btnText">Back</span>
                 <i className="uil uil-navigator"></i>
               </button>
-              <button className="btn-success" type="submit">
+              <button
+                className="btn-success"
+                type="submit"
+                style={{ backgroundColor: btnColor }}
+              >
                 <span className="btnText">Submit</span>
                 <i className="uil uil-navigator"></i>
               </button>

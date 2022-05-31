@@ -2,7 +2,7 @@
 const mongoose = require("mongoose");
 //import bcrypt from "bcryptjs";
 const bcrypt = require("bcryptjs");
-const geocoder = require("../utils/geocoder.js");
+// const geocoder = require("../utils/geocoder.js");
 // const { NumberContext } = require("twilio/lib/rest/pricing/v2/voice/number");
 
 const Address = mongoose.Schema({

@@ -107,7 +107,7 @@ function Home() {
             <div className="col-12 col-md-7 col-lg-6 order-md-1 pr-md-5">
               <h1 className="display-4 text-center text-md-left mb-3">
                 Got Delivered{" "}
-                <strong className="text-primary">Everything You Need</strong>
+                <strong className="text-success">Everything You Need</strong>
               </h1>
 
               <p className="lead text-center text-md-left text-muted">
@@ -149,7 +149,7 @@ function Home() {
             <div className="col-12 col-md-7 col-lg-6 order-md-1 pr-md-5">
               <h1 className="display-4 text-center text-md-left mb-3">
                 {/* It's time to take your{" "} */}
-                <strong className="text-primary">Groceries</strong>
+                <strong className="text-success">Groceries</strong>
               </h1>
               <h3>
                 Let go off your hectic grocery shopping. Now order groceries
@@ -176,14 +176,15 @@ function Home() {
               {/* className="display-4 text-center text-md-left mb-3" */}
               <h1 className="display-4 text-center text-md-left mb-3">
                 {/* It's time to take your{" "} */}
-                <strong className="text-primary">Medicines</strong>
+                <strong className="text-success">Medicines</strong>
               </h1>
-              <h6> (You can upload your prescription)</h6>
+
               <br />
               <h3>
                 When you do not fell well. Order Medicines with quick delivery &
                 hassle free experience.
               </h3>
+              <h4> (You can upload your prescription)</h4>
             </div>
           </div>
         </div>
@@ -260,7 +261,7 @@ function Home() {
               {/* className="display-4 text-center text-md-left mb-3" */}
               <h1 className="display-4 text-center text-md-left mb-3">
                 {/* It's time to take your{" "} */}
-                <strong className="text-primary">Custom Delivery</strong>
+                <strong className="text-success">Custom Delivery</strong>
               </h1>
               <h3>
                 As a part of the GravityBites Services, GravityBites also gives
@@ -270,7 +271,7 @@ function Home() {
               <div className="text-center text-md-left mt-5">
                 <a
                   href="#"
-                  className="btn btn-primary btn-icon"
+                  className="btn btn-success btn-icon"
                   target="_blank"
                 >
                   <span className="btn-inner--text">Arrange Pickup</span>
@@ -369,21 +370,13 @@ function Home() {
             <div className="col-12 col-md-7 col-lg-6 order-md-1 pr-md-5">
               {/* className="display-4 text-center text-md-left mb-3" */}
               <h3>
-                As a part of the GravityBites Services, GravityBites also gives
-                you an option to avail the Pick Up and Drop Off Services being
-                provided by our Delivery Partners.
+                Get your product Delivered with minimum commission and get
+                instant payments t&c applied.
               </h3>
               <div className="text-center text-md-left mt-5">
-                <a
-                  href="#"
-                  className="btn btn-primary btn-icon"
-                  target="_blank"
-                >
-                  <span className="btn-inner--text">Arrange Pickup</span>
-                  <span className="btn-inner--icon">
-                    <i data-feather="chevron-right"></i>
-                  </span>
-                </a>
+                <Link to="/register" clLinkssName="btn btn-success btn-icon">
+                  <button className="btn-success btn ">Join Us</button>
+                </Link>
               </div>
             </div>
           </div>
@@ -492,6 +485,11 @@ function Home() {
                       Cookies
                     </a>
                   </li>
+                  <li>
+                    <a href="#" style={{ color: "black" }}>
+                      Become our Store partner
+                    </a>
+                  </li>
                 </ul>
               </div>
 
@@ -535,6 +533,11 @@ function Home() {
                   <li>
                     <a href="" style={{ color: "black" }}>
                       YouTube
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" style={{ color: "black" }}>
+                      Join our Delivery Team
                     </a>
                   </li>
                 </ul>

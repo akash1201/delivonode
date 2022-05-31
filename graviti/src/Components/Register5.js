@@ -1,12 +1,11 @@
 import { React, useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 
-
 function Register5() {
   const history = useNavigate();
   const nowContinue = () => {
     setTimeout(() => {
-      history("/");
+      history("/login");
     }, 2000);
   };
   return (
@@ -102,7 +101,10 @@ function Register5() {
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
-            <div className="modal-body"></div>
+            <div className="modal-body">
+              Thank Your Registering on Gravity Bites. Our Team will verify your
+              documents, after which your account would be activated.
+            </div>
             <div className="modal-footer">
               <button
                 type="button"

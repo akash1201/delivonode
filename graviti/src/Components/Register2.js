@@ -28,7 +28,7 @@ function Register2() {
     closingTime: registerinfo.closingTime,
     latitude: registerinfo.latitude,
     longitude: registerinfo.longitude,
-    storeImage:registerinfo.storeImage,
+    storeImage: registerinfo.storeImage,
     uploadPan: "",
     uploadGSTcertificate: "",
     uploadMenu: "",
@@ -59,10 +59,17 @@ function Register2() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     localStorage.setItem("registerinfo", JSON.stringify(data));
+    setBtnColor("green");
     setTimeout(() => {
       history("/register3");
     }, 2000);
   };
+  const [btnColor, setBtnColor] = useState("red");
+  const [imageColor, setImageColor] = useState({
+    menu: "red",
+    pan: "red",
+    gst: "red",
+  });
   return (
     <div className="container1">
       <header>Dcouments</header>
@@ -72,6 +79,16 @@ function Register2() {
             {/* <span className="title">Store Details</span> */}
             <div className="fields">
               <div className="input-fields">
+                <h4 style={{ fontWeight: "500" }}>
+                  {data.categories == "Foods Beverages"
+                    ? "Select Fssai License"
+                    : ""}
+                </h4>
+                <h4 style={{ fontWeight: "500" }}>
+                  {data.categories == "Pharma Medicine"
+                    ? "Select Pharmacy License"
+                    : ""}
+                </h4>
                 <label for="services">License Type</label>
                 <select
                   name="services"
@@ -130,6 +147,7 @@ function Register2() {
                 <button
                   type="button"
                   className="btn-success"
+                  style={{ backgroundColor: imageColor.pan }}
                   onClick={async () => {
                     const formData4 = new FormData();
                     // Update the formData object
@@ -145,6 +163,7 @@ function Register2() {
                       formData4,
                       config
                     );
+                    setImageColor({ ...imageColor, pan: "green" });
                     setData({
                       ...data,
                       uploadPan: imagedata4.data.imagedata,
@@ -180,6 +199,7 @@ function Register2() {
                 <button
                   type="button"
                   className="btn-success"
+                  style={{ backgroundColor: imageColor.gst }}
                   onClick={async () => {
                     const formData5 = new FormData();
                     // Update the formData object
@@ -195,6 +215,7 @@ function Register2() {
                       formData5,
                       config
                     );
+                    setImageColor({ ...imageColor, gst: "green" });
                     setData({
                       ...data,
                       uploadGSTcertificate: imagedata5.data.imagedata,
@@ -217,6 +238,7 @@ function Register2() {
                 <button
                   type="button"
                   className="btn-success"
+                  style={{ backgroundColor: imageColor.menu }}
                   onClick={async () => {
                     const formData1 = new FormData();
                     // Update the formData object
@@ -232,6 +254,7 @@ function Register2() {
                       formData1,
                       config
                     );
+                    setImageColor({ ...imageColor, menu: "green" });
                     setData({
                       ...data,
                       uploadMenu: imagedata1.data.imagedata,
@@ -243,12 +266,20 @@ function Register2() {
               </div>
             </div>
             <div className="buttons">
-              <button className="backbtn" onClick={getBack}>
+              <button
+                className="backbtn"
+                onClick={getBack}
+                style={{ backgroundColor: "red" }}
+              >
                 <span className="btnText">Back</span>
                 <i className="uil uil-navigator"></i>
               </button>
 
-              <button className="nextbtn" type="submit">
+              <button
+                className="nextbtn"
+                type="submit"
+                style={{ backgroundColor: btnColor }}
+              >
                 <span className="btnText">Next</span>
                 <i className="uil uil-navigator"></i>
               </button>
