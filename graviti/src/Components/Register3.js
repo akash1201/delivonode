@@ -18,7 +18,6 @@ function Register3() {
     confirmpassword: registerinfo.confirmpassword,
     storeName: registerinfo.storeName,
     storeManager: registerinfo.storeManager,
-    vendorType: registerinfo.vendorType,
     countryCode: registerinfo.countryCode,
     stateCode: registerinfo.stateCode,
     zipcode: registerinfo.zipcode,
@@ -39,6 +38,8 @@ function Register3() {
     gst: registerinfo.gst,
     licenseType: registerinfo.licenseType,
     storeImage: registerinfo.storeImage,
+    licenseImage: registerinfo.licenseImage,
+    expiryDate: registerinfo.expiryDate,
     bankName: "",
     accountHolder: "",
     accountNo: "",
@@ -59,13 +60,13 @@ function Register3() {
   const handleSubmit = (e) => {
     e.preventDefault();
     localStorage.setItem("registerinfo", JSON.stringify(data));
-    setBtnColor("green");
+    setBtnColor("#93f037");
     setTimeout(() => {
       history("/register4");
     }, 2000);
   };
-  const [btnColor, setBtnColor] = useState("red");
-  const [imageColor, setImageColor] = useState("red");
+  const [btnColor, setBtnColor] = useState("grey");
+  const [imageColor, setImageColor] = useState("grey");
   return (
     <div className="container1">
       <header>Bank Details</header>
@@ -118,6 +119,9 @@ function Register3() {
                   required="required"
                   onChange={handleChange}
                 />
+                {data.accountNo === data.confirmaccountNo
+                  ? null
+                  : "Account No doesn't match"}
               </div>
               <div className="input-fields">
                 <label for="">IFSC Code</label>
@@ -171,7 +175,7 @@ function Register3() {
                       formData1,
                       config
                     );
-                    setImageColor("green");
+                    setImageColor("#93f037");
                     setData({
                       ...data,
                       cancelledCheque: imagedata1.data.imagedata,

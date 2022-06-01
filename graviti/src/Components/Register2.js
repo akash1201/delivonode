@@ -15,7 +15,6 @@ function Register2() {
     phoneNo: registerinfo.phoneNo,
     storeName: registerinfo.storeName,
     storeManager: registerinfo.storeManager,
-    vendorType: registerinfo.vendorType,
     countryCode: registerinfo.countryCode,
     stateCode: registerinfo.stateCode,
     zipcode: registerinfo.zipcode,
@@ -35,6 +34,8 @@ function Register2() {
     panNo: "",
     liscenseNo: "",
     licenseType: "",
+    licenseImage: "",
+    expiryDate: "",
     gst: "",
   });
   const getBack = async (e) => {
@@ -51,6 +52,9 @@ function Register2() {
     } else if (e.target.id === "uploadMenu") {
       console.log(e.target.files, "5");
       setData({ ...data, [e.target.id]: e.target.files[0] });
+    } else if (e.target.id === "licenseImage") {
+      console.log(e.target.files, "6");
+      setData({ ...data, [e.target.id]: e.target.files[0] });
     } else {
       setData({ ...data, [e.target.id]: e.target.value });
     }
@@ -59,16 +63,17 @@ function Register2() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     localStorage.setItem("registerinfo", JSON.stringify(data));
-    setBtnColor("green");
+    setBtnColor("#93f037");
     setTimeout(() => {
       history("/register3");
     }, 2000);
   };
-  const [btnColor, setBtnColor] = useState("red");
+  const [btnColor, setBtnColor] = useState("grey");
   const [imageColor, setImageColor] = useState({
-    menu: "red",
-    pan: "red",
-    gst: "red",
+    menu: "grey",
+    pan: "grey",
+    gst: "grey",
+    license: "grey",
   });
   return (
     <div className="container1">
@@ -111,6 +116,17 @@ function Register2() {
                 </select>
               </div>
               <div className="input-fields">
+                <label for="">Expiry Date</label>
+                <input
+                  type="date"
+                  id="expiryDate"
+                  value={data.expiryDate}
+                  onChange={handleChange}
+                  placeholder="License Expiry Date"
+                  required
+                />
+              </div>
+              <div className="input-fields">
                 <label for="">License Number</label>
                 <input
                   type="text"
@@ -120,6 +136,46 @@ function Register2() {
                   placeholder="Enter License Number"
                   required
                 />
+              </div>
+
+              <div className="input-fields">
+                <label for="">License Image</label>
+                <input
+                  type="file"
+                  id="licenseImage"
+                  name="image"
+                  onChange={handleChange}
+                  placeholder=""
+                  required="required"
+                />
+                <button
+                  type="button"
+                  className="btn-success"
+                  style={{ backgroundColor: imageColor.license }}
+                  onClick={async () => {
+                    const formData8 = new FormData();
+                    // Update the formData object
+                    formData8.append("image", data.licenseImage);
+                    // setData({ ...data, [e.target.id]: e.target.files[0] });
+                    const config = {
+                      headers: {
+                        contentType: "multipart/form-data",
+                      },
+                    };
+                    const imagedata8 = await axios.post(
+                      `/api/upload/`,
+                      formData8,
+                      config
+                    );
+                    setImageColor({ ...imageColor, license: "#93f037" });
+                    setData({
+                      ...data,
+                      licenseImage: imagedata8.data.imagedata,
+                    });
+                  }}
+                >
+                  Upload
+                </button>
               </div>
 
               <div className="input-fields">
@@ -163,7 +219,7 @@ function Register2() {
                       formData4,
                       config
                     );
-                    setImageColor({ ...imageColor, pan: "green" });
+                    setImageColor({ ...imageColor, pan: "#93f037" });
                     setData({
                       ...data,
                       uploadPan: imagedata4.data.imagedata,
@@ -175,7 +231,10 @@ function Register2() {
               </div>
 
               <div className="input-fields">
-                <label for="">GST Number</label>
+                <label for="">
+                  GST Number{" "}
+                  <h6> ( Applicable if store turnover above 20 Lakh)</h6>
+                </label>
                 <input
                   type="text"
                   id="gst"
@@ -215,7 +274,7 @@ function Register2() {
                       formData5,
                       config
                     );
-                    setImageColor({ ...imageColor, gst: "green" });
+                    setImageColor({ ...imageColor, gst: "#93f037" });
                     setData({
                       ...data,
                       uploadGSTcertificate: imagedata5.data.imagedata,
@@ -254,7 +313,7 @@ function Register2() {
                       formData1,
                       config
                     );
-                    setImageColor({ ...imageColor, menu: "green" });
+                    setImageColor({ ...imageColor, menu: "#93f037" });
                     setData({
                       ...data,
                       uploadMenu: imagedata1.data.imagedata,

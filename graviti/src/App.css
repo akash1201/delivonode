@@ -1,3 +1,89 @@
+.wrapper9 {
+  width: 50%;
+  margin: 0 auto;
+  margin-top: 5rem;
+  background: #fff;
+  border-radius: 15px;
+  box-shadow: 0px 15px 20px rgba(0, 0, 0, 0.1);
+}
+.wrapper9 .title {
+  color: #93f037;
+  line-height: 8rem;
+  background: white;
+  font-size: 4rem;
+  font-weight: 600;
+  text-align: center;
+  border-radius: 5px 5px 0px 0px;
+}
+.wrapper9 form {
+  padding: 5rem 5rem 5rem 5rem;
+}
+.wrapper9 form .field {
+  height: 6rem;
+  width: 100%;
+  margin-top: 2rem;
+}
+.wrapper9 form .field input {
+  height: 100%;
+  width: 100%;
+  font-size: 2rem;
+  padding-left: 2rem;
+  border-radius: 5px;
+  outline: none;
+  border: 1px solid lightgray;
+  transition: all 0.3s ease;
+}
+/* .wrapper9 form .field input:focus,
+.wrapper9 form .field input:valid {
+  border-color: #415860;
+} */
+/* .wrapper9 form .field label {
+  position: absolute;
+  top: 50%;
+  left: 20px;
+  font-size: 17px;
+  color: #999;
+  transform: translateY(-50%);
+  pointer-events: none;
+  transition: all 0.3s ease;
+} */
+/* .wrapper9 form .field input:focus ~ label,
+.wrapper9 form .field input:valid ~ label {
+  top: 0%;
+  font-size: 15px;
+  color: #415860;
+  transform: translateY(-50%);
+  background: #fff;
+} */
+.wrapper9 form .pass-link {
+  color: #415860;
+  margin: 8px 0 0 10px;
+  text-decoration: none;
+}
+.wrapper9 form .field button {
+  height: 100%;
+  width: 100%;
+  color: #fff;
+  background: #93f037;
+  font-size: 3rem;
+  font-weight: 500;
+  border: none;
+  padding-left: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.wrapper_signup {
+  margin-left: 5rem;
+  padding-bottom: 2rem;
+}
+@media (max-width: 500px) {
+  .wrapper9 {
+    width: 85%;
+  }
+}
+/* .wrapper9 form .field input[type="submit"]:active {
+  transform: scale(0.95);
+} */
 .gblogo {
   display: flex;
   justify-content: space-between;

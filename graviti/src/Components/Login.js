@@ -26,45 +26,51 @@ function Login() {
   };
 
   return (
-    <div className="container1">
-      <header>Login</header>
+    <div className="wrapper9">
+      <div className="title">Login </div>
       <form onSubmit={handleSubmit}>
-        <div className="form first">
-          <div className="details personal">
-            <div className="fields">
-              <div className="input-fields">
-                <label for="">Email Id</label>
-                <input
-                  type="text"
-                  id="email"
-                  value={data.email}
-                  onChange={handleChange}
-                  placeholder="Enter Your Email Id"
-                  required="required"
-                />
-              </div>
-            </div>
-            <div className="fields">
-              <div className="input-fields">
-                <label for="">Password </label>
-                <input
-                  type="password"
-                  id="password"
-                  value={data.password}
-                  onChange={handleChange}
-                  placeholder="Enter Your Password"
-                  required="required"
-                />
-              </div>
-            </div>
-
-            <button className="nextbtn" type="submit">
-              <span className="btnText">Next</span>
-              <i className="uil uil-navigator"></i>
-            </button>
-          </div>
+        <div className="field">
+          <input
+            type="text"
+            id="email"
+            value={data.email}
+            onChange={handleChange}
+            required
+            placeholder="Enter Email Address"
+          />
+        </div>
+        <div className="field">
+          <input
+            type="password"
+            id="password"
+            value={data.password}
+            onChange={handleChange}
+            required
+            placeholder="Enter Password"
+          />
+        </div>
+        <div className="pass-link">
+          <a href="#">Forget Password?</a>
+        </div>
+        <div className="field">
+          <button className="nextbtn" type="submit">
+            Login
+          </button>
         </div>
       </form>
+      <div className="wrapper_signup">
+        <h3>Don't have an account ?</h3>
+        <Link
+          to="/register"
+          style={{
+            color: "#93f037",
+            border: "none",
+            fontSize: "1.5rem",
+          }}
+        >
+          Sign Up
+        </Link>
+      </div>
     </div>
   );
 }

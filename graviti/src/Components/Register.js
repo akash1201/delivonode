@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 function Register() {
   const history = useNavigate();
-  const [btnColor, setBtnColor] = useState("red");
+  const [btnColor, setBtnColor] = useState("grey");
   const [data, setData] = useState({
     fullName: "",
     email: "",
@@ -18,11 +18,15 @@ function Register() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    localStorage.setItem("registerinfo", JSON.stringify(data));
-    setBtnColor("green");
-    setTimeout(() => {
-      history("/register1");
-    }, 2000);
+    if (data.phoneNo.length == "10") {
+      localStorage.setItem("registerinfo", JSON.stringify(data));
+      setBtnColor("#93f037");
+      setTimeout(() => {
+        history("/register1");
+      }, 2000);
+    }
+    setBtnColor("red");
+    history("/register");
   };
 
   return (
@@ -61,11 +65,16 @@ function Register() {
                 <input
                   type="number"
                   id="phoneNo"
+                  minLength="10"
+                  maxLength="10"
                   value={data.phoneNo}
                   onChange={handleChange}
                   placeholder="Enter Your Mobile Number"
                   required
                 />
+                {data.phoneNo.length == "10"
+                  ? null
+                  : "Enter a 10-digit mobile number"}
               </div>
               <div className="input-fields">
                 <label for="">Password </label>
@@ -88,12 +97,18 @@ function Register() {
                   placeholder="Enter Your Password"
                   required="required"
                 />
+                {data.confirmpassword === data.password
+                  ? null
+                  : "Password doesn't match"}
               </div>
             </div>
 
             <button
               type="submit"
-              disabled={!(data.password === data.confirmpassword)}
+              disabled={
+                !(data.password === data.confirmpassword) ||
+                data.phoneNo.length === "10"
+              }
               style={{ backgroundColor: btnColor }}
             >
               <span className="btnText">Next</span>

@@ -101,11 +101,12 @@ const updateCategory = asyncHandler(async (req, res) => {
     }
     let exists = await Category.findById({ _id: req.params.categoryId });
     if (exists) {
-      exists.name = req.body.name || exists.name;
+      exists.parent = req.body.parent || exists.parent;
       exists.subcateogry = req.body.subcateogry || exists.subcateogry;
       exists.image = req.body.image || exists.image;
+      exists.bgColor = req.body.bgColor || exists.bgColor;
       let product = await exists.save();
-      res.json("Category Updated");
+      return res.json("Category Updated");
     }
     res.status(500).json("Category not found");
   } catch (error) {

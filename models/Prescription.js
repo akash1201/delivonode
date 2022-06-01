@@ -25,6 +25,10 @@ const PrescriptionSchema = mongoose.Schema({
   description: {
     type: String,
   },
+  status: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const Prescription = mongoose.model("Prescription", PrescriptionSchema);

@@ -119,8 +119,8 @@ const myAddress = asyncHandler(async (req, res) => {
   try {
     let token = req.headers.authorization.split(" ")[1];
     let userid = jwt.verify(token, process.env.JWT_SECRET);
-    const myaddress = await Address.findById(userid.id);
-    res.json({ status: 200, myaddress });
+    const myaddress = await Address.find({ userId: userid.id });
+    res.status(200).json({ myaddress });
   } catch (error) {
     console.error(error);
     res.status(500).json({ msg: "Internal server error" });
@@ -518,7 +518,7 @@ const viewCart = asyncHandler(async (req, res) => {
     res.status(500).json({ error });
   }
 });
-// Fetch By category
+// Fetch Stores By category
 const fetchBycategory = asyncHandler(async (req, res) => {
   try {
     let token = req.headers.authorization.split(" ")[1];
@@ -526,7 +526,9 @@ const fetchBycategory = asyncHandler(async (req, res) => {
     if (!userid) {
       return res.json("Login to continue");
     }
-    let options = await Store.find({ categories: req.params.categoryName });
+    let category = await Category.findById(req.params.categoryId);
+    categoryName = category.subcategory;
+    let options = await Store.find({ categories: categoryName });
     res.status(200).json({
       options,
       distance: "5km",
@@ -537,8 +539,27 @@ const fetchBycategory = asyncHandler(async (req, res) => {
     res.status(500).json({ msg: error });
   }
 });
+// Fetch Stores according to sub-category of food items
+const fetchStorebySubcategory = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let userid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!userid) {
+      return res.json("Login to continue");
+    }
+    let mycategory = await Category.findById(req.params.categoryId);
+    let category = await Category.findById(req.params.subcategoryId);
+    categoryName = mycategory.subcategory;
+    let options = await Store.find({ categories: categoryName });
+    res.status(200).json({
+      options,
+    });
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
 
-// Fetch Products based on store and category
+// Fetch Products based on store and sub category
 const fetchProducts = asyncHandler(async (req, res) => {
   try {
     let token = req.headers.authorization.split(" ")[1];
@@ -548,11 +569,11 @@ const fetchProducts = asyncHandler(async (req, res) => {
     }
     let options = await Product.find({
       vendorId: req.params.vendorId,
-      category: req.params.subcategoryName,
+      subcategory: req.params.subcategoryName,
     });
-    // let reviews = await Reviews.find({ vendorId: req.paramams.vendorId });
-    // let totalreviews = reviews.length();
-    res.status(200).json({ options, totalreviews: "140" });
+    let reviews = await Reviews.find({ vendorId: req.params.vendorId });
+    let totalreviews = reviews.length;
+    res.status(200).json({ options, totalreviews });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error });
@@ -566,8 +587,7 @@ const fetchCategories = asyncHandler(async (req, res) => {
     if (!userid) {
       return res.json("Login to continue");
     }
-    let category = [];
-    const categories = await Category.distinct("name");
+    const categories = await Category.find({ parent: "null" });
     res.status(200).json({ categories });
   } catch (error) {
     res.status(500).json({ error });
@@ -582,7 +602,7 @@ const fetchsubCategories = asyncHandler(async (req, res) => {
     if (!userid) {
       return res.json("Login to continue");
     }
-    const categories = await Category.find({ name: req.params.categoryName });
+    const categories = await Category.find({ parent: req.params.categoryId });
     res.status(200).json({ categories });
   } catch (error) {
     res.status(500).json({ error });

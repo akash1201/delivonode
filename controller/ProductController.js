@@ -41,6 +41,11 @@ const getProducts = asyncHandler(async (req, res) => {
     if (!storeid) {
       return res.status(500).json({ msg: "Authentication Failed" });
     }
+    // let store = await Store.findById(storeid.id);
+    // let mycategory = await Category.find({
+    //   parent: "null",
+    //   subcategory: store.categories,
+    // });
     let products = await Product.find({
       vendorId: storeid.id,
       subcategory: req.params.categoryName,
@@ -58,45 +63,12 @@ const getSubcategories = asyncHandler(async (req, res) => {
       return res.status(500).json({ msg: "Authentication Failed" });
     }
     let store = await Store.findById(storeid.id);
-    let mycategory = store.categories;
-    if (mycategory === "Vegetables & Fruits") {
-      let subCategory = [
-        "Green-Vegetable",
-        "Summer-Fruits",
-        "Winter-Vegetables",
-        "Herbs",
-      ];
-      res.status(200).json({ subCategory });
-    }
-    if (mycategory === "Meat & Fish") {
-      let subCategory = ["Latin-Fish", "Prawns"];
-      res.status(200).json({ subCategory });
-    }
-    if (mycategory === "Pet Supplies") {
-      let subCategory = ["Dog-Supplies", "Cat-Supplies", "Bones", "Belt"];
-      res.status(200).json({ subCategory });
-    }
-    if (mycategory === "Pharma Medicines") {
-      let subCategory = [
-        "Vitamin-Supplements",
-        "Bandages",
-        "Energy-Drink",
-        "Thyroid",
-      ];
-      res.status(200).json({ subCategory });
-    }
-    if (mycategory === "Food & Meals") {
-      let subCategory = [
-        "Chinese-Food",
-        "Continental",
-        "Thai",
-        "Italian",
-        "Indian",
-      ];
-      res.status(200).json({ subCategory });
-    } else {
-      res.status(500).json("Choose coorect category");
-    }
+    let mycategory = await Category.find({
+      parent: "null",
+      subcategory: store.categories,
+    });
+    let category = await Category.find({ parent: mycategory._id.toString() });
+    res.status(200).json({ category });
   } catch (err) {
     res.json({ status: 500, msg: err });
   }
@@ -138,12 +110,7 @@ const deleteProduct = asyncHandler(async (req, res) => {
     if (!storeid) {
       return res.status(500).json({ msg: "Authentication Failed" });
     }
-    // const store = await Store.findById(storeid.id);
-    // if (store.isApproved == false) {
-    //   return res.status(500).json("Registeration approval pending by admin");
-    // }
-    // let product = await Product.findById(req.params.productId);
-    await Product.deleteOne({ _id: req.params.productId.toString() });
+    await Product.deleteOne({ _id: req.params.productId });
     return res.status(200).json("Product Deleted");
   } catch (err) {
     console.log(err);

@@ -80,8 +80,7 @@ function Home() {
                 width: "100%",
                 borderRadius: "15px",
                 border: "none",
-                backgroundColor: "#93f037",
-
+                backgroundColor: "#7cbf39",
                 marginTop: "1.5rem",
                 fontSize: "1.8rem",
               }}
@@ -107,7 +106,9 @@ function Home() {
             <div className="col-12 col-md-7 col-lg-6 order-md-1 pr-md-5">
               <h1 className="display-4 text-center text-md-left mb-3">
                 Got Delivered{" "}
-                <strong className="text-success">Everything You Need</strong>
+                <strong style={{ color: "#a9f75c" }}>
+                  Everything You Need
+                </strong>
               </h1>
 
               <p className="lead text-center text-md-left text-muted">
@@ -149,7 +150,7 @@ function Home() {
             <div className="col-12 col-md-7 col-lg-6 order-md-1 pr-md-5">
               <h1 className="display-4 text-center text-md-left mb-3">
                 {/* It's time to take your{" "} */}
-                <strong className="text-success">Groceries</strong>
+                <strong style={{ color: "#a9f75c" }}>Groceries</strong>
               </h1>
               <h3>
                 Let go off your hectic grocery shopping. Now order groceries
@@ -176,7 +177,7 @@ function Home() {
               {/* className="display-4 text-center text-md-left mb-3" */}
               <h1 className="display-4 text-center text-md-left mb-3">
                 {/* It's time to take your{" "} */}
-                <strong className="text-success">Medicines</strong>
+                <strong style={{ color: "#a9f75c" }}>Medicines</strong>
               </h1>
 
               <br />
@@ -261,7 +262,7 @@ function Home() {
               {/* className="display-4 text-center text-md-left mb-3" */}
               <h1 className="display-4 text-center text-md-left mb-3">
                 {/* It's time to take your{" "} */}
-                <strong className="text-success">Custom Delivery</strong>
+                <strong style={{ color: "#a9f75c" }}>Custom Delivery</strong>
               </h1>
               <h3>
                 As a part of the GravityBites Services, GravityBites also gives
@@ -272,6 +273,11 @@ function Home() {
                 <a
                   href="#"
                   className="btn btn-success btn-icon"
+                  style={{
+                    backgroundColor: "#a9f75c",
+                    border: "none",
+                    fontSize: "1.5rem",
+                  }}
                   target="_blank"
                 >
                   <span className="btn-inner--text">Arrange Pickup</span>
@@ -348,7 +354,11 @@ function Home() {
           <button
             type="button"
             className="btn btn-success btn-lg"
-            style={{ fontSize: "2rem" }}
+            style={{
+              backgroundColor: "#a9f75c",
+              border: "none",
+              fontSize: "2rem",
+            }}
           >
             Start Shopping
           </button>
@@ -375,7 +385,16 @@ function Home() {
               </h3>
               <div className="text-center text-md-left mt-5">
                 <Link to="/register" clLinkssName="btn btn-success btn-icon">
-                  <button className="btn-success btn ">Join Us</button>
+                  <button
+                    className="btn-success btn "
+                    style={{
+                      backgroundColor: "#a9f75c",
+                      border: "none",
+                      fontSize: "1.5rem",
+                    }}
+                  >
+                    Join Us
+                  </button>
                 </Link>
               </div>
             </div>
@@ -393,7 +412,7 @@ function Home() {
             <div className="row">
               <div className="col-lg-6 mb-6 mb-lg-0">
                 <span>
-                  <h1 style={{ color: "#93f037" }}>
+                  <h1 style={{ color: "#a9f75c" }}>
                     <span>Gravity</span>Bites
                   </h1>
                 </span>
@@ -453,7 +472,7 @@ function Home() {
               </div>
 
               <div className="col-lg-3 col-6 col-sm-4 mb-5 mb-lg-0">
-                <h3 className="heading mb-3" style={{ color: "#93f037" }}>
+                <h3 className="heading mb-3" style={{ color: "#a9f75c" }}>
                   <b>COMPANY</b>
                 </h3>
                 <ul
@@ -481,6 +500,7 @@ function Home() {
                     </a> */}
                     <Link
                       to="/newsletter"
+                      style={{ color: "black" }}
                       data-toggle="modal"
                       data-target="#newsletterModal"
                     >
@@ -497,11 +517,16 @@ function Home() {
                       Become our Store partner
                     </a>
                   </li>
+                  <li>
+                    <a href="#" style={{ color: "black" }}>
+                      Join our Delivery Team
+                    </a>
+                  </li>
                 </ul>
               </div>
 
               <div className="col-lg-3 col-6 col-sm-4 ml-lg-auto mb-5 mb-lg-0">
-                <h3 className="heading mb-3" style={{ color: "#93f037" }}>
+                <h3 className="heading mb-3" style={{ color: "#a9f75c" }}>
                   <b>Social Media</b>
                 </h3>
                 <ul
@@ -542,11 +567,6 @@ function Home() {
                       YouTube
                     </a>
                   </li>
-                  <li>
-                    <a href="#" style={{ color: "black" }}>
-                      Join our Delivery Team
-                    </a>
-                  </li>
                 </ul>
               </div>
             </div>
@@ -557,7 +577,17 @@ function Home() {
                   className="copyright text-sm font-weight-bold text-center text-md-left"
                   style={{ fontWeight: "500", fontSize: "1.5rem" }}
                 >
-                  &copy; 2022 <a href="#">GravityBites</a>. All rights reserved
+                  &copy; 2022{" "}
+                  <a
+                    href="#"
+                    style={{
+                      color: "#a9f75c",
+                      fontWeight: "700",
+                    }}
+                  >
+                    GravityBites
+                  </a>
+                  . All rights reserved
                 </div>
               </div>
             </div>

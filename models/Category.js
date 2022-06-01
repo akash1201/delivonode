@@ -2,11 +2,7 @@
 const mongoose = require("mongoose");
 
 const CategorySchema = mongoose.Schema({
-  categoryId: {
-    type: String,
-    required: true,
-  },
-  name: {
+  parent: {
     type: String,
     required: true,
   },
@@ -15,6 +11,10 @@ const CategorySchema = mongoose.Schema({
     required: true,
   },
   image: {
+    type: String,
+    required: true,
+  },
+  bgColor: {
     type: String,
     required: true,
   },

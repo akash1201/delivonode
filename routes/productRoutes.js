@@ -16,7 +16,7 @@ const router = express.Router();
 // router.post(`/add-category`, addCategory);
 router.post(`/add-product`, protect, addProduct);
 router.get(`/vendor/get-products/:categoryName`, protect, getProducts);
-router.get(`/getSubcategories`, getSubcategories);
+router.get(`/getSubcategories/`, getSubcategories);
 router.put(`/update-product/:productId`, protect, updateProduct);
 router.delete(`/delete-product/:productId`, protect, deleteProduct);
 

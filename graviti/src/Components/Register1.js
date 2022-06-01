@@ -28,7 +28,6 @@ function Register1() {
     services: "",
     storeManager: "",
     storeName: "",
-    vendorType: "",
     storeImage: "",
   });
   const [mapdata, setMapdata] = useState({ lat: 28.6139, lng: 77.209 });
@@ -55,7 +54,6 @@ function Register1() {
     if (e.target.id === "storeImage") {
       console.log(e.target.files, "1");
       setData({ ...data, [e.target.id]: e.target.files[0] });
-      setImageColor("green");
     } else {
       setData({ ...data, [e.target.id]: e.target.value });
     }
@@ -64,7 +62,7 @@ function Register1() {
   //   navigator.geolocation.getCurrentPosition(success);
   // }, []);
   const detectLocation = () => {
-    setDetectColor("green");
+    setDetectColor("#93f037");
     navigator.geolocation.getCurrentPosition(success);
   };
 
@@ -79,14 +77,17 @@ function Register1() {
 
   const handleSubmit2 = (e) => {
     e.preventDefault();
-    setData({ ...data, latitude: mapdata.lat, longitude: mapdata.lng });
-    setTimeout(() => {
-      history("/register2");
-    }, 2000);
+    if (data.zipcode.length == "6") {
+      setData({ ...data, latitude: mapdata.lat, longitude: mapdata.lng });
+      setTimeout(() => {
+        history("/register2");
+      }, 2000);
+    }
+    setBtnColor("red");
   };
-  const [btnColor, setBtnColor] = useState("red");
-  const [imageColor, setImageColor] = useState("red");
-  const [detectColor, setDetectColor] = useState("red");
+  const [btnColor, setBtnColor] = useState("grey");
+  const [imageColor, setImageColor] = useState("grey");
+  const [detectColor, setDetectColor] = useState("grey");
 
   return (
     <div className="container1">
@@ -107,22 +108,22 @@ function Register1() {
                 />
               </div>
               <div className="input-fields">
-                <label for="">Vendor Type</label>
+                <label for="">Who Manages the Store?</label>
                 <input
                   type="text"
-                  id="vendorType"
-                  value={data.vendorType}
+                  id="storeManager"
+                  value={data.storeManager}
                   onChange={handleChange}
-                  placeholder="Enter Vendor Type"
-                  required="required"
+                  placeholder="Name"
+                  required
                 />
               </div>
               <div className="input-fields">
                 <label for="">Opening Time</label>
                 <input
                   type="time"
-                  min="9:00"
-                  max="23:00"
+                  min="8:00"
+                  max="12:00"
                   id="openingTime"
                   value={data.openingTime}
                   onChange={handleChange}
@@ -134,8 +135,8 @@ function Register1() {
                 <label for="">Closing Time</label>
                 <input
                   type="time"
-                  min="9:00"
-                  max="23:00"
+                  min="19:00"
+                  max="22:00"
                   id="closingTime"
                   value={data.closingTime}
                   onChange={handleChange}
@@ -205,7 +206,7 @@ function Register1() {
                       formData,
                       config
                     );
-                    setBtnColor("green");
+                    setImageColor("#93f037");
                     setData({
                       ...data,
                       storeImage: imagedata1.data.imagedata,
@@ -218,7 +219,7 @@ function Register1() {
 
               <div className="input-fields">
                 <label for="categories">
-                  Which category you would deliver?
+                  Add which category would you deliver
                 </label>
                 <select
                   name="categories"
@@ -267,17 +268,6 @@ function Register1() {
                   <option value="All Services">All Services</option>
                 </select>
               </div>
-              <div className="input-fields">
-                <label for="">Who Manages the Store?</label>
-                <input
-                  type="text"
-                  id="storeManager"
-                  value={data.storeManager}
-                  onChange={handleChange}
-                  placeholder="Name"
-                  required
-                />
-              </div>
             </div>
             <div style={{ height: "38rem", marginTop: "1.5rem" }}>
               <LoadScript googleMapsApiKey="AIzaSyB3ZdwasSmzdj5giIxqCmxrJBJVwh5VwqA">
@@ -296,7 +286,7 @@ function Register1() {
                 </GoogleMap>
               </LoadScript>
               <button
-                className="nextbrn"
+                className="nextbtn"
                 onClick={detectLocation}
                 style={{ backgroundColor: detectColor }}
               >
@@ -306,7 +296,7 @@ function Register1() {
 
             <div className="fields">
               <div className="input-fields">
-                <label for="">Store Address (House No)</label>
+                <label for="">Store Address</label>
                 <input
                   type="text"
                   id="streetNumber"
@@ -357,11 +347,14 @@ function Register1() {
                 <input
                   type="number"
                   id="zipcode"
+                  maxLength={6}
+                  minLength={6}
                   value={data.zipcode}
                   onChange={handleChange}
                   placeholder="Enter ZIP Code"
                   required
                 />
+                {data.zipcode.length == "6" ? null : "Enter a 6-digit pin code"}
               </div>
               <div className="input-fields">
                 <label for="">Store Address (Country Code)</label>
@@ -390,6 +383,7 @@ function Register1() {
                 className="nextbtn"
                 onClick={handleSubmit2}
                 style={{ backgroundColor: btnColor }}
+                disabled={data.zipcode.length == "6"}
               >
                 <span className="btnText">Next</span>
                 <i className="uil uil-navigator"></i>

@@ -23,7 +23,6 @@ function Register4() {
     confirmpassword: registerinfo.confirmpassword,
     storeName: registerinfo.storeName,
     storeManager: registerinfo.storeManager,
-    vendorType: registerinfo.vendorType,
     countryCode: registerinfo.countryCode,
     stateCode: registerinfo.stateCode,
     zipcode: registerinfo.zipcode,
@@ -50,6 +49,8 @@ function Register4() {
     openingTime: registerinfo.openingTime,
     closingTime: registerinfo.closingTime,
     licenseType: registerinfo.licenseType,
+    licenseImage: registerinfo.licenseImage,
+    expiryDate: registerinfo.expiryDate,
     storeImage: registerinfo.storeImage,
     terms: false,
     policy: false,
@@ -59,7 +60,7 @@ function Register4() {
   const getBack = async (e) => {
     history("/register3");
   };
-  const [btnColor, setBtnColor] = useState("red");
+  const [btnColor, setBtnColor] = useState("grey");
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (data.terms && data.policy) {
@@ -91,7 +92,6 @@ function Register4() {
           accountHolder: data.accountHolder,
           accountNo: data.accountNo,
           ifsc: data.ifsc,
-          vendorType: data.vendorType,
           upiId: data.upiId,
           storeManager: data.storeManager,
           whatsappUpdate: data.whatsappUpdate,
@@ -102,11 +102,13 @@ function Register4() {
           password: data.password,
           uploadPan: data.uploadPan,
           uploadGSTcertificate: data.uploadGSTcertificate,
+          licenseImage: data.licenseImage,
+          expiryDate: data.expiryDate,
           uploadMenu: data.uploadMenu,
           cancelledCheque: data.cancelledCheque,
         })
       );
-      setBtnColor("green");
+      setBtnColor("#93f037");
       setTimeout(() => {
         history("/register5");
       }, 2000);
