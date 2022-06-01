@@ -25,8 +25,6 @@ function Register() {
         history("/register1");
       }, 2000);
     }
-    setBtnColor("red");
-    history("/register");
   };
 
   return (

@@ -60,7 +60,7 @@ const StoreSchema = mongoose.Schema({
   active: { type: Boolean, default: true },
   cancelledCheque: { type: String, required: true },
   uploadMenu: { type: String, required: true },
-  uploadMenutwo: { type: String, required: true },
+  // uploadMenutwo: { type: String, required: true },
   uploadGSTcertificate: { type: String, required: true },
   uploadPan: { type: String, required: true },
   terms: { type: Boolean, default: true },

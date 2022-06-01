@@ -97,21 +97,24 @@ const login = asyncHandler(async (req, res) => {
 // register
 const registerStore = asyncHandler(async (req, res) => {
   try {
-    let { email } = req.body;
+    let { email, phoneNo } = req.body;
     let emailExists = await Store.findOne({ email: email });
     if (emailExists) {
       return res.status(500).json({ message: "Email already in use" });
-    } else {
-      let store = await Store.create(req.body);
-      store.password = null;
-      res.json({
-        _id: store._id,
-        token: generateToken(store._id),
-      });
     }
+    let phoneExists = await Store.findOne({ phoneNo: phoneNo });
+    if (phoneExists) {
+      return res.status(500).json({ message: "PhoneNo already in use" });
+    }
+    let store = await Store.create(req.body);
+    store.password = null;
+    res.json({
+      _id: store._id,
+      token: generateToken(store._id),
+    });
   } catch (err) {
     console.log(err);
-    res.status(500).json({ err });
+    res.status(500).json({ message: "Internal Server Error" });
   }
 });
 

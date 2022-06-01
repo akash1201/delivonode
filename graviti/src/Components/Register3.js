@@ -190,7 +190,7 @@ function Register3() {
               <button
                 className="nextbtn"
                 onClick={getBack}
-                style={{ backgroundColor: "red" }}
+                style={{ backgroundColor: "grey" }}
               >
                 <span className="btnText">Back</span>
                 <i className="uil uil-navigator"></i>

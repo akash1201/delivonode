@@ -79,11 +79,11 @@ function Register1() {
     e.preventDefault();
     if (data.zipcode.length == "6") {
       setData({ ...data, latitude: mapdata.lat, longitude: mapdata.lng });
+      setBtnColor("#93f037");
       setTimeout(() => {
         history("/register2");
       }, 2000);
     }
-    setBtnColor("red");
   };
   const [btnColor, setBtnColor] = useState("grey");
   const [imageColor, setImageColor] = useState("grey");
@@ -373,7 +373,7 @@ function Register1() {
               <button
                 className="backbtn"
                 onClick={getBack}
-                style={{ backgroundColor: "red" }}
+                style={{ backgroundColor: "grey" }}
               >
                 <span className="btnText">Back</span>
                 <i className="uil uil-navigator"></i>
@@ -383,7 +383,7 @@ function Register1() {
                 className="nextbtn"
                 onClick={handleSubmit2}
                 style={{ backgroundColor: btnColor }}
-                disabled={data.zipcode.length == "6"}
+                // disabled={data.zipcode.length == "6"}
               >
                 <span className="btnText">Next</span>
                 <i className="uil uil-navigator"></i>

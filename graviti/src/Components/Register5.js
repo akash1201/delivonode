@@ -10,6 +10,9 @@ function Register5() {
   };
   return (
     <div className="container1" style={{ width: "70%", height: "100%" }}>
+      <h1 className="mb-3 text-center" style={{ color: "#a9f75c" }}>
+        Commision & Charges per Order
+      </h1>
       <div className=" container p-3 text-center">
         <h1 className="mb-3">Revised Payment Charge</h1>
         <h6>

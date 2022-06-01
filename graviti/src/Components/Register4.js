@@ -7,7 +7,7 @@ function Register4() {
   const history = useNavigate();
   const dispatch = useDispatch();
   const userRegister = useSelector((state) => state.userRegister);
-  const { userInfo: registerInfo } = userRegister;
+  const { userInfo: registerInfo, error } = userRegister;
   const registerinfo = localStorage.getItem("registerinfo")
     ? JSON.parse(localStorage.getItem("registerinfo"))
     : "";
@@ -116,6 +116,10 @@ function Register4() {
       console.log("Please Agree to terms and Conditions");
     }
   };
+  useEffect(() => {
+    console.log(error);
+  }, [handleSubmit]);
+
   return (
     <div className="container1">
       <header>Terms of Use</header>
@@ -204,7 +208,6 @@ function Register4() {
                       active: !data.active,
                     });
                   }}
-                  required="required"
                 />
                 Status Active
                 <br />
@@ -218,7 +221,6 @@ function Register4() {
                       whatsappUpdate: !data.whatsappUpdate,
                     });
                   }}
-                  required="required"
                 />
                 Whatsapp Update
                 <br />
@@ -229,7 +231,7 @@ function Register4() {
                 type="button"
                 className="btn-danger"
                 onClick={getBack}
-                style={{ backgroundColor: "red" }}
+                style={{ backgroundColor: "grey" }}
               >
                 <span className="btnText">Back</span>
                 <i className="uil uil-navigator"></i>
@@ -243,6 +245,7 @@ function Register4() {
                 <i className="uil uil-navigator"></i>
               </button>
             </div>
+            {error && <h1> Registration Failed{error}</h1>}
           </div>
         </div>
       </form>

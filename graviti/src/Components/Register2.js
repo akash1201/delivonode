@@ -328,7 +328,7 @@ function Register2() {
               <button
                 className="backbtn"
                 onClick={getBack}
-                style={{ backgroundColor: "red" }}
+                style={{ backgroundColor: "grey" }}
               >
                 <span className="btnText">Back</span>
                 <i className="uil uil-navigator"></i>

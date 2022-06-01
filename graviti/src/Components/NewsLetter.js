@@ -13,7 +13,7 @@ function NewsLetter() {
   };
   const handleLetter = async (e) => {
     e.preventDefault();
-    console.log(help);
+
     let { data } = await axios.post(`/api/stores/signNewsletter`, letter);
   };
   const redirect = async (e) => {
