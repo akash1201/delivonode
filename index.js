@@ -29,9 +29,6 @@ const adminRoutes = require("./routes/adminRoutes");
 // const otproute= require('./routes/smsIntegrationRoutes');
 //import productRoute from './routes/productRoutes.js'
 const productRoute = require("./routes/productRoutes");
-
-const categoryRoute = require("./routes/categoryRoutes");
-
 const orderRoutes = require("./routes/orderRoutes");
 
 dotenv.config();
@@ -55,7 +52,6 @@ app.use(`/api/stores`, storeRoutes);
 app.use(`/api/upload`, uploadRoute);
 // app.use(`/api/sms`, otpRoute);
 app.use(`/api/products`, productRoute);
-app.use(`/api/category`, categoryRoute);
 app.use(`/api/orders`, orderRoutes);
 app.use(`/api/delivery`, deliveryRoutes);
 app.use(`/api/admin`, adminRoutes);

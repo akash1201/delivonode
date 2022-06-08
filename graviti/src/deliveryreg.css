@@ -2,10 +2,21 @@
   width: "50%";
   margin: 0 auto;
 }
-
+.commision_table {
+  font-size: 2.2rem;
+}
 .container1 {
   position: relative;
   width: 80%;
+  border-radius: 6px;
+  padding: 30px;
+  margin: 0 auto;
+  background-color: #fff;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+}
+.container122 {
+  position: relative;
+  width: 70%;
   border-radius: 6px;
   padding: 30px;
   margin: 0 auto;
@@ -53,13 +64,30 @@
   justify-content: space-between;
   flex-wrap: wrap;
 }
-
 form .fields .input-fields {
   display: flex;
   width: calc(100% / 2 - 30px);
   background-color: #fff;
   flex-direction: column;
   margin: 4px 0;
+}
+@media screen and (max-width: 500px) {
+  .container1 {
+    width: 100%;
+  }
+  .commision_table {
+    font-size: 1.4rem;
+  }
+  .container122 {
+    width: 100%;
+  }
+  .container1 form .fields {
+    display: flex;
+    flex-direction: column;
+  }
+  form .fields .input-fields {
+    width: 100%;
+  }
 }
 
 .step-wizard {
@@ -209,4 +237,16 @@ form .buttons {
 }
 form .buttons button {
   margin-right: 150px;
+}
+.add_space {
+  margin-bottom: -6rem;
+}
+@media screen and (max-width: 500px) {
+  form .buttons button {
+    margin-right: 15px;
+  }
+  .add_space {
+    margin-bottom: 0rem;
+    margin-left: -13.9rem;
+  }
 }

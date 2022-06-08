@@ -48,7 +48,7 @@ const getProducts = asyncHandler(async (req, res) => {
     // });
     let products = await Product.find({
       vendorId: storeid.id,
-      subcategory: req.params.categoryName,
+      subcategory: req.params.subcategoryName,
     });
     res.status(200).json({ products });
   } catch (err) {

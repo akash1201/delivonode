@@ -61,7 +61,7 @@ const login = asyncHandler(async (req, res) => {
 const createCategory = asyncHandler(async (req, res) => {
   try {
     let token = req.headers.authorization.split(" ")[1];
-    let adminid = jwt.verify(token, process.env.JWT_SECRET);
+    let adminid = jwt.verify(token, process.env.JWT_SECRET)
     if (!adminid) {
       return res.json("Login to continue");
     }
@@ -258,9 +258,9 @@ const removeVendor = asyncHandler(async (req, res) => {
       return res.json("Login to continue");
     }
     const vendor = await Store.find({ _id: req.params.storeId.toString() });
-    await Promise.all([
-      sendMail("Your account has been suspended", vendor.email),
-    ]);
+    // await Promise.all([
+    //   sendMail("Your account has been suspended", vendor.email),
+    // ]);
     await Store.deleteOne({
       _id: req.params.storeId.toString(),
     });

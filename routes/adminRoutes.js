@@ -28,7 +28,7 @@ const router = express.Router();
 
 router.post(`/register`, register);
 router.post(`/login`, login);
-router.post(`/createCategory`, createCategory);
+router.post(`/createCategory`, createCategory)
 router.get(`/viewCategory`, viewCategory);
 router.get(`/viewCoupon`, viewCoupon);
 router.put(`/deleteCategory/:categoryId`, deleteCategory);

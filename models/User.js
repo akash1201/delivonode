@@ -33,6 +33,7 @@ const UserSchema = mongoose.Schema({
     unique: true,
   },
   password: { type: String, required: true, minlength: 6 },
+  otp: { type: String },
   address: Address,
 });
 

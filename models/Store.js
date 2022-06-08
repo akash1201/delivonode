@@ -22,6 +22,7 @@ const StoreSchema = mongoose.Schema({
   phoneNo: { type: String, required: true, minlength: 10 },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true, minlength: 6 },
+  otp: { type: String },
   address: Address,
   isApproved: {
     type: Boolean,
@@ -60,7 +61,6 @@ const StoreSchema = mongoose.Schema({
   active: { type: Boolean, default: true },
   cancelledCheque: { type: String, required: true },
   uploadMenu: { type: String, required: true },
-  // uploadMenutwo: { type: String, required: true },
   uploadGSTcertificate: { type: String, required: true },
   uploadPan: { type: String, required: true },
   terms: { type: Boolean, default: true },

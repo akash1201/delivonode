@@ -15,6 +15,8 @@ const Coupons = require("../models/Coupons.js");
 const Cart = require("../models/Cart.js");
 const Prescription = require("../models/Prescription.js");
 const axios = require("axios");
+const sdk = require("api")("@cashfreedocs-new/v2#97f8kl3sscv9e");
+// const PaymentGateway = require("@cashfreepayments/cashfree-sdk");
 
 // Register
 const register = asyncHandler(async (req, res) => {
@@ -261,16 +263,6 @@ const particularOrder = asyncHandler(async (req, res) => {
         model: "Product",
         select: "_id price image qty unit name",
       },
-      // {
-      //   path: "vendorId",
-      //   model: "Store",
-      //   select: "_id category name address",
-      // },
-      // {
-      //   path: "userId",
-      //   model: "User",
-      //   select: "_id, address ",
-      // },
     ]);
     console.log(order);
     let totalItems = 0;
@@ -341,38 +333,46 @@ const payment = asyncHandler(async (req, res) => {
         select: "_id name lastName email phoneNo",
       },
     ]);
-    console.log(myorder);
-    // data = {
-    //   order_id: myorder._id,
-    //   order_amount: myorder.Total,
-    //   order_currency: "INR",
-    //   order_note: "Additional order info",
-    //   order_meta: {
-    //     return_url: `https://b8af79f41056.eu.ngrok.io?order_id=${myorder._id}&order_token=`,
-    //     payment_methods:
-    //       " cc, dc, ccc, ppc, nb, upi, paypal, emi, app paylater",
-    //   },
-    //   customer_details: {
-    //     customer_id: myorder.userId._id,
-    //     customer_email: myorder.userId.email,
-    //     customer_phone: myorder.userId.phoneNo,
-    //   },
-    // };
-    // const config = {
-    //   headers: {
-    //     "content-Type": "application/json",
-    //     "x-api-version": "2022-01-01",
-    //     "x-client-id": "2101984bf67c82799cf2ae4627891012",
-    //     "x-client-secret": "6249b20da5cea9d9c1bd7536280e0f3deeb7b74d",
-    //   },
-    // };
 
-    // const payment_info = await axios.post(
-    //   "https://sandbox.cashfree.com/pg/orders",
-    //   data,
-    //   config
-    // );
-    res.status(200).json("Order Accepted");
+    sdk.server("https://api.cashfree.com/pg");
+    console.log("6534106");
+    sdk
+      .CreateOrder(
+        {
+          order_id: "45960250986540",
+          order_amount: myorder.Total,
+          order_currency: "INR",
+          customer_details: {
+            customer_id: myorder.userId._id.toString(),
+            customer_email: myorder.userId.email,
+            customer_phone: myorder.userId.phoneNo,
+            // customer_bank_account_number: "1518121112",
+            // customer_bank_ifsc: "CITI0000001",
+            // customer_bank_code: 3333,
+          },
+          order_meta: {
+            return_url:
+              "https://b8af79f41056.eu.ngrok.io?order_id={order_id}&order_token={order_token}",
+            notify_url: "https://b8af79f41056.eu.ngrok.io/webhook.php",
+          },
+          order_expiry_time: "2022-06-09T00:00:00Z",
+          order_note: "Additional Order Info",
+        },
+        {
+          "x-client-id": "",
+          "x-client-secret": "",
+          "x-api-version": "2022-01-01",
+        }
+      )
+      .then((resp) => {
+        const { cf_order_id, payments, order_status } = resp;
+        return res.status(200).json({ cf_order_id, payments, order_status });
+      })
+      .catch((err) => {
+        return res.status(500).json({ err });
+      });
+
+    // res.status(200).json("Good to Go");
     // "payment_link": "https://payments-test.cashfree.com/order/#BtJEHHxOB9bFpNsaHmEL"
   } catch (error) {
     res.status(500).json({ error });
@@ -498,11 +498,6 @@ const viewCart = asyncHandler(async (req, res) => {
         model: "Store",
         select: "_id storeName",
       },
-      // {
-      //   path: "userId",
-      //   model: "User",
-      //   select: "_id name",
-      // },
     ]);
     console.log(cartexists[0].products);
     let subTotal = 0;

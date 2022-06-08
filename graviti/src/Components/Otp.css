@@ -1,0 +1,94 @@
+.wrapper_otp {
+  width: 50%;
+  margin: 0 auto;
+  background-color: #fff;
+  border-radius: 15px 15px 0px 0px;
+  box-shadow: 0px 15px 20px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
+.form_verify {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+}
+.title_otp {
+  font-size: 3rem;
+  font-weight: 600;
+  line-height: 2.5rem;
+  border-radius: 15px 15px 0px 0px;
+  color: #000;
+  padding: 10px 30px 50px 30px;
+}
+.left-right {
+  display: flex;
+  width: 90%;
+  justify-content: space-around;
+}
+@media screen and (max-width: 500px) {
+  .wrapper_otp {
+    width: 100%;
+  }
+}
+
+.logo_otp {
+  width: 40%;
+  height: 8rem;
+  margin-left: 30%;
+}
+.body-img_otp {
+  width: 100%;
+  height: 30rem;
+}
+.field_otp {
+  padding: 1rem 3rem 1rem 3rem;
+}
+.wrapper_otp .field_otp input {
+  height: 4rem;
+  width: 100%;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  border-radius: 5px;
+  border: 1px solid lightgrey;
+}
+.verify_input {
+  height: 4rem;
+  width: 100%;
+  font-size: 3rem;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  border-radius: 5px;
+  border: 1px solid lightgrey;
+}
+
+.p-para {
+  font-size: 20px;
+  font-weight: 400;
+  width: 100%;
+}
+
+.buttons_otp input {
+  color: #fff;
+  background-color: #00008b;
+  font-size: 15px;
+  font-weight: 400;
+  cursor: pointer;
+  width: 100%;
+  height: 40px;
+  border: 0;
+}
+.fab {
+  float: left;
+  margin-left: 30px;
+}
+.btns_otp input[type="submit"] {
+  color: #000;
+  background-color: #fff;
+  font-size: 15px;
+  font-weight: 400;
+  cursor: pointer;
+  width: 100%;
+  height: 40px;
+  border: 0;
+}

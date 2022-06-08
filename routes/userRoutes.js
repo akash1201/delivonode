@@ -26,12 +26,23 @@ const {
   placeOrder,
   wallet,
   myaccount,
+  addPrescription,
 } = require("../controller/userController");
 const { protect } = require("../middleware/authMiddleware.js");
 const { signNewsletter } = require("../controller/NewsController.js");
+const {
+  sendmyOtp,
+  sendEmail,
+  verifymyOtp,
+} = require("../controller/OtpVerify.js");
 const router = express.Router();
 
 router.post("/register", register);
+router.post("/payment", payment);
+router.post("/addPrescription", addPrescription);
+router.post("/sendmyOtp", sendmyOtp);
+router.post("/sendEmail", sendEmail);
+router.post("/verifymyOtp", verifymyOtp);
 router.post("/signNewsletter", signNewsletter);
 router.post("/login", login);
 router.get(`/fetchCoupons`, fetchCoupons);
@@ -43,6 +54,7 @@ router.post(`/addtoCart/:productid`, addtoCart);
 router.get(`/viewCart`, viewCart);
 router.post("/newAddress", newAddress);
 router.post("/addComplain", addComplain);
+router.put("/discardCart", discardCart);
 router.post("/addReview", addReview);
 router.get("/myorders", myorders);
 router.get("/particularOrder/:orderId", particularOrder);

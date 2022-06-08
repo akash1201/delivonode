@@ -10,13 +10,11 @@ const {
   showMap,
 } = require("../controller/StoreController.js");
 const { protect } = require("../middleware/authMiddleware.js");
-const { sendmyOtp, verifymyOtp } = require("../controller/OtpVerify.js");
 
 const router = express.Router();
 
 router.post(`/register-store`, registerStore);
-router.post(`/sendOtp`, sendmyOtp);
-router.post(`/verifyOtp`, verifymyOtp);
+
 router.post(`/login`, login);
 router.get("/terms", terms);
 router.post("/support", support);

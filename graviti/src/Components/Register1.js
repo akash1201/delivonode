@@ -145,7 +145,7 @@ function Register1() {
                 />
               </div>
 
-              <div className="checkbox">
+              <div className="checkbox" style={{ marginBottom: "11px" }}>
                 <h6 style={{ color: "blue" }}>+ Add time slots</h6>
                 <h2> Mark open days</h2>
                 <h5>Don't forget to uncheck your off-day</h5>
@@ -164,11 +164,7 @@ function Register1() {
                 <h3>Thursday</h3>
                 <br />
               </div>
-              <div className="checkbox">
-                <br />
-                <br />
-                <br />
-                <br />
+              <div className="checkbox add_space">
                 <input type="checkbox" id="friday" required="required" />
                 <h3>Friday</h3>
                 <br />

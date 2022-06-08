@@ -41,7 +41,6 @@ const login = asyncHandler(async (req, res) => {
       res.json({
         _id: delivery._id,
         token: generateToken(delivery._id),
-        delivery,
       });
     } else {
       res.status(500).json({ message: `Password didn't match`, status: 500 });
@@ -60,7 +59,7 @@ const terms = asyncHandler(async (req, res) => {
     if (!deliveryid) {
       return res.status(500).json({ msg: "User not found" });
     }
-    const delivery = await Delivery.find({ _id: deliveryid.id.toString() });
+    // const delivery = await Delivery.find({ _id: deliveryid.id.toString() });
     // if (delivery.isApproved == false) {
     //   return res.status(500).json("Registeration approval pending by admin");
     // }
@@ -100,7 +99,7 @@ const assigned = asyncHandler(async (req, res) => {
     let token = req.headers.authorization.split(" ")[1];
     let deliveryid = jwt.verify(token, process.env.JWT_SECRET);
     const delivery = await Delivery.findById(deliveryid.id);
-    if ((delivery.isAvailable = false)) {
+    if (delivery.isAvailable == false) {
       let order = await Order.findOne({
         deliveryPartner: deliveryid.id,
         status: "Order Accepted",
@@ -130,7 +129,7 @@ const accepted = asyncHandler(async (req, res) => {
       return res.status(500).json({ msg: "User not found" });
     }
     let delivery = await Delivery.findById(deliveryid.id);
-    if ((delivery.isAvailable = false)) {
+    if (delivery.isAvailable == false) {
       let order = await Order.findOne({
         deliveryPartner: deliveryid.id,
         status: "Order Accepted",
@@ -243,7 +242,7 @@ const ordersDelivered = asyncHandler(async (req, res) => {
     if (!deliveryid) {
       return res.status(500).json({ msg: "User not found" });
     }
-    let delivery = await Delivery.findById(deliveryid.id);
+    // let delivery = await Delivery.findById(deliveryid.id);
     // if (delivery.isApproved == false) {
     //   return res.status(500).json("Registeration approval pending by admin");
     // }
@@ -272,5 +271,7 @@ module.exports = {
   picked,
   assigned,
   goOffline,
+  delivered,
+  currDelivery,
   ordersDelivered,
 };

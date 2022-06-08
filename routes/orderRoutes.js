@@ -17,8 +17,6 @@ const {
 
 const router = express.Router();
 
-// router.get(`/get-orders/:type/:pageNo?`, protect, getOrders);
-// router.get(`/order-details/:orderId`, protect, orderDetails);
 router.get(`/betweendates`, protect, betweendates);
 router.get(`/topselling`, protect, topselling);
 router.post(`/updateOrderStatus/:orderId`, updateOrderStatus);

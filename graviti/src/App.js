@@ -21,6 +21,8 @@ import Register4 from "./Components/Register4.js";
 import Register5 from "./Components/Register5.js";
 import Login from "./Components/Login.js";
 import Commission from "./Components/Commission";
+import Otp from "./Components/Otp";
+import Verifyotp from "./Components/Verifyotp";
 import FooterTerms from "./Components/FooterTerms";
 import NewsLetter from "./Components/NewsLetter.js";
 
@@ -29,6 +31,8 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Home />}></Route>
+        <Route path="/otp" element={<Otp />}></Route>
+        <Route path="/verifyotp" element={<Verifyotp />}></Route>
         <Route path="/login" element={<Login />}></Route>
         <Route path="/register" element={<Register />}></Route>
         <Route path="/register1" element={<Register1 />}></Route>

@@ -4,7 +4,7 @@ const NewsLetter = require("../models/NewsLetter.js");
 const signNewsletter = asyncHandler(async (req, res) => {
   try {
     let { email } = req.body;
-    let duplicate = await User.findOne({ email: email });
+    let duplicate = await NewsLetter.findOne({ email: email });
     if (duplicate) {
       return res
         .status(500)

@@ -9,20 +9,20 @@ function Register5() {
     }, 2000);
   };
   return (
-    <div className="container1" style={{ width: "70%", height: "100%" }}>
+    <div className="container122">
       <h1 className="mb-3 text-center" style={{ color: "#a9f75c" }}>
         Commision & Charges per Order
       </h1>
       <div className=" container p-3 text-center">
         <h1 className="mb-3">Revised Payment Charge</h1>
-        <h6>
+        {/* <h6>
           If you do not wish to get an online PG, but still wish to update to
           get a higher monthly Umit and more payment instrument, then please go
           back to the formand remove website and app.{" "}
-        </h6>
+        </h6> */}
       </div>
       <div className="container" style={{ height: "75%" }}>
-        <table className="table table-bordered" style={{ fontSize: "2.2rem" }}>
+        <table className="table table-bordered commision_table">
           <thead>
             <tr>
               <th scope="col">PAYMENT</th>
@@ -64,11 +64,11 @@ function Register5() {
           </tbody>
         </table>
         <div className=" container p-3 text-center">
-          <h6>
+          {/* <h6>
             If you do not wish to get an online PG, but still wish to update to
             get a higher monthly Umit and more payment instrument If you do not
             wish to get ..
-          </h6>
+          </h6> */}
         </div>
       </div>
       <button
