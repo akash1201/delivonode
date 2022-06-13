@@ -2,18 +2,9 @@
 const mongoose = require("mongoose");
 
 const CouponsSchema = mongoose.Schema({
-  name: {
+  category: {
     type: String,
     required: true,
-  },
-
-  description: {
-    type: String,
-    required: true,
-  },
-  backgroundColor: {
-    type: Array,
-    // Create array of colors
   },
   image: {
     type: String,

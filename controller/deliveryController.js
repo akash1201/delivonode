@@ -19,7 +19,6 @@ const register = asyncHandler(async (req, res) => {
       res.status(200).json({
         _id: delivery._id,
         token: generateToken(delivery._id),
-        delivery: delivery,
       });
     }
   } catch (error) {
@@ -89,6 +88,27 @@ const goOffline = asyncHandler(async (req, res) => {
     delivery.status = "Not Available";
     await delivery.save();
     res.status(200).json("Offline");
+  } catch (error) {
+    res.status(500).json({ msg: "Internal server error" });
+  }
+});
+
+// Go Offline
+const goOnline = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let deliveryid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!deliveryid) {
+      return res.status(500).json({ msg: "User not found" });
+    }
+    let delivery = await Delivery.findById(deliveryid.id);
+    // if (delivery.isApproved == false) {
+    //   return res.status(500).json("Registeration approval pending by admin");
+    // }
+    delivery.isAvailable = true;
+    delivery.status = "Available";
+    await delivery.save();
+    res.status(200).json("Online");
   } catch (error) {
     res.status(500).json({ msg: "Internal server error" });
   }
@@ -271,6 +291,7 @@ module.exports = {
   picked,
   assigned,
   goOffline,
+  goOnline,
   delivered,
   currDelivery,
   ordersDelivered,

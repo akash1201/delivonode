@@ -1,62 +1,125 @@
-import React from "react";
+import { React, useState } from "react";
+import terms from "./terms.png";
 
-function SideNav() {
+function SideNav({ isActive }) {
   return (
-    <div className="sidebar">
+    <div className={isActive ? "sidebar active" : "sidebar"}>
       <ul className="nav-list">
         <li>
           <a href="#">
-            <i className="bx bxs-dashboard"></i>
-            <span className="links-name">Store-Info</span>
-          </a>
-        </li>
-        <li>
-          <a href="Users">
-            <i className="bx bx-user"></i>
-            <span className="Users">User-Info</span>
-          </a>
-        </li>
-        <li>
-          <a href="#">
-            <i className="bx bx-list-ul"></i>
-            <span className="links-name">Delivery-Info</span>
-          </a>
-        </li>
-        <li>
-          <a href="#">
-            <i className="bx bx-flag"></i>
-            <span className="links-name">Add Category</span>
-          </a>
-        </li>
-        <li>
-          <a href="DeliveryProfile">
-            <i className="bx bxs-truck"></i>
-            <span className="DeliveryProfile">Add Coupon</span>
-          </a>
-        </li>
-        <li>
-          <a href="VendorDetails">
-            <i className="bx bx-group"></i>
-            <span className="links-name">Categories</span>
-          </a>
-        </li>
-        <li>
-          <a href="#">
-            <i className="bx bxs-dashboard"></i>
-            <span className="links-name">Coupons</span>
-          </a>
-        </li>
+            <h3>Store-info</h3>
 
-        <li>
-          <a href="#">
-            <i className="bx bx-cart"></i>
-            <span className="links-name">Complaints</span>
+            <img
+              src={terms}
+              style={{
+                height: "2.5rem",
+                color: "black",
+              }}
+            />
           </a>
         </li>
         <li>
           <a href="#">
-            <i className="bx bxs-dashboard"></i>
-            <span className="links-name">Earnings</span>
+            <h3>Customer-info</h3>
+
+            <img
+              src={terms}
+              style={{
+                height: "2.5rem",
+                color: "black",
+              }}
+            />
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <h3>Delivery-info</h3>
+
+            <img
+              src={terms}
+              style={{
+                height: "2.5rem",
+                color: "black",
+              }}
+            />
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <h3>Categoires</h3>
+
+            <img
+              src={terms}
+              style={{
+                height: "2.5rem",
+                color: "black",
+              }}
+            />
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <h3>Coupons</h3>
+
+            <img
+              src={terms}
+              style={{
+                height: "2.5rem",
+                color: "black",
+              }}
+            />
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <h3>Add Category</h3>
+
+            <img
+              src={terms}
+              style={{
+                height: "2.5rem",
+                color: "black",
+              }}
+            />
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <h3>Add Coupons</h3>
+
+            <img
+              src={terms}
+              style={{
+                height: "2.5rem",
+                color: "black",
+              }}
+            />
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <h3>Complaints</h3>
+
+            <img
+              src={terms}
+              style={{
+                height: "2.5rem",
+                color: "black",
+              }}
+            />
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <h3>Earnings</h3>
+
+            <img
+              src={terms}
+              style={{
+                height: "2.5rem",
+                color: "black",
+              }}
+            />
           </a>
         </li>
       </ul>

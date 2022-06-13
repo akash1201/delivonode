@@ -188,7 +188,7 @@ const addComplain = asyncHandler(async (req, res) => {
     };
 
     let complain = await Complaints.create(obj);
-    res.status(200).json({ complain });
+    res.status(200).json({ msg: "Complaint Registered" });
   } catch (err) {
     console.log(err);
     res.json({ status: 500, msg: err.message });
@@ -211,7 +211,6 @@ const addReview = asyncHandler(async (req, res) => {
       comment: req.body.comment,
     };
     let newReview = await Reviews.create(obj);
-    console.log(newReview);
     res.status(200).json("New Review Added");
   } catch (error) {
     res.status(500).json({ msg: error });
@@ -230,7 +229,8 @@ const myorders = asyncHandler(async (req, res) => {
       {
         path: "vendorId",
         model: "Store",
-        select: "_id categories storeName address lattitude longitude",
+        select:
+          "_id categories storeName storeImage address lattitude longitude",
       },
       {
         path: "userId",
@@ -295,9 +295,10 @@ const placeOrder = asyncHandler(async (req, res) => {
     cart.products.forEach((ele) => (subTotal += ele.price));
     const serviceFee = (subTotal / 100) * 15;
     const Total = subTotal + serviceFee;
-    console.log(Total, "6531");
+
     cart.status = "Order Placed";
     await cart.save();
+    let orderaddress = await Address.findOne({ _id: req.body.addressId });
 
     let obj = {
       userId: userid.id,
@@ -305,75 +306,12 @@ const placeOrder = asyncHandler(async (req, res) => {
       vendorId: cart.vendorId,
       status: "Order Placed",
       Total: Total,
-      address: req.body.address,
+      address: orderaddress,
+      statusId: "41524123",
     };
     const newOrder = await Order.create(obj);
+    await cart.save();
     res.status(200).json("Order Placed Successfully");
-  } catch (error) {
-    res.status(500).json({ error });
-  }
-});
-
-// Payment Integration
-const payment = asyncHandler(async (req, res) => {
-  try {
-    let token = req.headers.authorization.split(" ")[1];
-    let userid = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(userid.id);
-    if (!user) {
-      return res.status(500).json({ status: 500, msg: "User not Found" });
-    }
-    let myorder = await Order.findOne({
-      userId: userid.id,
-      status: "Order Accepted",
-    }).populate([
-      {
-        path: "userId",
-        model: "User",
-        select: "_id name lastName email phoneNo",
-      },
-    ]);
-
-    sdk.server("https://api.cashfree.com/pg");
-    console.log("6534106");
-    sdk
-      .CreateOrder(
-        {
-          order_id: "45960250986540",
-          order_amount: myorder.Total,
-          order_currency: "INR",
-          customer_details: {
-            customer_id: myorder.userId._id.toString(),
-            customer_email: myorder.userId.email,
-            customer_phone: myorder.userId.phoneNo,
-            // customer_bank_account_number: "1518121112",
-            // customer_bank_ifsc: "CITI0000001",
-            // customer_bank_code: 3333,
-          },
-          order_meta: {
-            return_url:
-              "https://b8af79f41056.eu.ngrok.io?order_id={order_id}&order_token={order_token}",
-            notify_url: "https://b8af79f41056.eu.ngrok.io/webhook.php",
-          },
-          order_expiry_time: "2022-06-09T00:00:00Z",
-          order_note: "Additional Order Info",
-        },
-        {
-          "x-client-id": "",
-          "x-client-secret": "",
-          "x-api-version": "2022-01-01",
-        }
-      )
-      .then((resp) => {
-        const { cf_order_id, payments, order_status } = resp;
-        return res.status(200).json({ cf_order_id, payments, order_status });
-      })
-      .catch((err) => {
-        return res.status(500).json({ err });
-      });
-
-    // res.status(200).json("Good to Go");
-    // "payment_link": "https://payments-test.cashfree.com/order/#BtJEHHxOB9bFpNsaHmEL"
   } catch (error) {
     res.status(500).json({ error });
   }
@@ -438,7 +376,7 @@ const addtoCart = asyncHandler(async (req, res) => {
     } else {
       const currProduct = await Product.findById(req.params.productid);
       const newProduct = {
-        productId: req.params.productid,
+        productId: req.params.productid.toString(),
         quantity: 1,
         // can change this quantity
         price: currProduct.price,
@@ -486,7 +424,7 @@ const viewCart = asyncHandler(async (req, res) => {
     }
     const cartexists = await Cart.find({
       userId: userid.id,
-      status: "Order Placed",
+      status: "shopping",
     }).populate([
       {
         path: "products.productId",
@@ -499,7 +437,7 @@ const viewCart = asyncHandler(async (req, res) => {
         select: "_id storeName",
       },
     ]);
-    console.log(cartexists[0].products);
+    // console.log(cartexists[0].products);
     let subTotal = 0;
     cartexists[0].products.forEach((ele) => (subTotal += ele.price));
     const serviceFee = (subTotal / 100) * 15;
@@ -542,13 +480,24 @@ const fetchStorebySubcategory = asyncHandler(async (req, res) => {
     if (!userid) {
       return res.json("Login to continue");
     }
+    var stores = [];
     let mycategory = await Category.findById(req.params.categoryId);
-    let category = await Category.findById(req.params.subcategoryId);
+
     categoryName = mycategory.subcategory;
-    let options = await Store.find({ categories: categoryName });
-    res.status(200).json({
-      options,
+    let storeProduct = await Product.distinct("vendorId", {
+      subcategory: categoryName,
     });
+
+    storeProduct.map(async (ele) => {
+      const store = await Store.findById(ele);
+      const obj = {
+        fullName: store.fullName,
+        storeName: store.storeName,
+        address: store.address,
+      };
+      stores.push(obj);
+    });
+    res.status(200).json({ stores });
   } catch (error) {
     res.status(500).json({ error });
   }
@@ -603,6 +552,23 @@ const fetchsubCategories = asyncHandler(async (req, res) => {
     res.status(500).json({ error });
   }
 });
+// Get by Sub-Cateogry
+const getsubCategory = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let userid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!userid) {
+      return res.json("Login to continue");
+    }
+    console.log(req.params.vendorId);
+    const storeProduct = await Product.distinct("subcategory", {
+      vendorId: req.params.vendorId,
+    });
+    res.status(200).json({ storeProduct });
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
 
 // Fetch Coupon
 const fetchCoupons = asyncHandler(async (req, res) => {
@@ -620,6 +586,7 @@ const fetchCoupons = asyncHandler(async (req, res) => {
 });
 
 module.exports = {
+  getsubCategory,
   fetchsubCategories,
   fetchCategories,
   fetchCoupons,
@@ -640,6 +607,6 @@ module.exports = {
   placeOrder,
   wallet,
   myaccount,
-  payment,
   addPrescription,
+  fetchStorebySubcategory,
 };

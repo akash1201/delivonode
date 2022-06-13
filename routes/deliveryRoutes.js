@@ -10,6 +10,7 @@ const {
   ordersDelivered,
   delivered,
   goOffline,
+  goOnline,
 } = require("../controller/deliveryController");
 const { protect } = require("../middleware/authMiddleware.js");
 
@@ -19,6 +20,7 @@ router.post("/register", register);
 router.post("/login", login);
 router.get("/terms", terms);
 router.put("/goOffline", goOffline);
+router.put("/goOnline", goOnline);
 router.put("/accepted", accepted);
 router.put("/picked", picked);
 router.put("/delivered", delivered);

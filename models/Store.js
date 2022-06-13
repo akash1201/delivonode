@@ -65,6 +65,7 @@ const StoreSchema = mongoose.Schema({
   uploadPan: { type: String, required: true },
   terms: { type: Boolean, default: true },
   policy: { type: Boolean, default: true },
+  storeRating: { type: String },
   // uploadAadharfront: { type: Buffer, contentType: String, required: true },
   // uploadIds: { type: Buffer, contentType: String, required: false },
   // uploadAadharback: { type: Buffer, contentType: String, required: true },

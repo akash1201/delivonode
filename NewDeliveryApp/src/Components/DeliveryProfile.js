@@ -3,8 +3,14 @@ import { useNavigate, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import SideNav from "./SideNav";
+import list from "./list.png";
 
 function DeliveryProfile() {
+  const [isActive, setActive] = useState(false);
+
+  const toggleClass = () => {
+    setActive(!isActive);
+  };
   const history = useNavigate();
   const userLogin = useSelector((state) => state.userLogin);
   const { userInfo } = userLogin;
@@ -48,85 +54,99 @@ function DeliveryProfile() {
   };
   return (
     <div className="main">
-      <div className="lefty">
-        <SideNav />
+      <div className="topHeader">
+        <div className="top_title">
+          <img
+            src={list}
+            style={{
+              width: "2rem",
+              height: "2rem",
+              marginRight: "2rem",
+              marginTop: "0.5rem",
+            }}
+            onClick={toggleClass}
+          ></img>
+          <h2>Gravity Bites</h2>
+        </div>
+        <div className="topLogout">
+          <h2>Logout</h2>
+        </div>
       </div>
-      {/* all-data */}
-      <div className="righty  page-content page-container" id="page-content">
-        {/* <div class="padding"> */}
-        <div class="row container d-flex justify-content-center">
-          {/* <div class="col-lg-8 grid-margin stretch-card"> */}
-          <div class="card">
-            <div class="card-body">
-              <h4 class="card-title">Delivery Personnel Details</h4>
-              <p class="card-description">Basic table with card</p>
-              <div class="table-responsive">
-                <table class="table">
-                  <thead>
-                    <tr>
-                      <th>ID No.</th>
-                      <th>Name</th>
-                      <th>E-Mail</th>
-                      <th>Phone No.</th>
+      <div className="bottomHeader">
+        <div className="lefty">
+          <SideNav isActive={isActive} />
+        </div>
+        {/* all-data */}
+        <div className="righty  page-content page-container" id="page-content">
+          {/* <div class="padding"> */}
+          <div
+            class="row container d-flex justify-content-center"
+            style={{ paddingLeft: "2rem", paddingTop: "1rem" }}
+          >
+            {/* <div class="col-lg-8 grid-margin stretch-card"> */}
+            <div class="card">
+              <div class="card-body">
+                <h4 class="card-title">Delivery Personnel Details</h4>
+                <p class="card-description">Basic table with card</p>
+                <div class="table-responsive">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Sr</th>
+                        <th>Name</th>
+                        <th>E-Mail</th>
+                        <th>Phone No.</th>
 
-                      <th>Created On</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {deliveryinfo.map((ele) => {
-                      return (
-                        <tr>
-                          <td>{ele._id}</td>
-                          <td>{ele.name}</td>
-                          <td>{ele.email}</td>
-                          <td>{ele.phoneNo}</td>
+                        <th>Created On</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {deliveryinfo.map((ele, index) => {
+                        return (
+                          <tr>
+                            <td>{index + 1}</td>
+                            <td>{ele.name}</td>
+                            <td>{ele.email}</td>
+                            <td>{ele.phoneNo}</td>
 
-                          <td>{ele.createdAt}</td>
-                          <td>
-                            <label class="badge badge-danger">Pending</label>
-                          </td>
-                          <td>
-                            <button
-                              class="badge badge-danger"
-                              onClick={handleApproval(ele._id)}
-                            >
-                              Approve
-                            </button>
-                            <button
-                              class="badge badge-danger"
-                              // onClick={handledisApproval(ele._id)}
-                            >
-                              Decline
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })}
+                            <td>{ele.createdAt}</td>
+                            <td>Pending</td>
+                            <td>
+                              <button
+                                class="badge badge-danger"
+                                onClick={handleApproval(ele._id)}
+                                style={{
+                                  width: "8rem",
+                                  height: "2rem",
+                                  marginBottom: "0.5rem",
+                                }}
+                              >
+                                Approve
+                              </button>
 
-                    <tr>
-                      <td>Samso Park</td>
-                      <td>samso@example.com</td>
-                      <td>7459658214</td>
-
-                      <td>34424433</td>
-                      <td>12 May 2017</td>
-                      <td>
-                        <label class="badge badge-warning">In progress</label>
-                      </td>
-                      <td>
-                        <button class="badge badge-danger">Approve</button>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+                              <button
+                                class="badge badge-danger"
+                                style={{ width: "8rem", height: "2rem" }}
+                                // onClick={handledisApproval(ele._id)}
+                              >
+                                Decline
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+      //{" "}
     </div>
-    // </div>
     // </div>
   );
 }

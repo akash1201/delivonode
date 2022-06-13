@@ -63,14 +63,32 @@ const getSubcategories = asyncHandler(async (req, res) => {
       return res.status(500).json({ msg: "Authentication Failed" });
     }
     let store = await Store.findById(storeid.id);
-    let mycategory = await Category.find({
+    console.log(store);
+    let mycategory = await Category.findOne({
       parent: "null",
       subcategory: store.categories,
     });
-    let category = await Category.find({ parent: mycategory._id.toString() });
+    let category = await Category.find({ parent: mycategory._id });
     res.status(200).json({ category });
   } catch (err) {
     res.json({ status: 500, msg: err });
+  }
+});
+
+const mysubcategory = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let storeid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!storeid) {
+      return res.status(500).json({ msg: "Authentication Failed" });
+    }
+
+    const storesubcategory = await Product.distinct("subcategory", {
+      vendorId: storeid.id,
+    });
+    res.status(200).json({ storesubcategory });
+  } catch (error) {
+    res.status(500).json({ error });
   }
 });
 
@@ -119,6 +137,7 @@ const deleteProduct = asyncHandler(async (req, res) => {
 });
 
 module.exports = {
+  mysubcategory,
   addProduct,
   getProducts,
   getSubcategories,
