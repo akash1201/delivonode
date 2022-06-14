@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import SideNav from "./SideNav";
 import list from "./list.png";
 import axios from "axios";
+import logout from "./img/poweroff.png";
 
 function AddCoupon() {
   const [isActive, setActive] = useState(false);
@@ -44,8 +45,7 @@ function AddCoupon() {
 
   const [item, setItem] = useState({
     image: "",
-    name: "",
-    description: "",
+    category: "",
   });
 
   const adding = (event) => {
@@ -72,7 +72,7 @@ function AddCoupon() {
           <h2>Gravity Bites</h2>
         </div>
         <div className="topLogout">
-          <h2>Logout</h2>
+          <img src={logout} style={{ width: "3rem", height: "2.8rem" }} />
         </div>
       </div>
       <div className="bottomHeader">
@@ -82,13 +82,35 @@ function AddCoupon() {
         <div className="righty  page-content page-container" id="page-content">
           <div className="row container d-flex justify-content-center">
             <div className="container1">
-              <form onSubmit={handleSubmit}>
+              <form
+                onSubmit={handleSubmit}
+                style={{
+                  boxShadow:
+                    " rgb(0 0 0 / 25%) 0px 54px 55px, rgb(0 0 0 / 12%) 0px -12px 30px, rgb(0 0 0 / 12%) 0px 4px 6px, rgb(0 0 0 / 17%) 0px 12px 13px, rgb(0 0 0 / 9%) 0px -3px 5px",
+                }}
+              >
                 <div className="form first">
                   <div className="details personal">
-                    <span className="title">Add New Coupon</span>
-                    <div className="fields">
-                      <div className="input-fields">
-                        <label for="">Coupon Image</label>
+                    <span
+                      className="title"
+                      style={{
+                        fontWeight: "900",
+                        width: "50%",
+                        margin: "0 auto",
+                        fontSize: "2rem",
+                        marginBottom: "2rem",
+                      }}
+                    >
+                      Add New Coupon
+                    </span>
+                    <div className="fields" style={{ marginBottom: "1rem" }}>
+                      <div
+                        className="input-fields"
+                        style={{ margin: "0 auto" }}
+                      >
+                        <label for="" style={{ fontSize: "1.2rem" }}>
+                          Coupon Image
+                        </label>
                         <input
                           type="file"
                           name="image,"
@@ -100,35 +122,35 @@ function AddCoupon() {
                         <button onClick={fileUpload}>Upload</button>
                       </div>
                     </div>
-                    <div className="fields">
-                      <div className="input-fields">
-                        <label for="">Coupon Name</label>
+                    <div className="fields" style={{ marginBottom: "1rem" }}>
+                      <div
+                        className="input-fields"
+                        style={{ margin: "0 auto" }}
+                      >
+                        <label for="" style={{ fontSize: "1.2rem" }}>
+                          Coupon Category
+                        </label>
                         <input
                           type="text"
-                          id="name"
-                          value={item.name}
+                          id="category"
+                          value={item.category}
                           onChange={adding}
-                          placeholder="Enter Item Name"
-                          required="required"
-                        />
-                      </div>
-                    </div>
-                    <div className="fields">
-                      <div className="input-fields">
-                        <label for="">Coupon Description</label>
-                        <input
-                          type="text"
-                          id="subcategory"
-                          value={item.description}
-                          onChange={adding}
-                          placeholder="Enter Coupon Description"
+                          placeholder="Enter Coupon Category"
                           required
                         />
                       </div>
                     </div>
-                    <button className="nextbtn" type="submit">
-                      <span className="btnText">Submit</span>
-                      <i className="uil uil-navigator"></i>
+                    <button
+                      className="nextbtn btn-success"
+                      type="submit"
+                      style={{
+                        marginLeft: "15.5rem",
+                        fontSize: "1.2rem",
+                        padding: "0.5rem",
+                        borderRadius: "15px",
+                      }}
+                    >
+                      Submit
                     </button>
                   </div>
                 </div>

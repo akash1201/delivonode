@@ -480,24 +480,25 @@ const fetchStorebySubcategory = asyncHandler(async (req, res) => {
     if (!userid) {
       return res.json("Login to continue");
     }
-    var stores = [];
     let mycategory = await Category.findById(req.params.categoryId);
 
     categoryName = mycategory.subcategory;
-    let storeProduct = await Product.distinct("vendorId", {
+
+    const storeProduct = await Product.distinct("vendorId", {
       subcategory: categoryName,
     });
 
-    storeProduct.map(async (ele) => {
-      const store = await Store.findById(ele);
-      const obj = {
-        fullName: store.fullName,
-        storeName: store.storeName,
-        address: store.address,
-      };
-      stores.push(obj);
+    new Promise((resolve, reject) => {
+      resolve(
+        storeProduct.map(async (ele) => {
+          const store = await Store.findById(ele);
+          console.log(store);
+          return store;
+        })
+      );
+    }).then((response, request) => {
+      return res.status(200).json({ response });
     });
-    res.status(200).json({ stores });
   } catch (error) {
     res.status(500).json({ error });
   }

@@ -4,6 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import list from "./list.png";
+import logout from "./img/poweroff.png";
 
 function VendorDetails() {
   const [isActive, setActive] = useState(false);
@@ -45,7 +46,7 @@ function VendorDetails() {
           <h2>Gravity Bites</h2>
         </div>
         <div className="topLogout">
-          <h2>Logout</h2>
+          <img src={logout} style={{ width: "3rem", height: "2.8rem" }} />
         </div>
       </div>
       <div className="bottomHeader">
@@ -95,8 +96,13 @@ function VendorDetails() {
                             <td>{ele.email}</td>
                             <td>{ele.phoneNo}</td>
                             <td>{ele.categories}</td>
-                            <td>12/05/2017</td>
-                            <td>Pending</td>
+
+                            <td>
+                              {`${new Date(ele.createdAt).getDate()} -
+                                ${new Date(ele.createdAt).getMonth() + 1} -
+                                ${new Date(ele.createdAt).getFullYear()}`}
+                            </td>
+                            <td>{ele.isApproved ? "Approved" : "Pending"}</td>
                             <td>
                               <button
                                 style={{ width: "8rem", height: "3rem" }}

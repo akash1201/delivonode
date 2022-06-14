@@ -13,29 +13,34 @@ const Address = mongoose.Schema({
   zipcode: { type: String, required: true },
 });
 
-const UserSchema = mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
+const UserSchema = mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+    },
+    phoneNo: { type: String, required: true, minlength: 10 },
+    isApproved: {
+      type: Boolean,
+      default: false,
+    },
+    lastName: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    password: { type: String, required: true, minlength: 6 },
+    otp: { type: String },
+    address: Address,
   },
-  phoneNo: { type: String, required: true, minlength: 10 },
-  isApproved: {
-    type: Boolean,
-    default: false,
-  },
-  lastName: {
-    type: String,
-    required: true,
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  password: { type: String, required: true, minlength: 6 },
-  otp: { type: String },
-  address: Address,
-});
+  {
+    timestamps: true,
+  }
+);
 
 UserSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);

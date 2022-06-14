@@ -4,6 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import list from "./list.png";
+import logout from "./img/poweroff.png";
 
 function Categories() {
   const [isActive, setActive] = useState(false);
@@ -44,7 +45,7 @@ function Categories() {
           <h2>Gravity Bites</h2>
         </div>
         <div className="topLogout">
-          <h2>Logout</h2>
+          <img src={logout} style={{ width: "3rem", height: "2.8rem" }} />
         </div>
       </div>
       <div className="bottomHeader">

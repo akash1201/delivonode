@@ -61,7 +61,7 @@ const login = asyncHandler(async (req, res) => {
 const createCategory = asyncHandler(async (req, res) => {
   try {
     let token = req.headers.authorization.split(" ")[1];
-    let adminid = jwt.verify(token, process.env.JWT_SECRET)
+    let adminid = jwt.verify(token, process.env.JWT_SECRET);
     if (!adminid) {
       return res.json("Login to continue");
     }
@@ -152,6 +152,20 @@ const viewCategory = asyncHandler(async (req, res) => {
       return res.json("Login to continue");
     }
     const category = await Category.find();
+    res.status(200).json({ category });
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+// fetch sub Category
+const fetchSubcategory = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let adminid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!adminid) {
+      return res.json("Login to continue");
+    }
+    const category = await Category.find({ parent: "null" });
     res.status(200).json({ category });
   } catch (error) {
     res.status(500).json({ error });
@@ -423,4 +437,5 @@ module.exports = {
   viewParticularVendor,
   viewCoupon,
   viewCategory,
+  fetchSubcategory,
 };

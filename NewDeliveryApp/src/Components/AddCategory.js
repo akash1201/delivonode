@@ -4,9 +4,11 @@ import { useSelector, useDispatch } from "react-redux";
 import SideNav from "./SideNav";
 import list from "./list.png";
 import axios from "axios";
+import logout from "./img/poweroff.png";
 
 function AddCategory() {
   const [isActive, setActive] = useState(false);
+  const [subcategories, setSubcategories] = useState([]);
 
   const toggleClass = () => {
     setActive(!isActive);
@@ -14,6 +16,21 @@ function AddCategory() {
   const userLogin = useSelector((state) => state.userLogin);
   const { userInfo } = userLogin;
   const history = useNavigate();
+
+  useEffect(() => {
+    async function fetchInfo() {
+      const config = {
+        headers: {
+          authorization: `Bearer ${userInfo.token}`,
+        },
+      };
+      const { data } = await axios.get(`/api/admin/fetchSubcategory`, config);
+      console.log(data);
+      setSubcategories(data.category);
+    }
+    fetchInfo();
+  }, []);
+
   const fileUpload = async (e) => {
     e.preventDefault();
 
@@ -46,9 +63,9 @@ function AddCategory() {
 
   const [item, setItem] = useState({
     image: "",
-    name: "",
     subcategory: "",
-    categoryId: "",
+    parent: "",
+    bgColor: "red",
   });
 
   const adding = (event) => {
@@ -75,7 +92,7 @@ function AddCategory() {
           <h2>Gravity Bites</h2>
         </div>
         <div className="topLogout">
-          <h2>Logout</h2>
+          <img src={logout} style={{ width: "3rem", height: "2.8rem" }} />
         </div>
       </div>
       <div className="bottomHeader">
@@ -85,13 +102,34 @@ function AddCategory() {
         <div className="righty  page-content page-container" id="page-content">
           <div className="row container d-flex justify-content-center">
             <div className="container1">
-              <form onSubmit={handleSubmit}>
+              <form
+                onSubmit={handleSubmit}
+                style={{
+                  boxShadow:
+                    " rgb(0 0 0 / 25%) 0px 54px 55px, rgb(0 0 0 / 12%) 0px -12px 30px, rgb(0 0 0 / 12%) 0px 4px 6px, rgb(0 0 0 / 17%) 0px 12px 13px, rgb(0 0 0 / 9%) 0px -3px 5px",
+                }}
+              >
                 <div className="form first">
                   <div className="details personal">
-                    <span className="title">Add New Category</span>
-                    <div className="fields">
-                      <div className="input-fields">
-                        <label for="">Category Image</label>
+                    <span
+                      className="title"
+                      style={{
+                        fontWeight: "900",
+                        width: "50%",
+                        margin: "0 auto",
+                        fontSize: "2rem",
+                      }}
+                    >
+                      Add New Category
+                    </span>
+                    <div className="fields" style={{ marginBottom: "1rem" }}>
+                      <div
+                        className="input-fields"
+                        style={{ margin: "0 auto" }}
+                      >
+                        <label for="" style={{ fontSize: "1.2rem" }}>
+                          Category Image
+                        </label>
                         <input
                           type="file"
                           name="image,"
@@ -103,35 +141,41 @@ function AddCategory() {
                         <button onClick={fileUpload}>Upload</button>
                       </div>
                     </div>
-                    <div className="fields">
-                      <div className="input-fields">
-                        <label for="">Category Id</label>
-                        <input
-                          type="text"
-                          id="categoryId"
-                          value={item.categoryId}
+                    <div className="fields" style={{ marginBottom: "1rem" }}>
+                      <div
+                        className="input-fields"
+                        style={{ margin: "0 auto" }}
+                      >
+                        <label for="parent" style={{ fontSize: "1.2rem" }}>
+                          Select parent Id
+                        </label>
+                        <select
+                          name="parent"
+                          id="parent"
+                          value={item.parent}
                           onChange={adding}
-                          placeholder="Enter Category Id"
-                          required="required"
-                        />
+                        >
+                          <option value="parent">Select </option>;
+                          <option value="null">null </option>;
+                          {subcategories.map((ele, index) => {
+                            return (
+                              <option key={index + 1} value={ele.subcategory}>
+                                {" "}
+                                {ele.subcategory}
+                              </option>
+                            );
+                          })}
+                        </select>
                       </div>
                     </div>
-                    <div className="fields">
-                      <div className="input-fields">
-                        <label for="">Category Name</label>
-                        <input
-                          type="text"
-                          id="name"
-                          value={item.name}
-                          onChange={adding}
-                          placeholder="Enter Item Name"
-                          required="required"
-                        />
-                      </div>
-                    </div>
-                    <div className="fields">
-                      <div className="input-fields">
-                        <label for="">Sub-Category Name</label>
+                    <div className="fields" style={{ marginBottom: "1rem" }}>
+                      <div
+                        className="input-fields"
+                        style={{ margin: "0 auto" }}
+                      >
+                        <label for="" style={{ fontSize: "1.2rem" }}>
+                          Sub-Category Name
+                        </label>
                         <input
                           type="text"
                           id="subcategory"
@@ -142,9 +186,17 @@ function AddCategory() {
                         />
                       </div>
                     </div>
-                    <button className="nextbtn" type="submit">
-                      <span className="btnText">Submit</span>
-                      <i className="uil uil-navigator"></i>
+                    <button
+                      className="nextbtn btn-success"
+                      type="submit"
+                      style={{
+                        marginLeft: "15.5rem",
+                        fontSize: "1.2rem",
+                        padding: "0.5rem",
+                        borderRadius: "15px",
+                      }}
+                    >
+                      Submit
                     </button>
                   </div>
                 </div>

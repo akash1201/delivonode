@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import axios from "axios";
 import SideNav from "./SideNav";
 import list from "./list.png";
+import logout from "./img/poweroff.png";
 
 function DeliveryProfile() {
   const [isActive, setActive] = useState(false);
@@ -19,14 +20,16 @@ function DeliveryProfile() {
     if (!userInfo) {
       history("/");
     }
-
-    const config = {
-      headers: {
-        authorization: `Bearer ${userInfo.token}`,
-      },
-    };
-    const { data } = await axios.get(`/api/admin/viewDelivery`, config);
-    setDeliveryinfo(data.delivery);
+    async function fetchInfo() {
+      const config = {
+        headers: {
+          authorization: `Bearer ${userInfo.token}`,
+        },
+      };
+      const { data } = await axios.get(`/api/admin/viewDelivery`, config);
+      setDeliveryinfo(data.delivery);
+    }
+    fetchInfo();
   }, []);
   const handleApproval = async (e) => {
     const config = {
@@ -69,7 +72,7 @@ function DeliveryProfile() {
           <h2>Gravity Bites</h2>
         </div>
         <div className="topLogout">
-          <h2>Logout</h2>
+          <img src={logout} style={{ width: "3rem", height: "2.8rem" }} />
         </div>
       </div>
       <div className="bottomHeader">
@@ -86,8 +89,16 @@ function DeliveryProfile() {
             {/* <div class="col-lg-8 grid-margin stretch-card"> */}
             <div class="card">
               <div class="card-body">
-                <h4 class="card-title">Delivery Personnel Details</h4>
-                <p class="card-description">Basic table with card</p>
+                <h4
+                  className="card-title"
+                  style={{
+                    fontWeight: "900",
+                    width: "20rem",
+                    padding: "1rem",
+                  }}
+                >
+                  Delivery Person Details
+                </h4>
                 <div class="table-responsive">
                   <table class="table">
                     <thead>
@@ -105,14 +116,17 @@ function DeliveryProfile() {
                     <tbody>
                       {deliveryinfo.map((ele, index) => {
                         return (
-                          <tr>
+                          <tr key={index + 1}>
                             <td>{index + 1}</td>
                             <td>{ele.name}</td>
                             <td>{ele.email}</td>
                             <td>{ele.phoneNo}</td>
-
-                            <td>{ele.createdAt}</td>
-                            <td>Pending</td>
+                            <td>
+                              {`${new Date(ele.createdAt).getDate()} -
+                                ${new Date(ele.createdAt).getMonth() + 1} -
+                                ${new Date(ele.createdAt).getFullYear()}`}
+                            </td>
+                            <td>{ele.isApproved ? "Approved" : "Pending"}</td>
                             <td>
                               <button
                                 class="badge badge-danger"
@@ -145,9 +159,7 @@ function DeliveryProfile() {
           </div>
         </div>
       </div>
-      //{" "}
     </div>
-    // </div>
   );
 }
 

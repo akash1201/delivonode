@@ -1,6 +1,7 @@
 const express = require("express");
 const {
   register,
+  fetchSubcategory,
   login,
   createCategory,
   deleteCategory,
@@ -28,9 +29,10 @@ const router = express.Router();
 
 router.post(`/register`, register);
 router.post(`/login`, login);
-router.post(`/createCategory`, createCategory)
+router.post(`/createCategory`, createCategory);
 router.get(`/viewCategory`, viewCategory);
 router.get(`/viewCoupon`, viewCoupon);
+router.get(`/fetchSubcategory`, fetchSubcategory);
 router.put(`/deleteCategory/:categoryId`, deleteCategory);
 router.post(`/updateCategory`, updateCategory);
 router.post(`/createCoupons`, createCoupons);
