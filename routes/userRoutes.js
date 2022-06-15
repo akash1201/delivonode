@@ -5,6 +5,7 @@ const express = require("express");
 // login
 // } from "../controller/userController.js"
 const {
+  reduceQuantity,
   fetchCategories,
   fetchsubCategories,
   fetchCoupons,
@@ -52,6 +53,7 @@ router.get(`/myaccount`, myaccount);
 router.get(`/fetchsubCategories/:categoryId`, fetchsubCategories);
 router.get(`/getsubCategory/:vendorId`, getsubCategory);
 router.post(`/addtoCart/:productid`, addtoCart);
+router.post(`/reduceQuantity/:productid`, reduceQuantity);
 router.get(`/viewCart`, viewCart);
 router.post("/newAddress", newAddress);
 router.post("/addComplain", addComplain);

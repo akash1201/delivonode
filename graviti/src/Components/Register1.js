@@ -44,6 +44,13 @@ function Register1() {
       lat: position.coords.latitude,
       lng: position.coords.longitude,
     });
+    axios
+      .get(
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${position.coords.latitude},${position.coords.longitude}&key=AIzaSyCUp07QM56rvYC1gKmRnAIDAZQKKq5w2hc`
+      )
+      .then((res) => {
+        console.log(res.data.results[1]);
+      });
   };
 
   const getBack = async (e) => {
@@ -72,6 +79,7 @@ function Register1() {
   };
   useEffect(() => {
     localStorage.setItem("registerinfo", JSON.stringify(data));
+
     // history("/register2");
   }, [data]);
 

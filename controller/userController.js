@@ -352,7 +352,7 @@ const addtoCart = asyncHandler(async (req, res) => {
           ourcart.products[productalready].quantity += 1;
           ourcart.products[productalready].price =
             currProduct.price * ourcart.products[productalready].quantity;
-          await ourcart.save();
+
           return res.status(200).json("Product Quantity Increased");
         } else {
           const newProduct = {
@@ -369,9 +369,9 @@ const addtoCart = asyncHandler(async (req, res) => {
           return res.status(200).json("New Product Added to Cart");
         }
       } else {
-        return res.status(
-          "Discard the previous Cart to add product from new Vendor"
-        );
+        return res
+          .status(500)
+          .json("Discard the previous Cart to add product from new Vendor");
       }
     } else {
       const currProduct = await Product.findById(req.params.productid);
@@ -392,6 +392,44 @@ const addtoCart = asyncHandler(async (req, res) => {
   } catch (error) {
     res.status(500).json({ error });
   }
+});
+
+// Reduce Quantity of Product from cart
+const reduceQuantity = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let userid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!userid) {
+      return res.status(500).json({ status: 500, msg: "User not Found" });
+    }
+    const cartexists = await Cart.findOne({
+      userId: userid.id.toString(),
+      status: "shopping",
+    }).populate([
+      {
+        path: "products.productId",
+        model: "Product",
+        select: "_id vendorId",
+      },
+    ]);
+    console.log(req.params.productid);
+    const productalready = cartexists.products.findIndex(
+      (ele) => ele.productId._id.toString() === req.params.productid
+    );
+    const currProduct = await Product.findById(req.params.productid);
+    if (productalready > -1) {
+      const newQuantity = cartexists.products[productalready].quantity - 1;
+      const newPrice = currProduct.price * newQuantity;
+      cartexists.products[productalready].quantity = newQuantity;
+      cartexists.products[productalready].price = newPrice;
+      await cartexists.save();
+      return res.status(200).json("Product Quantity Decreased");
+    } else {
+      return res.status(500).json("Product doesn't exits in cart");
+    }
+  } catch (error) {
+    res.status(500).json({ error });
+  } 
 });
 // Discard the existing cart
 const discardCart = asyncHandler(async (req, res) => {
@@ -587,6 +625,7 @@ const fetchCoupons = asyncHandler(async (req, res) => {
 });
 
 module.exports = {
+  reduceQuantity,
   getsubCategory,
   fetchsubCategories,
   fetchCategories,
