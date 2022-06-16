@@ -4,6 +4,7 @@ import { useNavigate, Link, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import jle12 from "./jle12.png";
+import back from "./back.png";
 
 function Documents() {
   const history = useNavigate();
@@ -16,11 +17,14 @@ function Documents() {
       city: "",
     },
   });
-  useEffect(async (e) => {
-    if (!userInfo) {
-      history("/");
-    }
+  const getBack = () => {
+    history("/VendorDetails");
+  };
+  useEffect(() => {
     async function fetchInfo() {
+      if (!userInfo) {
+        history("/");
+      }
       const config = {
         headers: {
           authorization: `Bearer ${userInfo.token}`,
@@ -60,6 +64,13 @@ function Documents() {
   };
   return (
     <div className="profiler">
+      <div className="profiler-back">
+        <img
+          src={back}
+          style={{ width: "2rem", height: "2rem" }}
+          onClick={getBack}
+        />
+      </div>
       <div class="profiler-documents">
         <div className="row" style={{ padding: "1rem" }}>
           <div className="col-6">
@@ -74,7 +85,7 @@ function Documents() {
             data-ride="carousel"
           >
             <div className="carousel-inner">
-              <div className="carousel-item active" data-interval="10000">
+              <div className="carousel-item active" data-interval="5000">
                 <div className="row" style={{ marginLeft: "10rem" }}>
                   <div className="col">
                     <div
@@ -195,7 +206,10 @@ function Documents() {
           {/* </div> */}
         </div>
       </div>
-      <div class="profiler-info">
+      <div
+        class="profiler-info"
+        style={{ marginLeft: "2rem", fontWeight: "600" }}
+      >
         <div>
           <h4>
             Store Address.
@@ -229,15 +243,37 @@ function Documents() {
         </div>
         <div>
           <h4>
-            Store Rating <span>{vendorInfo.storeRating}</span>
+            Store Rating. <span>{vendorInfo.storeRating}</span>
           </h4>
         </div>
       </div>
       <div class="updateStatus">
-        <button type="button" onClick={handleApproval}>
+        <button
+          type="button"
+          onClick={handleApproval}
+          style={{
+            border: "none",
+            fontSize: "1.5rem",
+            marginRight: "0.5rem",
+            padding: "1rem",
+            backgroundColor: "grey",
+            borderRadius: "10px",
+          }}
+        >
           Approve Account
         </button>
-        <button type="button" onClick={handledisApproval}>
+        <button
+          type="button"
+          onClick={handledisApproval}
+          style={{
+            border: "none",
+            fontSize: "1.5rem",
+            marginRight: "0.5rem",
+            padding: "1rem",
+            backgroundColor: "grey",
+            borderRadius: "10px",
+          }}
+        >
           Decline Account
         </button>
       </div>
