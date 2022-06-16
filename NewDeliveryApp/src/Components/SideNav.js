@@ -19,117 +19,63 @@ function SideNav({ isActive }) {
           <Link to="/VendorDetails">
             <h3>Store-info</h3>
 
-            <img
-              src={store}
-              style={{
-                height: "2.0rem",
-                color: "black",
-              }}
-            />
+            <img src={store} />
           </Link>
         </li>
         <li>
           <Link to="/Users">
             <h3>Customer-info</h3>
 
-            <img
-              src={customer}
-              style={{
-                height: "2.0rem",
-                color: "black",
-              }}
-            />
+            <img src={customer} />
           </Link>
         </li>
         <li>
           <Link to="/DeliveryProfile">
             <h3>Delivery-info</h3>
 
-            <img
-              src={delivery}
-              style={{
-                height: "2.0rem",
-                color: "black",
-              }}
-            />
+            <img src={delivery} />
           </Link>
         </li>
         <li>
           <Link to="/categories">
             <h3>Categoires</h3>
 
-            <img
-              src={category}
-              style={{
-                height: "2.0rem",
-                color: "black",
-              }}
-            />
+            <img src={category} />
           </Link>
         </li>
         <li>
           <Link to="/coupons">
             <h3>Coupons</h3>
 
-            <img
-              src={coupon}
-              style={{
-                height: "2.0rem",
-                color: "black",
-              }}
-            />
+            <img src={coupon} />
           </Link>
         </li>
         <li>
           <Link to="/addcategory">
             <h3>Add Category</h3>
 
-            <img
-              src={addcategory}
-              style={{
-                height: "2.0rem",
-                color: "black",
-              }}
-            />
+            <img src={addcategory} />
           </Link>
         </li>
         <li>
           <Link to="/addcoupon">
             <h3>Add Coupons</h3>
 
-            <img
-              src={addcoupon}
-              style={{
-                height: "2.0rem",
-                color: "black",
-              }}
-            />
+            <img src={addcoupon} />
           </Link>
         </li>
         <li>
           <Link to="/complaints">
             <h3>Complaints</h3>
 
-            <img
-              src={report}
-              style={{
-                height: "2.0rem",
-                color: "black",
-              }}
-            />
+            <img src={report} />
           </Link>
         </li>
         <li>
           <Link to="/complaints">
             <h3>Earnings</h3>
 
-            <img
-              src={earning}
-              style={{
-                height: "2.0rem",
-                color: "black",
-              }}
-            />
+            <img src={earning} />
           </Link>
         </li>
       </ul>

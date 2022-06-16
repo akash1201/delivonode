@@ -3,8 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import SideNav from "./SideNav";
-import list from "./list.png";
-import logout from "./img/poweroff.png";
+import Header from "./Header.js";
 
 function DeliveryProfile() {
   const [isActive, setActive] = useState(false);
@@ -16,11 +15,11 @@ function DeliveryProfile() {
   const userLogin = useSelector((state) => state.userLogin);
   const { userInfo } = userLogin;
   const [deliveryinfo, setDeliveryinfo] = useState([]);
-  useEffect(async (e) => {
-    if (!userInfo) {
-      history("/");
-    }
+  useEffect(() => {
     async function fetchInfo() {
+      if (!userInfo) {
+        history("/");
+      }
       const config = {
         headers: {
           authorization: `Bearer ${userInfo.token}`,
@@ -57,24 +56,7 @@ function DeliveryProfile() {
   };
   return (
     <div className="main">
-      <div className="topHeader">
-        <div className="top_title">
-          <img
-            src={list}
-            style={{
-              width: "2rem",
-              height: "2rem",
-              marginRight: "2rem",
-              marginTop: "0.5rem",
-            }}
-            onClick={toggleClass}
-          ></img>
-          <h2>Gravity Bites</h2>
-        </div>
-        <div className="topLogout">
-          <img src={logout} style={{ width: "3rem", height: "2.8rem" }} />
-        </div>
-      </div>
+      <Header toggleClass={toggleClass} />
       <div className="bottomHeader">
         <div className="lefty">
           <SideNav isActive={isActive} />

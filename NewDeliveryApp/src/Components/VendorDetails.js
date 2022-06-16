@@ -3,8 +3,7 @@ import { React, useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import axios from "axios";
-import list from "./list.png";
-import logout from "./img/poweroff.png";
+import Header from "./Header.js";
 
 function VendorDetails() {
   const [isActive, setActive] = useState(false);
@@ -18,6 +17,9 @@ function VendorDetails() {
   const [vendorinfo, setVendorinfo] = useState([]);
   useEffect((e) => {
     async function fetchInfo() {
+      if (!userInfo) {
+        history("/");
+      }
       const config = {
         headers: {
           authorization: `Bearer ${userInfo.token}`,
@@ -31,24 +33,7 @@ function VendorDetails() {
 
   return (
     <div className="main">
-      <div className="topHeader">
-        <div className="top_title">
-          <img
-            src={list}
-            style={{
-              width: "2rem",
-              height: "2rem",
-              marginRight: "2rem",
-              marginTop: "0.5rem",
-            }}
-            onClick={toggleClass}
-          ></img>
-          <h2>Gravity Bites</h2>
-        </div>
-        <div className="topLogout">
-          <img src={logout} style={{ width: "3rem", height: "2.8rem" }} />
-        </div>
-      </div>
+      <Header toggleClass={toggleClass} />
       <div className="bottomHeader">
         <div className="lefty">
           <SideNav isActive={isActive} />
