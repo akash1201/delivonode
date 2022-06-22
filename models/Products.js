@@ -44,6 +44,10 @@ const ProductSchema = mongoose.Schema({
     type: Number,
     default: 0,
   },
+  gst: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const Product = mongoose.model("Product", ProductSchema);

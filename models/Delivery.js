@@ -11,6 +11,10 @@ const deliverySchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    orderType: {
+      type: String,
+      required: true,
+    },
     isApproved: {
       type: Boolean,
       default: false,
@@ -39,6 +43,22 @@ const deliverySchema = mongoose.Schema(
     orderReference: {
       type: String,
     },
+    drivingLicense: {
+      type: String,
+      required: true,
+    },
+    tShirt: { type: String, required: true },
+    upiId: { type: String, unique: true },
+    panNo: { type: String, unique: true },
+    voterId: { type: String, unique: true },
+    aadharNo: { type: String, unique: true },
+    vehicleRC: { type: String, unique: true },
+    insurancePolicy: { type: String, unique: true },
+    bankName: { type: String, required: true },
+    accountHolder: { type: String, required: true },
+    accountNo: { type: Number, required: true },
+    ifsc: { type: String, required: true },
+    userImage: { type: String, required: true },
   },
   {
     timestamps: true,

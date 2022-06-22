@@ -4,6 +4,7 @@ const Delivery = require("../models/Delivery.js");
 const jwt = require("jsonwebtoken");
 const Order = require("../models/Orders.js");
 const generateToken = require("../utils/generateToken.js");
+const CustomDelivery = require("../models/CustomDelivery.js");
 
 const register = asyncHandler(async (req, res) => {
   try {
@@ -119,7 +120,7 @@ const assigned = asyncHandler(async (req, res) => {
     let token = req.headers.authorization.split(" ")[1];
     let deliveryid = jwt.verify(token, process.env.JWT_SECRET);
     const delivery = await Delivery.findById(deliveryid.id);
-    if (delivery.isAvailable == false) {
+    if (delivery.isAvailable == false && delivery.orderType == "Regular") {
       let order = await Order.findOne({
         deliveryPartner: deliveryid.id,
         status: "Order Accepted",
@@ -130,9 +131,21 @@ const assigned = asyncHandler(async (req, res) => {
           select: "_id storeName address",
         },
       ]);
-      let deliveryaddress = order.address;
-      let storeaddress = order.vendorId.address;
-      let storename = order.vendorId.storeName;
+      const deliveryaddress = order.address;
+      const storeaddress = order.vendorId.address;
+      const storename = order.vendorId.storeName;
+      return res.status(200).json({ deliveryaddress, storeaddress, storename });
+    } else if (
+      delivery.isAvailable == false &&
+      delivery.orderType == "Custom"
+    ) {
+      let customorder = await CustomDelivery.findOne({
+        deliveryPartner: deliveryid.id,
+        status: "Order Placed",
+      });
+      const storeaddress = customorder.pickupAddress;
+      const deliveryaddress = customorder.dropoffAddress;
+      const storename = "Custom Delivery";
       return res.status(200).json({ deliveryaddress, storeaddress, storename });
     }
   } catch (error) {
@@ -149,7 +162,7 @@ const accepted = asyncHandler(async (req, res) => {
       return res.status(500).json({ msg: "User not found" });
     }
     let delivery = await Delivery.findById(deliveryid.id);
-    if (delivery.isAvailable == false) {
+    if (delivery.isAvailable == false && delivery.orderType == "Regular") {
       let order = await Order.findOne({
         deliveryPartner: deliveryid.id,
         status: "Order Accepted",
@@ -169,11 +182,28 @@ const accepted = asyncHandler(async (req, res) => {
       delivery.orderReference = order._id;
       await delivery.save();
       order.status = "Pickup Arranged";
-      let deliveryaddress = order.address;
-      let storeaddress = order.vendorId.address;
+      const deliveryaddress = order.address;
+      const storeaddress = order.vendorId.address;
       await order.save();
-      let products = order.products;
+      const products = order.products;
       return res.status(200).json({ products, deliveryaddress, storeaddress });
+    } else if (
+      delivery.isAvailable == false &&
+      delivery.orderType == "Custom"
+    ) {
+      let customorder = await CustomDelivery.findOne({
+        deliveryPartner: deliveryid.id,
+        status: "Order Placed",
+      });
+      delivery.status = "Accepted";
+      delivery.orderReference = customorder._id;
+      await delivery.save();
+      customorder.status = "Pickup Arranged";
+      const deliveryaddress = customorder.dropoffAddress;
+      const storeaddress = customorder.pickupAddress;
+      const products = customorder.productImage;
+      await customorder.save();
+      return res.status(200).json({ deliveryaddress, storeaddress, products });
     }
   } catch (error) {
     res.status(500).json({ msg: "Internal server error" });
@@ -188,7 +218,7 @@ const picked = asyncHandler(async (req, res) => {
       return res.status(500).json({ msg: "User not found" });
     }
     let delivery = await Delivery.findById(deliveryid.id);
-    if ((delivery.isAvailable = false)) {
+    if ((delivery.isAvailable = false && delivery.orderType == "Regular")) {
       let order = await Order.findOne({
         deliveryPartner: deliveryid.id,
         status: "Pickup Arranged",
@@ -206,6 +236,21 @@ const picked = asyncHandler(async (req, res) => {
       let deliveryaddress = order.address;
       let storeaddress = order.vendorId.address;
       return res.status(200).json({ deliveryaddress, storeaddress });
+    } else if (
+      (delivery.isAvailable = false && delivery.orderType == "Regular")
+    ) {
+      let customorder = await CustomDelivery.findOne({
+        deliveryPartner: deliveryid.id,
+        status: "Pickup Arranged",
+      });
+
+      delivery.status = "Picked";
+      await delivery.save();
+      customorder.status = "Out for Delivery";
+      await customorder.save();
+      let deliveryaddress = customorder.dropoffAdress;
+      let storeaddress = customorder.pickupAddress;
+      return res.status(200).json({ deliveryaddress, storeaddress });
     }
   } catch (error) {
     res.status(500).json({ msg: "Internal server error" });
@@ -221,13 +266,26 @@ const delivered = asyncHandler(async (req, res) => {
       return res.status(500).json({ msg: "User not found" });
     }
     let delivery = await Delivery.findById(deliveryid.id);
-    if ((delivery.isAvailable = false)) {
+    if ((delivery.isAvailable = false && delivery.orderType == "Regular")) {
       let order = await Order.findOne({
         deliveryPartner: deliveryid.id,
         status: "Out for Delivery",
       });
       order.status = "Delivered";
       await order.save();
+      delivery.status = "Delivered";
+      delivery.isAvailable = true;
+      await delivery.save();
+      return res.status(200).json("Order Delivered");
+    } else if (
+      (delivery.isAvailable = false && delivery.orderType == "Custom")
+    ) {
+      let customorder = await Order.findOne({
+        deliveryPartner: deliveryid.id,
+        status: "Out for Delivery",
+      });
+      customorder.status = "Delivered";
+      await customorder.save();
       delivery.status = "Delivered";
       delivery.isAvailable = true;
       await delivery.save();
@@ -262,11 +320,7 @@ const ordersDelivered = asyncHandler(async (req, res) => {
     if (!deliveryid) {
       return res.status(500).json({ msg: "User not found" });
     }
-    // let delivery = await Delivery.findById(deliveryid.id);
-    // if (delivery.isApproved == false) {
-    //   return res.status(500).json("Registeration approval pending by admin");
-    // }
-    let orders = await Order.findOne({
+    let orders = await Order.find({
       deliveryPartner: deliveryid.id,
       status: "Delivered",
     }).populate([
@@ -282,8 +336,22 @@ const ordersDelivered = asyncHandler(async (req, res) => {
     res.status(500).json({ msg: "Internal server error" });
   }
 });
+// My Profile
+const myProfile = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let deliveryid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!deliveryid) {
+      return res.status(500).json({ msg: "User not found" });
+    }
+    let delivery = await Delivery.findById(deliveryid.id);
+    res.status(200).json({ delivery });
+  } catch (error) {}
+  res.status(500).json({ error });
+});
 
 module.exports = {
+  myProfile,
   register,
   login,
   terms,

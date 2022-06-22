@@ -18,6 +18,14 @@ const CategorySchema = mongoose.Schema({
     type: String,
     required: true,
   },
+  hsnCode: {
+    type: String,
+    required: true,
+  },
+  gstPercent: {
+    type: Number,
+    required: true,
+  },
 });
 
 const Category = mongoose.model("Category", CategorySchema);

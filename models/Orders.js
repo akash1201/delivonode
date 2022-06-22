@@ -20,11 +20,31 @@ const OrderSchema = mongoose.Schema(
       type: Number,
       default: 0,
     },
-    status: {
-      type: String,
-      required: true,
+    GST: {
+      type: Number,
+      default: 0,
     },
-    statusId: {
+    packagingCharges: {
+      type: Number,
+      default: 0,
+    },
+    baseFare: {
+      type: Number,
+      default:0
+    },
+    distanceFee: {
+      type: Number,
+      default: 0,
+    },
+    serviceFee: {
+      type: Number,
+      default: 0,
+    },
+    // surgeCharge: {
+    //   type: Number,
+    //   default: 0,
+    // },
+    status: {
       type: String,
       required: true,
     },
@@ -32,6 +52,17 @@ const OrderSchema = mongoose.Schema(
       type: String,
     },
     deliveryPartner: {
+      type: String,
+    },
+    deliveryTip: {
+      type: Number,
+      default: 0,
+    },
+    deliveryOption: {
+      type: String,
+      required: true,
+    },
+    couponCode: {
       type: String,
     },
     address: {

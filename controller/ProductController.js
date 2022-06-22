@@ -1,11 +1,6 @@
-//import asyncHandler from 'express-async-handler';
 const asyncHandler = require("express-async-handler");
-//import Category from '../models/Category.js';
 const Category = require("../models/Category.js");
-//import jwt from 'jsonwebtoken';
 const jwt = require("jsonwebtoken");
-// const upload = require("../routes/uploadRoute.js");
-//import Product from '../models/Products.js';
 const Product = require("../models/Products.js");
 const Store = require("../models/Store.js");
 
@@ -16,6 +11,11 @@ const addProduct = asyncHandler(async (req, res) => {
     if (!storeid) {
       return res.status(500).json({ msg: "Authentication Failed" });
     }
+    // Add here to look for category and then use the gst inside that to the product controller
+    let category = await Category.findOne({
+      subcategory: req.body.subcategory,
+    });
+    console.log(category);
     let obj = {
       name: req.body.name,
       image: req.body.image,
@@ -24,6 +24,7 @@ const addProduct = asyncHandler(async (req, res) => {
       vendorId: storeid.id,
       price: req.body.price,
       qty: req.body.qty,
+      gst: category.gstPercent,
       unit: req.body.unit,
       discount: req.body.discount,
     };

@@ -14,7 +14,9 @@ const Product = require("../models/Products.js");
 const Coupons = require("../models/Coupons.js");
 const Cart = require("../models/Cart.js");
 const Prescription = require("../models/Prescription.js");
+const CustomDelivery = require("../models/CustomDelivery.js");
 const axios = require("axios");
+const Admin = require("../models/Admin.js");
 const sdk = require("api")("@cashfreedocs-new/v2#97f8kl3sscv9e");
 // const PaymentGateway = require("@cashfreepayments/cashfree-sdk");
 
@@ -66,11 +68,9 @@ const login = asyncHandler(async (req, res) => {
       return res.status(500).json("User not found");
     }
     if (await user.matchPassword(password)) {
-      user.password = null;
-      res.json({
+      res.status(200).json({
         _id: user._id,
         token: generateToken(user._id),
-        user,
       });
     } else {
       res.status(500).json({ message: `Password didn't match`, status: 500 });
@@ -97,6 +97,122 @@ const addPrescription = asyncHandler(async (req, res) => {
     res.status(200).json("Prescription added ");
   } catch (error) {
     res.status(500).json(error);
+  }
+});
+// Add Tip Amount to Delivery Person
+const addTip = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let userid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!userid) {
+      return res.status(500).json({ msg: "User not found" });
+    }
+    const order = await Order.findById(req.params.orderId);
+    order.deliveryTip = req.body.deliveryTip;
+    order.save();
+    res.status(200).json("Thank You for your reward");
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+
+// Add Intruction for Order
+const addInstruction = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let userid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!userid) {
+      return res.status(500).json({ msg: "User not found" });
+    }
+    const order = await Order.findById(req.params.orderId);
+    order.instruction = req.body.instruction;
+    order.save();
+    res
+      .status(200)
+      .json("Your instructions are value to serve your desired order");
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+
+// Add Coupon Code to reddem Offer
+const addCoupon = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let userid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!userid) {
+      return res.status(500).json({ msg: "User not found" });
+    }
+    const order = await Order.findById(req.params.orderId);
+    const code = await Coupons.find({
+      couponCode: req.body.couponCode.toString(),
+    });
+    const expiry = new Date(code.expiryDuration);
+    const currDate = new Date(Date.now());
+    if (expiry - currDate > 0) {
+      if (code.isPercent) {
+        const amount = order.Total;
+        const discount = (amount / 100) * code.amountOff;
+        order.Total = amount - discount;
+        order.save();
+        var mess = "Enjoy great deals everyday";
+        return res.status(200).json({ mess });
+      }
+      const amount = order.Total;
+      order.Total = amount - code.amountOff;
+      order.save();
+      return res.status(200).json({ mess });
+    }
+    res.status(500).json("Coupon Expired");
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+
+// Custom Delivery Option
+const customDelivery = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let userid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!userid) {
+      return res.status(500).json({ msg: "User not found" });
+    }
+    var Total = 0;
+    // we need to do total amount calculation over here
+    const couponCode = req.body.couponCode || null;
+    if (couponCode) {
+      const code = await Coupons.find({ couponCode: req.body.couponCode });
+      if (code.isPercent) {
+        const amount = Total;
+        const discount = (amount / 100) * code.amountOff;
+        Total = amount - discount;
+      }
+      const amount = Total;
+      Total = amount - code.amountOff;
+    }
+
+    let obj = {
+      userId: userid.id,
+      productImage: req.body.productImage,
+      pickupAddress: req.body.pickupAddress,
+      dropoffAddress: req.body.dropoffAddress,
+      status: "Order Placed",
+      // deliveryFee: req.body.deliveryFee,
+      instruction: req.body.instruction,
+      deliveryDistance: req.body.deliveryDistance,
+      deliveryTip: req.body.deliveryTip || null,
+      category: req.body.category,
+      Total: Total,
+      // GST
+      // surgeCharge,
+      instruction: req.body.instruction || null,
+      deliveryOption: req.body.deliveryOption || "Home Delivery",
+      couponCode: req.body.couponCode || null,
+    };
+    const customdelivery = await CustomDelivery.create(obj);
+    res.status(200).json({ customdelivery });
+  } catch (error) {
+    res.status(500).json({ error });
   }
 });
 
@@ -291,27 +407,95 @@ const placeOrder = asyncHandler(async (req, res) => {
       userId: userid.id,
       status: "shopping",
     });
+    let vendor = await Store.findById(cart.vendorId.toString());
+    console.log(vendor);
     let subTotal = 0;
-    cart.products.forEach((ele) => (subTotal += ele.price));
-    const serviceFee = (subTotal / 100) * 15;
-    const Total = subTotal + serviceFee;
-
-    cart.status = "Order Placed";
-    await cart.save();
+    let totalGST = 0;
+    cart.products.forEach((ele) => {
+      subTotal += ele.price;
+      totalGST += ele.gst;
+    });
     let orderaddress = await Address.findOne({ _id: req.body.addressId });
+    const couponCode = req.body.couponCode || null;
 
+    if (couponCode) {
+      let code = await Coupons.findOne({
+        couponCode: req.body.couponCode.toString(),
+      });
+
+      const expiry = new Date(code.expiryDuration);
+      const currDate = new Date(Date.now());
+      if (expiry - currDate > 0) {
+        if (code.isPercent) {
+          const amount = subTotal;
+          const discount = (amount / 100) * code.amountOff;
+          subTotal = amount - discount;
+        } else {
+          const amount = subTotal;
+          subTotal = amount - code.amountOff;
+        }
+      }
+    }
+    const admin = await Admin.findById(process.env.ADMIN_ID);
+    let distFee = 0;
+    if (req.body.distance > 10) {
+      let remainingDistance = req.body.distance - 10;
+      distFee = remainingDistance * admin.distanceFee;
+    }
+
+    let serves = (subTotal / 100) * admin.serviceFee;
+    var Total =
+      subTotal +
+      totalGST +
+      serves +
+      distFee +
+      vendor.packagingCharge +
+      admin.baseFare;
     let obj = {
       userId: userid.id,
       products: cart.products,
       vendorId: cart.vendorId,
       status: "Order Placed",
-      Total: Total,
+      Total: parseInt(Total),
+      GST: totalGST,
+      packagingCharges: vendor.packagingCharge || 0,
+      distanceFee: distFee || 0,
+      serviceFee: serves || 0,
+      baseFare: admin.baseFare || 0,
+      // surgeCharge,
+      instruction: req.body.instruction || null,
+      deliveryOption: req.body.deliveryOption || "Home Delivery",
+      couponCode: req.body.couponCode || null,
       address: orderaddress,
-      statusId: "41524123",
     };
     const newOrder = await Order.create(obj);
+    cart.status = "Order Placed";
     await cart.save();
-    res.status(200).json("Order Placed Successfully");
+    let mess = "Order Placed Successfully";
+    res.status(200).json({ mess });
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+
+// Assign Delivery Boy for Custom Order
+const placeCustomOrder = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let userid = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(userid.id);
+    if (!user) {
+      return res.status(500).json({ status: 500, msg: "User not Found" });
+    }
+    const customorder = await CustomDelivery.findById(req.params.orderId);
+    const delivery = await Delivery.find({ isAvailable: true });
+    const deliveryman = delivery[Math.floor(Math.random() * delivery.length)];
+    const orderAssignedTo = await Delivery.findById(deliveryman._id);
+    customorder.deliveryPartner = deliveryman._id;
+    orderAssignedTo.isAvailable = false;
+    orderAssignedTo.status = "Assigned";
+    orderAssignedTo.orderType = "Custom";
+    await orderAssignedTo.save();
   } catch (error) {
     res.status(500).json({ error });
   }
@@ -336,10 +520,8 @@ const addtoCart = asyncHandler(async (req, res) => {
         select: "_id vendorId",
       },
     ]);
-    // console.log(cartexists[0].products, "27");
     if (cartexists.length > 0) {
       const currProduct = await Product.findById(req.params.productid);
-
       if (
         currProduct.vendorId === cartexists[0].products[0].productId.vendorId
       ) {
@@ -350,20 +532,25 @@ const addtoCart = asyncHandler(async (req, res) => {
           const cartid = cartexists[0]._id;
           const ourcart = await Cart.findById(cartid);
           ourcart.products[productalready].quantity += 1;
+          ourcart.products[productalready].gst =
+            ((currProduct.price * ourcart.products[productalready].quantity) /
+              100) *
+            currProduct.gst;
           ourcart.products[productalready].price =
             currProduct.price * ourcart.products[productalready].quantity;
+          ourcart.save();
 
           return res.status(200).json("Product Quantity Increased");
         } else {
           const newProduct = {
             productId: req.params.productid,
+            gst: (currProduct.price / 100) * currProduct.gst,
             quantity: 1,
             price: currProduct.price,
           };
           // console.log(newProduct);
           const cartid = cartexists[0]._id;
           const ourcart = await Cart.findById(cartid);
-          // console.log(ourcart, "412");
           ourcart.products.push(newProduct);
           await ourcart.save();
           return res.status(200).json("New Product Added to Cart");
@@ -378,7 +565,9 @@ const addtoCart = asyncHandler(async (req, res) => {
       const newProduct = {
         productId: req.params.productid.toString(),
         quantity: 1,
-        // can change this quantity
+        // ****************************************
+        //  can add here about gst info gst= currProduct.price/100 *currProduct.gst
+        gst: (currProduct.price / 100) * currProduct.gst,
         price: currProduct.price,
       };
       const newCart = await Cart.create({
@@ -421,6 +610,8 @@ const reduceQuantity = asyncHandler(async (req, res) => {
       const newQuantity = cartexists.products[productalready].quantity - 1;
       const newPrice = currProduct.price * newQuantity;
       cartexists.products[productalready].quantity = newQuantity;
+      cartexists.products[productalready].gst =
+        (newPrice / 100) * currProduct.gst;
       cartexists.products[productalready].price = newPrice;
       await cartexists.save();
       return res.status(200).json("Product Quantity Decreased");
@@ -429,7 +620,7 @@ const reduceQuantity = asyncHandler(async (req, res) => {
     }
   } catch (error) {
     res.status(500).json({ error });
-  } 
+  }
 });
 // Discard the existing cart
 const discardCart = asyncHandler(async (req, res) => {
@@ -525,18 +716,11 @@ const fetchStorebySubcategory = asyncHandler(async (req, res) => {
     const storeProduct = await Product.distinct("vendorId", {
       subcategory: categoryName,
     });
+    let arr = [];
 
-    new Promise((resolve, reject) => {
-      resolve(
-        storeProduct.map(async (ele) => {
-          const store = await Store.findById(ele);
-          console.log(store);
-          return store;
-        })
-      );
-    }).then((response, request) => {
-      return res.status(200).json({ response });
-    });
+    const now = await Store.find({ _id: { $in: storeProduct } });
+
+    res.status(200).json({ now });
   } catch (error) {
     res.status(500).json({ error });
   }

@@ -36,6 +36,10 @@ const UserSchema = mongoose.Schema(
     password: { type: String, required: true, minlength: 6 },
     otp: { type: String },
     address: Address,
+    // gbCoins: {
+    //   type: Number,
+    //   default: 0,
+    // },
   },
   {
     timestamps: true,

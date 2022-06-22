@@ -123,7 +123,8 @@ const createCoupons = asyncHandler(async (req, res) => {
       return res.json("Login to continue");
     }
     const coupon = await Coupons.create(req.body);
-    res.status(200).json("New Coupon is Created");
+    let mess = "New Coupon is Created";
+    res.status(200).json({ mess });
   } catch (error) {
     res.status(500).json({ error });
   }
@@ -186,6 +187,28 @@ const deleteCoupons = asyncHandler(async (req, res) => {
       return res.status(200).json("Coupon Deleted");
     }
     res.status(500).json("Coupon not found");
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+
+// Update Charges
+const updateCharges = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let adminid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!adminid) {
+      return res.json("Login to continue");
+    }
+    let exists = await Admin.findById(adminid.id);
+    if (exists) {
+      exists.serviceFee = req.body.serviceFee || exists.serviceFee;
+      exists.distanceFee = req.body.distanceFee || exists.distanceFee;
+      exists.baseFare = req.body.baseFare || exists.baseFare;
+      exists.save();
+    }
+    let mess = "Charges Updated";
+    res.status(200).json({ mess });
   } catch (error) {
     res.status(500).json({ error });
   }

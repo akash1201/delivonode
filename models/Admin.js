@@ -27,6 +27,18 @@ const AdminSchema = mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    serviceFee: {
+      type: Number,
+      default: 0,
+    },
+    distanceFee: {
+      type: Number,
+      default: 0,
+    },
+    baseFare: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,

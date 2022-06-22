@@ -67,6 +67,8 @@ const StoreSchema = mongoose.Schema(
     terms: { type: Boolean, default: true },
     policy: { type: Boolean, default: true },
     storeRating: { type: String },
+    packagingCharge: { type: Number, default: 0 },
+
     // uploadAadharfront: { type: Buffer, contentType: String, required: true },
     // uploadIds: { type: Buffer, contentType: String, required: false },
     // uploadAadharback: { type: Buffer, contentType: String, required: true },

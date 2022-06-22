@@ -18,6 +18,10 @@ const CartSchema = mongoose.Schema(
           type: Number,
           required: true,
         },
+        gst: {
+          type: Number,
+          required: true,
+        },
       },
     ],
     vendorId: {

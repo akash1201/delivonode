@@ -24,6 +24,22 @@ const terms = asyncHandler(async (req, res) => {
   }
 });
 
+// Modify Packaging Charge
+const packagingCharge = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let storeid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!storeid) {
+      return res.status(500).json({ msg: "Authentication Failed" });
+    }
+    let store = await Store.findById(storeid.id);
+    store.packagingCharge = req.body.packagingCharge;
+    store.save();
+    let mess = "Packaging Charges Modified";
+    res.status(200).json({ mess });
+  } catch (error) {}
+});
+
 // Send Location to display Map
 const showMap = asyncHandler(async (req, res) => {
   try {
@@ -138,4 +154,5 @@ module.exports = {
   terms,
   support,
   showMap,
+  packagingCharge,
 };
