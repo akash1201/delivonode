@@ -16,7 +16,6 @@ const register = asyncHandler(async (req, res) => {
         .json({ msg: "User already exists,please try to login" });
     } else {
       let delivery = await Delivery.create(req.body);
-      delivery.password = null;
       res.status(200).json({
         _id: delivery._id,
         token: generateToken(delivery._id),
@@ -275,6 +274,7 @@ const delivered = asyncHandler(async (req, res) => {
       await order.save();
       delivery.status = "Delivered";
       delivery.isAvailable = true;
+      delivery.totalOrders += 1;
       await delivery.save();
       return res.status(200).json("Order Delivered");
     } else if (
@@ -288,6 +288,7 @@ const delivered = asyncHandler(async (req, res) => {
       await customorder.save();
       delivery.status = "Delivered";
       delivery.isAvailable = true;
+      delivery.totalOrders += 1;
       await delivery.save();
       return res.status(200).json("Order Delivered");
     }

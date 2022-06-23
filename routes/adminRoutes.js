@@ -1,5 +1,8 @@
 const express = require("express");
 const {
+  settleMonthlyIncentive,
+  updateIncentiveAmount,
+  sendIncentive,
   register,
   fetchSubcategory,
   login,
@@ -28,6 +31,9 @@ const { protect } = require("../middleware/authMiddleware.js");
 const router = express.Router();
 
 router.post(`/register`, register);
+router.post(`/sendIncentive`, sendIncentive);
+router.post(`/settleMonthlyIncentive`, settleMonthlyIncentive);
+router.post(`/updateIncentiveAmount`, updateIncentiveAmount);
 router.post(`/login`, login);
 router.post(`/createCategory`, createCategory);
 router.get(`/viewCategory`, viewCategory);

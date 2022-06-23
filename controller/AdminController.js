@@ -12,6 +12,68 @@ const Admin = require("../models/Admin.js");
 const Category = require("../models/Category.js");
 const Coupons = require("../models/Coupons.js");
 const sendSMS = require("../utils/sendSMS.js");
+const { updateIncentive, updateMonth } = require("../utils/Scheduler.js");
+
+// Send Incentives to all delivery person
+
+const sendIncentive = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let adminid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!adminid) {
+      return res.json("Login to continue");
+    }
+    const delivery = await Delivery.distinct("_id");
+    const today1 = new Date(Date.now());
+    today1.setDate(today1.getDate() + 2);
+    today1.setHours(0, 0, 0, 0);
+    // const today2 = new Date(today1.getTime() + 60000);
+    updateIncentive(delivery, today1, adminid.id);
+    res.status(200).json("Monthly Incentives Updated");
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+
+const settleMonthlyIncentive = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let adminid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!adminid) {
+      return res.json("Login to continue");
+    }
+    const delivery = await Delivery.distinct("_id");
+
+    updateMonth(delivery);
+    res.status(200).json("Incentives Updated");
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+
+// update Incentive Amount
+const updateIncentiveAmount = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let adminid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!adminid) {
+      return res.json("Login to continue");
+    }
+    let exists = await Admin.findById(adminid.id);
+    if (exists) {
+      exists.incentiveTen1 = req.body.incentiveTen1 || exists.incentiveTen1;
+      exists.incentiveTen2 = req.body.incentiveTen2 || exists.incentiveTen2;
+      exists.incentiveTen3 = req.body.incentiveTen3 || exists.incentiveTen3;
+      exists.incentiveTen4 = req.body.incentiveTen4 || exists.incentiveTen4;
+      exists.incentiveTen5 = req.body.incentiveTen5 || exists.incentiveTen5;
+      exists.save();
+    }
+    let mess = "Charges Updated";
+    res.status(200).json({ mess });
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
 
 // Register
 const register = asyncHandler(async (req, res) => {
@@ -461,4 +523,7 @@ module.exports = {
   viewCoupon,
   viewCategory,
   fetchSubcategory,
+  sendIncentive,
+  settleMonthlyIncentive,
+  updateIncentiveAmount,
 };

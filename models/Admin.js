@@ -39,6 +39,26 @@ const AdminSchema = mongoose.Schema(
       type: Number,
       default: 0,
     },
+    incentiveTen1: {
+      type: Number,
+      default: 0,
+    },
+    incentiveTen2: {
+      type: Number,
+      default: 0,
+    },
+    incentiveTen3: {
+      type: Number,
+      default: 0,
+    },
+    incentiveTen4: {
+      type: Number,
+      default: 0,
+    },
+    incentiveTen5: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,

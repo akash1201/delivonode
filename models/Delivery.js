@@ -13,7 +13,7 @@ const deliverySchema = mongoose.Schema(
     },
     orderType: {
       type: String,
-      required: true,
+      default: "Regular",
     },
     isApproved: {
       type: Boolean,
@@ -59,6 +59,22 @@ const deliverySchema = mongoose.Schema(
     accountNo: { type: Number, required: true },
     ifsc: { type: String, required: true },
     userImage: { type: String, required: true },
+    todayOrders: { type: Number, default: 0 },
+    incentives: [
+      {
+        amount: {
+          type: Number,
+          default: 0,
+        },
+        date: {
+          type: Date,
+        },
+        thisMonth: {
+          type: Boolean,
+          default: true,
+        },
+      },
+    ],
   },
   {
     timestamps: true,

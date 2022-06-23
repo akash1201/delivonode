@@ -25,9 +25,9 @@ const PrescriptionSchema = mongoose.Schema({
   description: {
     type: String,
   },
-  status: {
-    type: Boolean,
-    default: false,
+  orderId: {
+    type: String,
+    required: true,
   },
 });
 
