@@ -33,6 +33,10 @@ const StoreSchema = mongoose.Schema(
       type: Number,
       required: true,
     },
+    cashback: {
+      type: Number,
+      required: true,
+    },
     openingTime: {
       type: String,
       required: true,

@@ -75,6 +75,29 @@ const updateIncentiveAmount = asyncHandler(async (req, res) => {
   }
 });
 
+// update cashback amount for vendors by category
+const updateCashback = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let adminid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!adminid) {
+      return res.json("Login to continue");
+    }
+    const vendors = await Store.find();
+    const category = await Category.find({ parent: "null" });
+    vendors.forEach((ele) => {
+      category.forEach((element) => {
+        if (element.subcateogry == ele.categories) {
+          ele.cashback = element.cashBack;
+        }
+      });
+    });
+    res.status(200).json({ vendors });
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+
 // Register
 const register = asyncHandler(async (req, res) => {
   try {
@@ -163,11 +186,14 @@ const updateCategory = asyncHandler(async (req, res) => {
     }
     let exists = await Category.findById({ _id: req.params.categoryId });
     if (exists) {
-      exists.parent = req.body.parent || exists.parent;
-      exists.subcateogry = req.body.subcateogry || exists.subcateogry;
-      exists.image = req.body.image || exists.image;
-      exists.bgColor = req.body.bgColor || exists.bgColor;
-      let product = await exists.save();
+      // exists.parent = req.body.parent || exists.parent;
+      // exists.subcateogry = req.body.subcateogry || exists.subcateogry;
+      // exists.image = req.body.image || exists.image;
+      // exists.bgColor = req.body.bgColor || exists.bgColor;
+      exists.gstPercent = req.body.gstPercent || exists.gstPercent;
+      exists.cashBack = req.body.cashBack || exists.cashBack;
+      exists.hsnCode = req.body.hsnCode || exists.hsnCode;
+      await exists.save();
       return res.json("Category Updated");
     }
     res.status(500).json("Category not found");

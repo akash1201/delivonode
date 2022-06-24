@@ -26,6 +26,10 @@ const CategorySchema = mongoose.Schema({
     type: Number,
     required: true,
   },
+  cashBack: {
+    type: Number,
+    required: true,
+  },
 });
 
 const Category = mongoose.model("Category", CategorySchema);

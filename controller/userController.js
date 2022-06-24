@@ -17,6 +17,9 @@ const Prescription = require("../models/Prescription.js");
 const CustomDelivery = require("../models/CustomDelivery.js");
 const axios = require("axios");
 const Admin = require("../models/Admin.js");
+const {
+  AddOnResultContext,
+} = require("twilio/lib/rest/api/v2010/account/recording/addOnResult.js");
 const sdk = require("api")("@cashfreedocs-new/v2#97f8kl3sscv9e");
 // const PaymentGateway = require("@cashfreepayments/cashfree-sdk");
 
@@ -394,12 +397,38 @@ const particularOrder = asyncHandler(async (req, res) => {
   }
 });
 
+// remove expiry Coins
+const removeCoins = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let userid = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(userid.id);
+    if (!user) {
+      return res.status(500).json({ status: 500, msg: "User not Found" });
+    }
+    user.cashback.forEach((ele) => {
+      const expiry = new Date(ele.expiryDate);
+      const currDate = new Date(Date.now());
+      if (expiry - currDate < 0) {
+        ele.amount = 0;
+      }
+    });
+    let result = user.cashback((ele) => ele.amount != 0);
+    user.cashback = result;
+    user.save();
+    let mess = "Expired Coins Removed";
+    res.status(200).json({ mess });
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+
 // Order placing Customer End (Post req)
 const placeOrder = asyncHandler(async (req, res) => {
   try {
     let token = req.headers.authorization.split(" ")[1];
     let userid = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(userid.id);
+    let user = await User.findById(userid.id);
     if (!user) {
       return res.status(500).json({ status: 500, msg: "User not Found" });
     }
@@ -408,22 +437,32 @@ const placeOrder = asyncHandler(async (req, res) => {
       status: "shopping",
     });
     let vendor = await Store.findById(cart.vendorId.toString());
-    console.log(vendor);
     let subTotal = 0;
     let totalGST = 0;
     cart.products.forEach((ele) => {
       subTotal += ele.price;
       totalGST += ele.gst;
     });
+
     let orderaddress = await Address.findOne({ _id: req.body.addressId });
     const couponCode = req.body.couponCode || null;
+
+    const admin = await Admin.findById(process.env.ADMIN_ID);
+    let distFee = 0;
+    // will modify this to let admin decide base Distance
+    if (req.body.distance > 10) {
+      let remainingDistance = req.body.distance - 10;
+      distFee = remainingDistance * admin.distanceFee; //distance Fee per km
+    }
+    let serves = (subTotal / 100) * admin.serviceFee;
+    let cashRedeemed = (subTotal / 100) * vendor.cashback;
 
     if (couponCode) {
       let code = await Coupons.findOne({
         couponCode: req.body.couponCode.toString(),
       });
-
       const expiry = new Date(code.expiryDuration);
+
       const currDate = new Date(Date.now());
       if (expiry - currDate > 0) {
         if (code.isPercent) {
@@ -432,18 +471,13 @@ const placeOrder = asyncHandler(async (req, res) => {
           subTotal = amount - discount;
         } else {
           const amount = subTotal;
+          if (amount < code.amountOff) {
+            return res.status(500).json("Coupon Not Applicable");
+          }
           subTotal = amount - code.amountOff;
         }
       }
     }
-    const admin = await Admin.findById(process.env.ADMIN_ID);
-    let distFee = 0;
-    if (req.body.distance > 10) {
-      let remainingDistance = req.body.distance - 10;
-      distFee = remainingDistance * admin.distanceFee;
-    }
-
-    let serves = (subTotal / 100) * admin.serviceFee;
     var Total =
       subTotal +
       totalGST +
@@ -451,6 +485,58 @@ const placeOrder = asyncHandler(async (req, res) => {
       distFee +
       vendor.packagingCharge +
       admin.baseFare;
+    let cashRemaining = req.body.cashbackUsed;
+    console.log(cashRemaining, "before");
+    if (cashRemaining > parseInt(Total)) {
+      const mess = "Cashback Used is greater than total amount Order declined";
+      return res.status(500).json({ mess });
+    } else {
+      const checkDate = new Date(Date.now());
+      // console.log(user.cashback.length, "length");
+      for (let i = 0; i < user.cashback.length; i++) {
+        const expiry = new Date(user.cashback[i].expiryDate);
+        // console.log(expiry, "expiry", i);
+        if (expiry - checkDate > 0) {
+          // console.log(expiry - checkDate, "checkDate", i);
+          // console.log(user.cashback[i], i);
+          if (user.cashback[i].amount > cashRemaining) {
+            user.cashback[i].amount = user.cashback[i].amount - cashRemaining;
+            Total = Total - cashRemaining;
+            user.cashbackAvailable = user.cashbackAvailable - cashRemaining;
+            cashRemaining = 0;
+          } else {
+            cashRemaining = cashRemaining - user.cashback[i].amount;
+            Total = Total - user.cashback[i].amount;
+            user.cashbackAvailable =
+              user.cashbackAvailable - user.cashback[i].amount;
+            user.cashback[i].amount = 0;
+          }
+        } else {
+          user.cashbackAvailable =
+            user.cashbackAvailable - user.cashback[i].amount;
+          user.cashback[i].amount = 0;
+        }
+      }
+    }
+    // // ******************************
+    user.cashbackAvailable += cashRedeemed;
+    const today1 = new Date(Date.now());
+    today1.setDate(today1.getDate() + 10);
+
+    let cash = {
+      expiryDate: today1,
+      amount: cashRedeemed,
+    };
+    const result = user.cashback.filter((ele) => ele.amount != 0);
+    user.cashback = [...result, cash];
+    // // ******************************
+
+    await user.save();
+    let deliveryOption = req.body.deliveryOption || "Home Delivery";
+    if (deliveryOption == "Takeway") {
+      Total = Total - distFee - admin.baseFare;
+    }
+
     let obj = {
       userId: userid.id,
       products: cart.products,
@@ -462,9 +548,9 @@ const placeOrder = asyncHandler(async (req, res) => {
       distanceFee: distFee || 0,
       serviceFee: serves || 0,
       baseFare: admin.baseFare || 0,
-      // surgeCharge,
+      cashbackUsed: req.body.cashbackUsed,
       instruction: req.body.instruction || null,
-      deliveryOption: req.body.deliveryOption || "Home Delivery",
+      deliveryOption: deliveryOption,
       couponCode: req.body.couponCode || null,
       address: orderaddress,
     };
@@ -565,8 +651,6 @@ const addtoCart = asyncHandler(async (req, res) => {
       const newProduct = {
         productId: req.params.productid.toString(),
         quantity: 1,
-        // ****************************************
-        //  can add here about gst info gst= currProduct.price/100 *currProduct.gst
         gst: (currProduct.price / 100) * currProduct.gst,
         price: currProduct.price,
       };

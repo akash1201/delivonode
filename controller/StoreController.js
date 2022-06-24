@@ -5,6 +5,7 @@ const Store = require("../models/Store.js");
 const jwt = require("jsonwebtoken");
 const generateToken = require("../utils/generateToken.js");
 const Complaints = require("../models/Complaints.js");
+const Category = require("../models/Category.js");
 
 // Terms and Conditions
 const terms = asyncHandler(async (req, res) => {
@@ -122,8 +123,12 @@ const registerStore = asyncHandler(async (req, res) => {
     if (phoneExists) {
       return res.status(500).json({ message: "PhoneNo already in use" });
     }
-    let store = await Store.create(req.body);
-    store.password = null;
+    let category = await Category.findOne({ subcategory: req.body.categories });
+    let obj = {
+      cashback: category.cashBack,
+    };
+    let store = await Store.create({ ...req.body, obj });
+
     res.json({
       _id: store._id,
       token: generateToken(store._id),

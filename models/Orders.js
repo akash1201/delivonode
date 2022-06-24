@@ -30,7 +30,7 @@ const OrderSchema = mongoose.Schema(
     },
     baseFare: {
       type: Number,
-      default:0
+      default: 0,
     },
     distanceFee: {
       type: Number,
@@ -40,10 +40,10 @@ const OrderSchema = mongoose.Schema(
       type: Number,
       default: 0,
     },
-    // surgeCharge: {
-    //   type: Number,
-    //   default: 0,
-    // },
+    cashbackUsed: {
+      type: Number,
+      default: 0,
+    },
     status: {
       type: String,
       required: true,

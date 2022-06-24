@@ -79,7 +79,6 @@ exports.updateOrderStatus = asyncHandler(async (req, res) => {
     }
     const order = await Order.findById(req.params.orderId);
     order.status = "Order Accepted";
-    order.packagingCharges = req.body.packagingCharges;
     await order.save();
     if (order.deliveryOption == "Home Delivery") {
       const delivery = await Delivery.find({ isAvailable: true });
