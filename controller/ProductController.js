@@ -15,12 +15,14 @@ const addProduct = asyncHandler(async (req, res) => {
     let category = await Category.findOne({
       subcategory: req.body.subcategory,
     });
-    console.log(category);
     let obj = {
       name: req.body.name,
       image: req.body.image,
       category: req.body.category,
       subcategory: req.body.subcategory,
+      veg: req.body.veg || true,
+      bestSeller: req.body.bestSeller || false,
+      chefSpecial: req.body.chefSpecial || false,
       vendorId: storeid.id,
       price: req.body.price,
       qty: req.body.qty,
@@ -29,7 +31,7 @@ const addProduct = asyncHandler(async (req, res) => {
       discount: req.body.discount,
     };
     let product = await Product.create(obj);
-    res.status(200).json({ product });
+    res.status(200).json({ mess: "New product added by vendor" });
   } catch (err) {
     res.json({ status: 500, msg: err });
   }
@@ -64,13 +66,12 @@ const getSubcategories = asyncHandler(async (req, res) => {
       return res.status(500).json({ msg: "Authentication Failed" });
     }
     let store = await Store.findById(storeid.id);
-    console.log(store);
     let mycategory = await Category.findOne({
       parent: "null",
       subcategory: store.categories,
     });
     let category = await Category.find({ parent: mycategory._id });
-    res.status(200).json({ category });
+    res.status(200).json({ mess: category });
   } catch (err) {
     res.json({ status: 500, msg: err });
   }
@@ -112,8 +113,11 @@ const updateProduct = asyncHandler(async (req, res) => {
       exists.unit = req.body.unit || exists.unit;
       exists.discount = req.body.discount || exists.discount;
       exists.inStock = req.body.inStock || exists.inStock;
+      exists.veg = req.body.veg || exists.veg;
+      exists.bestSeller = req.body.bestSeller || exists.bestSeller;
+      exists.chefSpecial = req.body.chefSpecial || exists.chefSpecial;
       await exists.save();
-      res.status(200).json("Product Updated");
+      res.status(200).json({ mess: "Product Updated" });
     } else {
       res.status(404).json({ status: 404, msg: "Product not found" });
     }
@@ -130,10 +134,9 @@ const deleteProduct = asyncHandler(async (req, res) => {
       return res.status(500).json({ msg: "Authentication Failed" });
     }
     await Product.deleteOne({ _id: req.params.productId });
-    return res.status(200).json("Product Deleted");
-  } catch (err) {
-    console.log(err);
-    res.status(400).json({ err });
+    return res.status(200).json({ mess: "Product Deleted" });
+  } catch (error) {
+    res.status(400).json({ error });
   }
 });
 

@@ -42,6 +42,44 @@ exports.walletAmount = asyncHandler(async (req, res) => {
   }
 });
 
+exports.prescriptionOrder = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let storeid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!storeid) {
+      return res.json("Authentication Failed");
+    }
+    const products = req.body.products;
+    const order = await Order.findById(req.params.orderId);
+    order.products = products;
+    order.Total = req.body.Total;
+    order.GST = req.body.GST;
+    order.packagingCharges =
+      req.body.packagingCharges || order.packagingCharges;
+    order.status = "Order Accepted";
+    await order.save();
+    if (order.deliveryOption == "Home Delivery") {
+      const delivery = await Delivery.find({ isAvailable: true });
+      const deliveryman = delivery[Math.floor(Math.random() * delivery.length)];
+      const orderAssignedTo = await Delivery.findById(deliveryman._id);
+      order.deliveryPartner = deliveryman._id;
+      orderAssignedTo.isAvailable = false;
+      orderAssignedTo.status = "Assigned";
+      orderAssignedTo.orderType = "Regular";
+      await orderAssignedTo.save();
+      return res
+        .status(200)
+        .json("Order Accepted By Store and Delivery Person Assigned");
+    }
+    order.deliveryPartner = null;
+    res
+      .status(200)
+      .json("Order Accepted By Store Please Pickup your order from store");
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+
 // Get Order Details for Vendor Side (Get Req)
 exports.getallorders = asyncHandler(async (req, res) => {
   try {
@@ -91,15 +129,14 @@ exports.updateOrderStatus = asyncHandler(async (req, res) => {
       await orderAssignedTo.save();
       return res
         .status(200)
-        .json("Order Accepted By Store and Delivery Person Assigned");
+        .json({ mess: "Order Accepted By Store and Delivery Person Assigned" });
     }
     order.deliveryPartner = null;
-    res
-      .status(200)
-      .json("Order Accepted By Store Please Pickup your order from store");
+    res.status(200).json({
+      mess: "Order Accepted By Store Please Pickup your order from store",
+    });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ msg: error });
+    res.status(500).json({ error });
   }
 });
 exports.declineOrderStatus = asyncHandler(async (req, res) => {
@@ -112,10 +149,9 @@ exports.declineOrderStatus = asyncHandler(async (req, res) => {
     const order = await Order.findById(req.params.orderId);
     order.status = "Order Declined";
     await order.save();
-    res.status(200).json("Order Declined By Store");
+    res.status(200).json({ mess: "Order Declined By Store" });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ msg: error });
+    res.status(500).json({ error });
   }
 });
 

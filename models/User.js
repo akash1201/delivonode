@@ -34,6 +34,14 @@ const UserSchema = mongoose.Schema(
       unique: true,
     },
     password: { type: String, required: true, minlength: 6 },
+    myFav: [
+      {
+        vendorId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Store",
+        },
+      },
+    ],
     otp: { type: String },
     address: Address,
     cashbackAvailable: {

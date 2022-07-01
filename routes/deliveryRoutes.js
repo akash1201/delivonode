@@ -11,6 +11,7 @@ const {
   delivered,
   goOffline,
   goOnline,
+  myProfile,
 } = require("../controller/deliveryController");
 const { protect } = require("../middleware/authMiddleware.js");
 
@@ -19,6 +20,7 @@ const router = express.Router();
 router.post("/register", register);
 router.post("/login", login);
 router.get("/terms", terms);
+router.get(`myProfile`, myProfile);
 router.put("/goOffline", goOffline);
 router.put("/goOnline", goOnline);
 router.put("/accepted", accepted);

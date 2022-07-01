@@ -19,6 +19,7 @@ const connectDB = require("./config/connectDB");
 //routes
 //import userRoutes from './routes/userRoutes.js';
 const userRoutes = require("./routes/userRoutes");
+const trainRoutes = require("./routes/trainRoutes");
 const deliveryRoutes = require("./routes/deliveryRoutes");
 //import storeRoutes from './routes/storeRoutes.js';
 const storeRoutes = require("./routes/storeRoutes");
@@ -50,6 +51,7 @@ app.use(bodyParser({ limit: "50mb" }));
 app.use("/api/users", userRoutes);
 app.use(`/api/stores`, storeRoutes);
 app.use(`/api/upload`, uploadRoute);
+app.use(`/api/train`, trainRoutes);
 // app.use(`/api/sms`, otpRoute);
 app.use(`/api/products`, productRoute);
 app.use(`/api/orders`, orderRoutes);

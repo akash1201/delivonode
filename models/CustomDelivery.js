@@ -38,6 +38,14 @@ const CustomDeliverySchema = mongoose.Schema({
     type: Number,
     required: true,
   },
+  baseFare: {
+    type: Number,
+    default: 0,
+  },
+  cashbackUsed: {
+    type: Number,
+    default: 0,
+  },
   deliveryFee: {
     type: String,
     required: true,

@@ -13,7 +13,6 @@ const deliverySchema = mongoose.Schema(
     },
     orderType: {
       type: String,
-      default: "Regular",
     },
     isApproved: {
       type: Boolean,

@@ -17,10 +17,11 @@ const Prescription = require("../models/Prescription.js");
 const CustomDelivery = require("../models/CustomDelivery.js");
 const axios = require("axios");
 const Admin = require("../models/Admin.js");
-const {
-  AddOnResultContext,
-} = require("twilio/lib/rest/api/v2010/account/recording/addOnResult.js");
-const sdk = require("api")("@cashfreedocs-new/v2#97f8kl3sscv9e");
+const { Client } = require("@googlemaps/google-maps-services-js");
+// const {
+//   AddOnResultContext,
+// } = require("twilio/lib/rest/api/v2010/account/recording/addOnResult.js");
+// const sdk = require("api")("@cashfreedocs-new/v2#97f8kl3sscv9e");
 // const PaymentGateway = require("@cashfreepayments/cashfree-sdk");
 
 // Register
@@ -28,15 +29,12 @@ const register = asyncHandler(async (req, res) => {
   try {
     let { email } = req.body;
     let duplicate = await User.findOne({ email: email });
-    console.log(duplicate, "4");
     if (duplicate) {
       return res
         .status(500)
         .json({ msg: "User already exists,please try to login" });
     } else {
-      console.log("12");
       let user = await User.create(req.body);
-      console.log(user, "1555");
       // Adding an address simultaneously while creating user.
       let obj = {
         userId: user._id.toString(),
@@ -49,8 +47,8 @@ const register = asyncHandler(async (req, res) => {
         stateCode: user.address.stateCode,
       };
 
-      let addressss = await Address.create(obj);
-      user.password = null;
+      let address = await Address.create(obj);
+
       res.json({
         _id: user._id,
         token: generateToken(user._id),
@@ -97,7 +95,7 @@ const addPrescription = asyncHandler(async (req, res) => {
       ...req.body,
     };
     const prescription = await Prescription.create(obj);
-    res.status(200).json("Prescription added ");
+    res.status(200).json({ mess: "Prescription added " });
   } catch (error) {
     res.status(500).json(error);
   }
@@ -113,7 +111,7 @@ const addTip = asyncHandler(async (req, res) => {
     const order = await Order.findById(req.params.orderId);
     order.deliveryTip = req.body.deliveryTip;
     order.save();
-    res.status(200).json("Thank You for your reward");
+    res.status(200).json({ mess: "Thank You for your reward" });
   } catch (error) {
     res.status(500).json({ error });
   }
@@ -130,92 +128,163 @@ const addInstruction = asyncHandler(async (req, res) => {
     const order = await Order.findById(req.params.orderId);
     order.instruction = req.body.instruction;
     order.save();
-    res
-      .status(200)
-      .json("Your instructions are value to serve your desired order");
-  } catch (error) {
-    res.status(500).json({ error });
-  }
-});
-
-// Add Coupon Code to reddem Offer
-const addCoupon = asyncHandler(async (req, res) => {
-  try {
-    let token = req.headers.authorization.split(" ")[1];
-    let userid = jwt.verify(token, process.env.JWT_SECRET);
-    if (!userid) {
-      return res.status(500).json({ msg: "User not found" });
-    }
-    const order = await Order.findById(req.params.orderId);
-    const code = await Coupons.find({
-      couponCode: req.body.couponCode.toString(),
+    res.status(200).json({
+      mess: "Your instructions are valuable for us to serve your desired order",
     });
-    const expiry = new Date(code.expiryDuration);
-    const currDate = new Date(Date.now());
-    if (expiry - currDate > 0) {
-      if (code.isPercent) {
-        const amount = order.Total;
-        const discount = (amount / 100) * code.amountOff;
-        order.Total = amount - discount;
-        order.save();
-        var mess = "Enjoy great deals everyday";
-        return res.status(200).json({ mess });
-      }
-      const amount = order.Total;
-      order.Total = amount - code.amountOff;
-      order.save();
-      return res.status(200).json({ mess });
-    }
-    res.status(500).json("Coupon Expired");
   } catch (error) {
     res.status(500).json({ error });
   }
 });
 
-// Custom Delivery Option
 const customDelivery = asyncHandler(async (req, res) => {
   try {
     let token = req.headers.authorization.split(" ")[1];
     let userid = jwt.verify(token, process.env.JWT_SECRET);
-    if (!userid) {
-      return res.status(500).json({ msg: "User not found" });
+    let user = await User.findById(userid.id);
+    if (!user) {
+      return res.status(500).json({ mess: "User not Found" });
     }
-    var Total = 0;
-    // we need to do total amount calculation over here
+    let category = await Category.findOne({ parent: "Custom" });
+    let orderaddress = await Address.findOne({ _id: req.body.addressId });
     const couponCode = req.body.couponCode || null;
-    if (couponCode) {
-      const code = await Coupons.find({ couponCode: req.body.couponCode });
-      if (code.isPercent) {
-        const amount = Total;
-        const discount = (amount / 100) * code.amountOff;
-        Total = amount - discount;
-      }
-      const amount = Total;
-      Total = amount - code.amountOff;
-    }
 
+    const admin = await Admin.findById(process.env.ADMIN_ID);
+    let distFee = 0;
+    let baseFare = admin.baseFare;
+    // will modify this to let admin decide base Distance
+    if (req.body.distance > 10) {
+      let remainingDistance = req.body.distance - 10;
+      distFee = remainingDistance * admin.customdistanceFee; //distance Fee per km
+    }
+    let subTotal = distFee + admin.customPackaging + admin.baseFare;
+    let totalGST = (subTotal / 100) * category.gst;
+    let serves = (subTotal / 100) * admin.serviceFee;
+    let cashRedeemed = (subTotal / 100) * 0.2;
+    // change this and add cashback for custom at admin End
+
+    if (couponCode) {
+      let code = await Coupons.findOne({
+        couponCode: req.body.couponCode.toString(),
+      });
+      if (code) {
+        const expiry = new Date(code.expiryDuration);
+        const currDate = new Date(Date.now());
+        if (expiry - currDate > 0) {
+          if (code.isPercent) {
+            const amount = subTotal;
+            const discount = (amount / 100) * code.amountOff;
+            subTotal = amount - discount;
+          } else {
+            const amount = subTotal;
+            if (amount < code.amountOff) {
+              return res.status(500).json({ mess: "Coupon Not Applicable" });
+            }
+            subTotal = amount - code.amountOff;
+          }
+        } else {
+          return res.status(500).json({ mess: "Coupon Code Expired" });
+        }
+      } else {
+        return res.status(500).json({ mess: "Invalid Coupon Code" });
+      }
+    }
+    var Total = subTotal + totalGST + serves;
+    let cashRemaining = req.body.cashbackUsed;
+    if (cashRemaining > parseInt(Total)) {
+      return res.status(500).json({
+        mess: "Cashback Used is greater than total amount Order declined",
+      });
+    } else {
+      const checkDate = new Date(Date.now());
+      for (let i = 0; i < user.cashback.length; i++) {
+        const expiry = new Date(user.cashback[i].expiryDate);
+
+        if (expiry - checkDate > 0) {
+          if (user.cashback[i].amount > cashRemaining) {
+            user.cashback[i].amount = user.cashback[i].amount - cashRemaining;
+            Total = Total - cashRemaining;
+            user.cashbackAvailable = user.cashbackAvailable - cashRemaining;
+            cashRemaining = 0;
+          } else {
+            cashRemaining = cashRemaining - user.cashback[i].amount;
+            Total = Total - user.cashback[i].amount;
+            user.cashbackAvailable =
+              user.cashbackAvailable - user.cashback[i].amount;
+            user.cashback[i].amount = 0;
+          }
+        } else {
+          user.cashbackAvailable =
+            user.cashbackAvailable - user.cashback[i].amount;
+          user.cashback[i].amount = 0;
+        }
+      }
+    }
+    // // ******************************
+    user.cashbackAvailable += cashRedeemed;
+    const today1 = new Date(Date.now());
+    today1.setDate(today1.getDate() + 10);
+
+    let cash = {
+      expiryDate: today1,
+      amount: cashRedeemed,
+    };
+    const result = user.cashback.filter((ele) => ele.amount != 0);
+    user.cashback = [...result, cash];
+    // // ******************************
+    await user.save();
+    let deliveryOption = req.body.deliveryOption || "Home Delivery";
     let obj = {
       userId: userid.id,
-      productImage: req.body.productImage,
-      pickupAddress: req.body.pickupAddress,
-      dropoffAddress: req.body.dropoffAddress,
+      products: null,
+      vendorId: null,
       status: "Order Placed",
-      // deliveryFee: req.body.deliveryFee,
-      instruction: req.body.instruction,
-      deliveryDistance: req.body.deliveryDistance,
-      deliveryTip: req.body.deliveryTip || null,
-      category: req.body.category,
-      Total: Total,
-      // GST
-      // surgeCharge,
+      Total: parseInt(Total),
+      GST: totalGST,
+      subTotal: subTotal,
+      productImage: req.body.productImage,
+      packagingCharges: admin.customPackaging,
+      distanceFee: distFee || 0,
+      serviceFee: serves || 0,
+      baseFare: baseFare || 0,
+      cashbackUsed: req.body.cashbackUsed,
       instruction: req.body.instruction || null,
-      deliveryOption: req.body.deliveryOption || "Home Delivery",
+      deliveryOption: deliveryOption,
       couponCode: req.body.couponCode || null,
+      address: orderaddress,
+      pickupAddress: req.body.pickupAddress,
     };
-    const customdelivery = await CustomDelivery.create(obj);
-    res.status(200).json({ customdelivery });
+    const newOrder = await Order.create(obj);
+    res
+      .status(200)
+      .json({ mess: "Order Placed Successfully", orderId: newOrder._id });
   } catch (error) {
-    res.status(500).json({ error });
+    res.status(500).json({ mess: error });
+  }
+});
+
+//Assign Delivery Person for Custom Delivery Order
+const assignCustomDelivery = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let userid = jwt.verify(token, process.env.JWT_SECRET);
+    let user = await User.findById(userid.id);
+    if (!user) {
+      return res.status(500).json({ mess: "Login to continue" });
+    }
+    const order = await Order.findById(req.body.orderId);
+    const delivery = await Delivery.find({ isAvailable: true });
+    const deliveryman = delivery[Math.floor(Math.random() * delivery.length)];
+    const orderAssignedTo = await Delivery.findById(deliveryman._id);
+    order.deliveryPartner = deliveryman._id;
+    orderAssignedTo.isAvailable = false;
+    orderAssignedTo.status = "Assigned";
+    orderAssignedTo.orderType = "Custom";
+    await orderAssignedTo.save();
+    return res
+      .status(200)
+      .json({ mess: "Custom order assigned to Delivery Person" });
+  } catch (error) {
+    res.status(500).json({ mess: error });
   }
 });
 
@@ -224,12 +293,15 @@ const newAddress = asyncHandler(async (req, res) => {
   try {
     let token = req.headers.authorization.split(" ")[1];
     let userid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!userid) {
+      return res.status(500).json({ mess: "User not Found" });
+    }
 
     let address = await Address.create({
       userId: userid.id,
       ...req.body,
     });
-    res.status(200).json({ address });
+    res.status(200).json({ mess: "New address added by user" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ msg: "Internal server error" });
@@ -242,6 +314,27 @@ const myAddress = asyncHandler(async (req, res) => {
     let userid = jwt.verify(token, process.env.JWT_SECRET);
     const myaddress = await Address.find({ userId: userid.id });
     res.status(200).json({ myaddress });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: "Internal server error" });
+  }
+});
+// Update Home Address
+const updateAddress = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let userid = jwt.verify(token, process.env.JWT_SECRET);
+    let user = await User.findById(userid.id);
+    const myaddress = await Address.findOne({ _id: req.params.addressId });
+    console.log(myaddress);
+    user.address.city = myaddress.city;
+    user.address.streetName = myaddress.streetName;
+    user.address.streetNumber = myaddress.streetNumber;
+    user.address.zipcode = myaddress.zipcode;
+    user.address.countryCode = myaddress.countryCode;
+    user.address.stateCode = myaddress.stateCode;
+    await user.save();
+    res.status(200).json({ mess: "Home Address Updated" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ msg: "Internal server error" });
@@ -286,9 +379,9 @@ const myaccount = asyncHandler(async (req, res) => {
       return res.status(500).json({ msg: "User not found" });
     }
     const user = await User.findById(userid.id);
-    res.json({ user });
+    res.status(200).json({ user });
   } catch (error) {
-    res.status(500).json({ status: 500, msg: error });
+    res.status(500).json({ msg: error });
   }
 });
 
@@ -304,6 +397,7 @@ const addComplain = asyncHandler(async (req, res) => {
       message: req.body.message,
       storeId: userid.id,
       phoneNo: req.body.phoneNo,
+      user: "Customer",
     };
 
     let complain = await Complaints.create(obj);
@@ -322,7 +416,6 @@ const addReview = asyncHandler(async (req, res) => {
     if (!userid) {
       return res.json("User not found");
     }
-    console.log(userid.id);
     let obj = {
       userId: userid.id,
       vendorId: req.body.vendorId,
@@ -330,7 +423,7 @@ const addReview = asyncHandler(async (req, res) => {
       comment: req.body.comment,
     };
     let newReview = await Reviews.create(obj);
-    res.status(200).json("New Review Added");
+    res.status(200).json({ mess: "New Review Added" });
   } catch (error) {
     res.status(500).json({ msg: error });
   }
@@ -383,15 +476,26 @@ const particularOrder = asyncHandler(async (req, res) => {
         select: "_id price image qty unit name",
       },
     ]);
-    console.log(order);
     let totalItems = 0;
     order.products.forEach((ele) => (totalItems += ele.quantity));
     const products = order.products;
     const Total = order.Total;
-    const subTotal = (Total * 100) / 115;
-    const serviceFee = (Total * 15) / 115;
+    const packagingCharges = order.packagingCharges;
+    const GST = order.GST;
+    const distanceFee = order.distanceFee;
+    const baseFare = order.baseFare;
+    const subTotal = order.subTotal;
 
-    res.status(200).json({ products, Total, subTotal, serviceFee, totalItems });
+    res.status(200).json({
+      products,
+      Total,
+      subTotal,
+      packagingCharges,
+      GST,
+      distanceFee,
+      baseFare,
+      totalItems,
+    });
   } catch (error) {
     res.status(500).json({ error });
   }
@@ -413,16 +517,88 @@ const removeCoins = asyncHandler(async (req, res) => {
         ele.amount = 0;
       }
     });
-    let result = user.cashback((ele) => ele.amount != 0);
+    let result = user.cashback.filter((ele) => ele.amount != 0);
     user.cashback = result;
     user.save();
-    let mess = "Expired Coins Removed";
-    res.status(200).json({ mess });
+    res.status(200).json({ mess: "Expired Coins Removed" });
   } catch (error) {
     res.status(500).json({ error });
   }
 });
 
+// Prescription Order
+const prescriptionOrder = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let userid = jwt.verify(token, process.env.JWT_SECRET);
+    let user = await User.findById(userid.id);
+    if (!user) {
+      return res.status(500).json({ status: 500, msg: "User not Found" });
+    }
+    let vendor = await Store.findById(req.body.vendorId);
+    let obj = {
+      userId: userid.id,
+      products: null,
+      vendorId: req.body.vendorId,
+      status: "Order Placed",
+      Total: 0,
+      GST: 0,
+      packagingCharges: vendor.packagingCharge || 0,
+      distanceFee: 0,
+      // serviceFee: serves || 0,
+      baseFare: 0,
+      cashbackUsed: 0,
+      instruction: req.body.instruction || null,
+      deliveryOption: req.body.deliveryOption || "Home Delivery",
+      couponCode: null,
+      address: req.body.address,
+    };
+    const newOrder = await Order.create(obj);
+    res.status(200).json("Order Placed");
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+
+// view Coupons
+const viewCoupon = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let userid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!userid) {
+      return res.json("Login to continue");
+    }
+    const store = await Store.findById(req.body.vendorId).populate([
+      {
+        path: "myCoupons.couponId",
+        model: "Coupons",
+        select:
+          "_id category image offeredBy expiryDuration isPercent amountOff couponCode",
+      },
+    ]);
+    const coupons = store.myCoupons;
+    res.status(200).json({ coupons });
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+// Fetch Stores with click on Banner
+const fetchCouponStore = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let userid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!userid) {
+      return res.json("Login to continue");
+    }
+    const couponId = req.params.couponId;
+    const stores = await Store.find({
+      myCoupons: { $in: couponId },
+    });
+    res.status(200).json({ mess: stores });
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
 // Order placing Customer End (Post req)
 const placeOrder = asyncHandler(async (req, res) => {
   try {
@@ -449,42 +625,46 @@ const placeOrder = asyncHandler(async (req, res) => {
 
     const admin = await Admin.findById(process.env.ADMIN_ID);
     let distFee = 0;
+    let baseFare = admin.baseFare;
     // will modify this to let admin decide base Distance
     if (req.body.distance > 10) {
       let remainingDistance = req.body.distance - 10;
       distFee = remainingDistance * admin.distanceFee; //distance Fee per km
     }
-    let serves = (subTotal / 100) * admin.serviceFee;
+    // let serves = (subTotal / 100) * admin.serviceFee;
     let cashRedeemed = (subTotal / 100) * vendor.cashback;
 
     if (couponCode) {
       let code = await Coupons.findOne({
         couponCode: req.body.couponCode.toString(),
       });
-      const expiry = new Date(code.expiryDuration);
-
-      const currDate = new Date(Date.now());
-      if (expiry - currDate > 0) {
-        if (code.isPercent) {
-          const amount = subTotal;
-          const discount = (amount / 100) * code.amountOff;
-          subTotal = amount - discount;
-        } else {
-          const amount = subTotal;
-          if (amount < code.amountOff) {
-            return res.status(500).json("Coupon Not Applicable");
+      const result = vendor.myCoupons.filter((ele) => {
+        return ele.couponId.toString() == code._id.toString();
+      });
+      if (result && code) {
+        const expiry = new Date(code.expiryDuration);
+        const currDate = new Date(Date.now());
+        if (expiry - currDate > 0) {
+          if (code.isPercent) {
+            const amount = subTotal;
+            const discount = (amount / 100) * code.amountOff;
+            subTotal = amount - discount;
+          } else {
+            const amount = subTotal;
+            if (amount < code.amountOff) {
+              return res.status(500).json("Coupon Not Applicable");
+            }
+            subTotal = amount - code.amountOff;
           }
-          subTotal = amount - code.amountOff;
+        } else {
+          return res.status(500).json({ mess: "Invalid Coupon Code" });
         }
+      } else {
+        return res.status(500).json({ mess: "Invalid Coupon Code" });
       }
     }
     var Total =
-      subTotal +
-      totalGST +
-      serves +
-      distFee +
-      vendor.packagingCharge +
-      admin.baseFare;
+      subTotal + totalGST + distFee + vendor.packagingCharge + admin.baseFare;
     let cashRemaining = req.body.cashbackUsed;
     console.log(cashRemaining, "before");
     if (cashRemaining > parseInt(Total)) {
@@ -534,7 +714,9 @@ const placeOrder = asyncHandler(async (req, res) => {
     await user.save();
     let deliveryOption = req.body.deliveryOption || "Home Delivery";
     if (deliveryOption == "Takeway") {
-      Total = Total - distFee - admin.baseFare;
+      Total = Total - distFee - baseFare;
+      distFee = 0;
+      baseFare = 0;
     }
 
     let obj = {
@@ -544,10 +726,11 @@ const placeOrder = asyncHandler(async (req, res) => {
       status: "Order Placed",
       Total: parseInt(Total),
       GST: totalGST,
+      subTotal: subTotal,
       packagingCharges: vendor.packagingCharge || 0,
       distanceFee: distFee || 0,
-      serviceFee: serves || 0,
-      baseFare: admin.baseFare || 0,
+      // serviceFee: serves || 0,
+      baseFare: baseFare || 0,
       cashbackUsed: req.body.cashbackUsed,
       instruction: req.body.instruction || null,
       deliveryOption: deliveryOption,
@@ -559,29 +742,6 @@ const placeOrder = asyncHandler(async (req, res) => {
     await cart.save();
     let mess = "Order Placed Successfully";
     res.status(200).json({ mess });
-  } catch (error) {
-    res.status(500).json({ error });
-  }
-});
-
-// Assign Delivery Boy for Custom Order
-const placeCustomOrder = asyncHandler(async (req, res) => {
-  try {
-    let token = req.headers.authorization.split(" ")[1];
-    let userid = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(userid.id);
-    if (!user) {
-      return res.status(500).json({ status: 500, msg: "User not Found" });
-    }
-    const customorder = await CustomDelivery.findById(req.params.orderId);
-    const delivery = await Delivery.find({ isAvailable: true });
-    const deliveryman = delivery[Math.floor(Math.random() * delivery.length)];
-    const orderAssignedTo = await Delivery.findById(deliveryman._id);
-    customorder.deliveryPartner = deliveryman._id;
-    orderAssignedTo.isAvailable = false;
-    orderAssignedTo.status = "Assigned";
-    orderAssignedTo.orderType = "Custom";
-    await orderAssignedTo.save();
   } catch (error) {
     res.status(500).json({ error });
   }
@@ -752,14 +912,16 @@ const viewCart = asyncHandler(async (req, res) => {
     ]);
     // console.log(cartexists[0].products);
     let subTotal = 0;
-    cartexists[0].products.forEach((ele) => (subTotal += ele.price));
-    const serviceFee = (subTotal / 100) * 15;
-    const Total = subTotal + serviceFee;
+    let totalGST = 0;
+    cartexists[0].products.forEach((ele) => {
+      subTotal += ele.price;
+      totalGST += ele.gst;
+    });
+    // const serviceFee = (subTotal / 100) * 15;
+    const Total = subTotal + totalGST;
     const productCart = cartexists[0];
     const storename = cartexists[0].vendorId.storeName;
-    res
-      .status(200)
-      .json({ productCart, storename, subTotal, serviceFee, Total });
+    res.status(200).json({ productCart, storename, subTotal, totalGST, Total });
   } catch (error) {
     res.status(500).json({ error });
   }
@@ -772,9 +934,20 @@ const fetchBycategory = asyncHandler(async (req, res) => {
     if (!userid) {
       return res.json("Login to continue");
     }
+    let user = await User.findById(userid.id);
     let category = await Category.findById(req.params.categoryId);
     categoryName = category.subcategory;
     let options = await Store.find({ categories: categoryName });
+    const admin = await Admin.findById(process.env.ADMIN_ID);
+    let myCity = user.address.city;
+    let available = admin.availableStations.filter((ele) => {
+      return ele.city == myCity;
+    });
+    // let stores = options.filter((ele) => {
+    //   return ele.address.city == myCity;
+    // });
+    // if (available) {
+    // }
     res.status(200).json({
       options,
       distance: "5km",
@@ -793,16 +966,25 @@ const fetchStorebySubcategory = asyncHandler(async (req, res) => {
     if (!userid) {
       return res.json("Login to continue");
     }
-    let mycategory = await Category.findById(req.params.categoryId);
+    let user = await User.findById(userid.id);
+    let mycategory = await Category.findById(req.params.subcategoryId);
 
     categoryName = mycategory.subcategory;
 
     const storeProduct = await Product.distinct("vendorId", {
       subcategory: categoryName,
     });
-    let arr = [];
-
     const now = await Store.find({ _id: { $in: storeProduct } });
+    const admin = await Admin.findById(process.env.ADMIN_ID);
+    let myCity = user.address.city;
+    let available = admin.availableStations.filter((ele) => {
+      return ele.city == myCity;
+    });
+    // let stores = now.filter((ele) => {
+    //   return ele.address.city == myCity;
+    // });
+    // if (available) {
+    // }
 
     res.status(200).json({ now });
   } catch (error) {
@@ -845,6 +1027,110 @@ const fetchCategories = asyncHandler(async (req, res) => {
   }
 });
 
+// Add Favourite Stores
+const addFav = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let userid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!userid) {
+      return res.json("Login to continue");
+    }
+    const user = await User.findById(userid.id);
+    let obj = {
+      vendorId: req.body.vendorId,
+    };
+    let result = [...user.myFav, obj];
+    user.myFav = result;
+    await user.save();
+    res.status(200).json({ mess: "Store added to favourite list" });
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+
+// Show Favourite Stores
+const showFav = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let userid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!userid) {
+      return res.json("Login to continue");
+    }
+    const user = await User.findById(userid.id).populate([
+      {
+        path: "myFav.vendorId",
+        model: "Store",
+        select:
+          "_id storeImage address fullName storeName phoneNo email liscenseNo,",
+      },
+    ]);
+    const stores = user.myFav;
+    res.status(200).json({ stores });
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+
+// Add delivery Rating for order
+const orderRating = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let userid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!userid) {
+      return res.json("Login to continue");
+    }
+    const order = await Order.findById(req.body.orderId);
+    order.rating = req.body.rating;
+    await order.save();
+    res.status(200).json({ mess: "Order Rating Updated" });
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+
+// Remove Store from Favourite
+const removeFav = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let userid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!userid) {
+      return res.json("Login to continue");
+    }
+    const user = await User.findById(userid.id);
+    const result = user.myFav.filter((ele) => {
+      return ele.vendorId.toString() != req.body.vendorId;
+    });
+    user.myFav = result;
+    await user.save();
+    res.status(200).json({ mess: "Store removed from favourite list" });
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+
+// Show Store Reviews
+const storeReviews = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let userid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!userid) {
+      return res.json("Login to continue");
+    }
+    const reviews = await Reviews.find({
+      vendorId: req.body.vendorId,
+    }).populate([
+      {
+        path: "userId",
+        model: "User",
+        select: "_id name",
+      },
+    ]);
+    res.status(200).json({ reviews });
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+
 // Fetch by Sub-Cateogry
 const fetchsubCategories = asyncHandler(async (req, res) => {
   try {
@@ -859,7 +1145,7 @@ const fetchsubCategories = asyncHandler(async (req, res) => {
     res.status(500).json({ error });
   }
 });
-// Get by Sub-Cateogry
+// Get store Sub-Cateogry
 const getsubCategory = asyncHandler(async (req, res) => {
   try {
     let token = req.headers.authorization.split(" ")[1];
@@ -868,10 +1154,10 @@ const getsubCategory = asyncHandler(async (req, res) => {
       return res.json("Login to continue");
     }
     console.log(req.params.vendorId);
-    const storeProduct = await Product.distinct("subcategory", {
+    const subCategory = await Product.distinct("subcategory", {
       vendorId: req.params.vendorId,
     });
-    res.status(200).json({ storeProduct });
+    res.status(200).json({ subCategory });
   } catch (error) {
     res.status(500).json({ error });
   }
@@ -885,7 +1171,10 @@ const fetchCoupons = asyncHandler(async (req, res) => {
     if (!userid) {
       return res.json("Login to continue");
     }
-    const coupons = await Coupons.find();
+    const coupons = await Coupons.find({
+      offeredBy: "admin",
+      storeId: process.env.ADMIN_ID,
+    });
     res.status(200).json({ coupons });
   } catch (error) {
     res.status(500).json({ error });
@@ -893,6 +1182,20 @@ const fetchCoupons = asyncHandler(async (req, res) => {
 });
 
 module.exports = {
+  addTip,
+  addInstruction,
+  customDelivery,
+  assignCustomDelivery,
+  updateAddress,
+  removeCoins,
+  // prescriptionOrder,
+  viewCoupon,
+  fetchCouponStore,
+  addFav,
+  orderRating,
+  removeFav,
+  storeReviews,
+  showFav,
   reduceQuantity,
   getsubCategory,
   fetchsubCategories,

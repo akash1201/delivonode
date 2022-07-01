@@ -10,10 +10,11 @@ const register = asyncHandler(async (req, res) => {
   try {
     let { email } = req.body;
     let exists = await Delivery.findOne({ email: email });
+
     if (exists) {
       return res
         .status(500)
-        .json({ msg: "User already exists,please try to login" });
+        .json({ mess: "User already exists,please try to login" });
     } else {
       let delivery = await Delivery.create(req.body);
       res.status(200).json({
@@ -22,8 +23,7 @@ const register = asyncHandler(async (req, res) => {
       });
     }
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ msg: "Internal server error" });
+    res.status(500).json({ mess: error });
   }
 });
 
@@ -87,9 +87,9 @@ const goOffline = asyncHandler(async (req, res) => {
     delivery.isAvailable = false;
     delivery.status = "Not Available";
     await delivery.save();
-    res.status(200).json("Offline");
+    res.status(200).json({ mess: "Offline" });
   } catch (error) {
-    res.status(500).json({ msg: "Internal server error" });
+    res.status(500).json({ mess: "Internal server error" });
   }
 });
 
@@ -108,9 +108,9 @@ const goOnline = asyncHandler(async (req, res) => {
     delivery.isAvailable = true;
     delivery.status = "Available";
     await delivery.save();
-    res.status(200).json("Online");
+    res.status(200).json({ mess: "Online" });
   } catch (error) {
-    res.status(500).json({ msg: "Internal server error" });
+    res.status(500).json({ mess: "Internal server error" });
   }
 });
 // Assigned Order
@@ -345,10 +345,14 @@ const myProfile = asyncHandler(async (req, res) => {
     if (!deliveryid) {
       return res.status(500).json({ msg: "User not found" });
     }
+    console.log(deliveryid.id);
     let delivery = await Delivery.findById(deliveryid.id);
+    console.log(delivery);
     res.status(200).json({ delivery });
-  } catch (error) {}
-  res.status(500).json({ error });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error });
+  }
 });
 
 module.exports = {

@@ -32,6 +32,14 @@ const CouponsSchema = mongoose.Schema(
       type: Date,
       required: true,
     },
+    offeredBy: {
+      type: String,
+      required: true,
+    },
+    storeId: {
+      type: String,
+      required: true,
+    },
   },
   { timestamps: true }
 );

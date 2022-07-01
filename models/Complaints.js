@@ -10,6 +10,10 @@ const ComplaintsSchema = mongoose.Schema({
     type: Number,
     required: true,
   },
+  user: {
+    type: String,
+    required: true,
+  },
   message: {
     type: String,
     required: true,

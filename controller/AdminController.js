@@ -14,8 +14,31 @@ const Coupons = require("../models/Coupons.js");
 const sendSMS = require("../utils/sendSMS.js");
 const { updateIncentive, updateMonth } = require("../utils/Scheduler.js");
 
+// Add Station for Delivery
+const addStation = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let adminid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!adminid) {
+      return res.json("Login to continue");
+    }
+    let admin = await Admin.findById(adminid.id);
+    let availableStations = admin.availableStations;
+    let obj = {
+      city: req.body.city,
+      stationCode: req.body.stationCode,
+      lat: req.body.lat,
+      long: req.body.long,
+    };
+    let result = [...availableStations, obj];
+    admin.availableStations = result;
+    await admin.save();
+    res.status(200).json({ mess: "New Station Added for delivery" });
+  } catch (error) {
+    res.status(500).json({ mess: error });
+  }
+});
 // Send Incentives to all delivery person
-
 const sendIncentive = asyncHandler(async (req, res) => {
   try {
     let token = req.headers.authorization.split(" ")[1];
@@ -67,11 +90,12 @@ const updateIncentiveAmount = asyncHandler(async (req, res) => {
       exists.incentiveTen4 = req.body.incentiveTen4 || exists.incentiveTen4;
       exists.incentiveTen5 = req.body.incentiveTen5 || exists.incentiveTen5;
       exists.save();
+      return res.status(200).json({ mess: "Incentives Updated" });
     }
-    let mess = "Charges Updated";
-    res.status(200).json({ mess });
+
+    res.status(200).json({ mess: "User not found" });
   } catch (error) {
-    res.status(500).json({ error });
+    res.status(500).json({ mess: error });
   }
 });
 
@@ -92,9 +116,9 @@ const updateCashback = asyncHandler(async (req, res) => {
         }
       });
     });
-    res.status(200).json({ vendors });
+    res.status(200).json({ mess: "Cashback Updated for old vendors" });
   } catch (error) {
-    res.status(500).json({ error });
+    res.status(500).json({ mess: error });
   }
 });
 
@@ -115,8 +139,7 @@ const register = asyncHandler(async (req, res) => {
       });
     }
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ msg: "Internal server error" });
+    res.status(500).json({ mess: error });
   }
 });
 
@@ -134,11 +157,10 @@ const login = asyncHandler(async (req, res) => {
         token: generateToken(admin._id),
       });
     } else {
-      res.status(500).json({ message: `Password didn't match`, status: 500 });
+      res.status(500).json({ mess: `Password didn't match` });
     }
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ error });
+    res.status(500).json({ mess: error });
   }
 });
 
@@ -151,9 +173,9 @@ const createCategory = asyncHandler(async (req, res) => {
       return res.json("Login to continue");
     }
     const category = await Category.create(req.body);
-    res.status(200).json("New Cateogry is Created");
+    res.status(200).json({ mess: "New Cateogry is Created" });
   } catch (error) {
-    res.status(500).json({ error });
+    res.status(500).json({ mess: error });
   }
 });
 
@@ -168,11 +190,11 @@ const deleteCategory = asyncHandler(async (req, res) => {
     let category = await Category.findById({ _id: req.params.categoryId });
     if (category) {
       await Category.deleteOne({ _id: req.params.categoryId });
-      return res.status(200).json("Category Deleted");
+      return res.status(200).json({ mess: "Category Deleted" });
     }
-    res.status(500).json("Category not found");
+    res.status(500).json({ mess: "Category not found" });
   } catch (error) {
-    res.status(500).json({ error });
+    res.status(500).json({ mess: error });
   }
 });
 
@@ -184,21 +206,18 @@ const updateCategory = asyncHandler(async (req, res) => {
     if (!adminid) {
       return res.json("Login to continue");
     }
-    let exists = await Category.findById({ _id: req.params.categoryId });
+    let exists = await Category.findById(req.params.categoryId);
+
     if (exists) {
-      // exists.parent = req.body.parent || exists.parent;
-      // exists.subcateogry = req.body.subcateogry || exists.subcateogry;
-      // exists.image = req.body.image || exists.image;
-      // exists.bgColor = req.body.bgColor || exists.bgColor;
       exists.gstPercent = req.body.gstPercent || exists.gstPercent;
       exists.cashBack = req.body.cashBack || exists.cashBack;
       exists.hsnCode = req.body.hsnCode || exists.hsnCode;
       await exists.save();
-      return res.json("Category Updated");
+      return res.json({ mess: "Category Updated" });
     }
-    res.status(500).json("Category not found");
+    res.status(500).json({ mess: "Category not found" });
   } catch (error) {
-    res.status(500).json({ error });
+    res.status(500).json({ mess: error });
   }
 });
 
@@ -210,11 +229,21 @@ const createCoupons = asyncHandler(async (req, res) => {
     if (!adminid) {
       return res.json("Login to continue");
     }
-    const coupon = await Coupons.create(req.body);
-    let mess = "New Coupon is Created";
-    res.status(200).json({ mess });
+    let id = adminid.id;
+    let obj = {
+      category: req.body.category,
+      image: req.body.image,
+      couponCode: req.body.couponCode,
+      isPercent: req.body.isPercent,
+      amountOff: req.body.amountOff,
+      expiryDuration: req.body.expiryDuration,
+      offeredBy: "admin",
+      storeId: id,
+    };
+    const coupon = await Coupons.create(obj);
+    res.status(200).json({ mess: "New Coupon is Created" });
   } catch (error) {
-    res.status(500).json({ error });
+    res.status(500).json({ mess: error });
   }
 });
 // view Coupons
@@ -226,10 +255,13 @@ const viewCoupon = asyncHandler(async (req, res) => {
       return res.json("Login to continue");
     }
 
-    const coupon = await Coupons.find();
-    res.status(200).json({ coupon });
+    const coupon = await Coupons.find({
+      offeredBy: "admin",
+      storeId: adminid.id.toString(),
+    });
+    res.status(200).json({ mess: coupon });
   } catch (error) {
-    res.status(500).json({ error });
+    res.status(500).json({ mess: error });
   }
 });
 // view Category
@@ -241,9 +273,9 @@ const viewCategory = asyncHandler(async (req, res) => {
       return res.json("Login to continue");
     }
     const category = await Category.find();
-    res.status(200).json({ category });
+    res.status(200).json({ mess: category });
   } catch (error) {
-    res.status(500).json({ error });
+    res.status(500).json({ mess: error });
   }
 });
 // fetch sub Category
@@ -269,12 +301,12 @@ const deleteCoupons = asyncHandler(async (req, res) => {
     if (!adminid) {
       return res.json("Login to continue");
     }
-    let category = await Coupons.findById({ _id: req.params.couponId });
-    if (category) {
+    let coupon = await Coupons.findById({ _id: req.params.couponId });
+    if (coupon) {
       await Coupons.deleteOne({ _id: req.params.couponId });
-      return res.status(200).json("Coupon Deleted");
+      return res.status(200).json({ mess: "Coupon Deleted" });
     }
-    res.status(500).json("Coupon not found");
+    res.status(500).json({ mess: "Coupon not found" });
   } catch (error) {
     res.status(500).json({ error });
   }
@@ -293,10 +325,14 @@ const updateCharges = asyncHandler(async (req, res) => {
       exists.serviceFee = req.body.serviceFee || exists.serviceFee;
       exists.distanceFee = req.body.distanceFee || exists.distanceFee;
       exists.baseFare = req.body.baseFare || exists.baseFare;
+      exists.customdistanceFee =
+        req.body.customdistanceFee || exists.customdistanceFee;
+      exists.customPackaging =
+        req.body.customPackaging || exists.customPackaging;
       exists.save();
+      return res.status(200).json({ mess: "Charges Updated" });
     }
-    let mess = "Charges Updated";
-    res.status(200).json({ mess });
+    res.status(500).json({ mess: "User not found" });
   } catch (error) {
     res.status(500).json({ error });
   }
@@ -334,6 +370,22 @@ const viewParticularVendor = asyncHandler(async (req, res) => {
   }
 });
 
+// View Particular Delivery
+const viewParticularDelivery = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let adminid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!adminid) {
+      return res.json("Login to continue");
+    }
+    const delivery = await Delivery.findById(req.params.deliveryId);
+    // Can add a query to show only approved vendors
+    res.status(200).json({ delivery });
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+
 // Approve Vendors
 const approveVendors = asyncHandler(async (req, res) => {
   try {
@@ -347,8 +399,9 @@ const approveVendors = asyncHandler(async (req, res) => {
     // await Promise.all([
     //   sendMail("Your registration request has been approved", vendor.email),
     // ]);
+
     await vendor.save();
-    res.status(200).json("Vendor Registration Approved");
+    res.status(200).json({ mess: "Vendor Registration Approved" });
   } catch (error) {
     res.status(500).json({ error });
   }
@@ -368,7 +421,7 @@ const disapproveVendors = asyncHandler(async (req, res) => {
     //   sendMail("Your registration request was not approved", vendor.email),
     // ]);
     await vendor.save();
-    res.status(200).json("Vendor Registration was disapproved");
+    res.status(200).json({ mess: "Vendor Registration was disapproved" });
   } catch (error) {
     res.status(500).json({ error });
   }
@@ -390,7 +443,7 @@ const removeVendor = asyncHandler(async (req, res) => {
       _id: req.params.storeId.toString(),
     });
 
-    res.status(200).json("Vendor was removed");
+    res.status(200).json({ mess: "Vendor was removed" });
   } catch (error) {
     res.status(500).json({ error });
   }
@@ -428,7 +481,7 @@ const approveDelivery = asyncHandler(async (req, res) => {
     //   sendMail("Your registration request has been approved", delivery.email),
     // ]);
     await delivery.save();
-    res.status(200).json("Delivery Person Approved");
+    res.status(200).json({ mess: "Delivery Person Approved" });
   } catch (error) {
     res.status(500).json({ error });
   }
@@ -448,7 +501,7 @@ const disapproveDelivery = asyncHandler(async (req, res) => {
     //   sendMail("Your registration request was not approved", delivery.email),
     // ]);
     await delivery.save();
-    res.status(200).json("Delivery Registration was disapproved");
+    res.status(200).json({ mess: "Delivery Registration was disapproved" });
   } catch (error) {
     res.status(500).json({ error });
   }
@@ -552,4 +605,8 @@ module.exports = {
   sendIncentive,
   settleMonthlyIncentive,
   updateIncentiveAmount,
+  addStation,
+  updateCashback,
+  viewParticularDelivery,
+  updateCharges,
 };

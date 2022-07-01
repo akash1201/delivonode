@@ -1,16 +1,12 @@
 const express = require("express");
 const {
-  settleMonthlyIncentive,
-  updateIncentiveAmount,
-  sendIncentive,
-  register,
-  fetchSubcategory,
-  login,
   createCategory,
-  deleteCategory,
   updateCategory,
+  deleteCategory,
   createCoupons,
   deleteCoupons,
+  register,
+  login,
   viewVendors,
   approveVendors,
   disapproveVendors,
@@ -18,19 +14,28 @@ const {
   viewDelivery,
   approveDelivery,
   disapproveDelivery,
-  viewParticularVendor,
   removeDelivery,
-  viewCategory,
-  viewCoupon,
   viewCustomers,
   viewComplaints,
   addressComplaints,
+  viewParticularVendor,
+  viewCoupon,
+  viewCategory,
+  fetchSubcategory,
+  sendIncentive,
+  settleMonthlyIncentive,
+  updateIncentiveAmount,
+  addStation,
+  updateCashback,
+  viewParticularDelivery,
+  updateCharges,
 } = require("../controller/AdminController.js");
 const { protect } = require("../middleware/authMiddleware.js");
 
 const router = express.Router();
 
 router.post(`/register`, register);
+router.post(`/addStation`, addStation);
 router.post(`/sendIncentive`, sendIncentive);
 router.post(`/settleMonthlyIncentive`, settleMonthlyIncentive);
 router.post(`/updateIncentiveAmount`, updateIncentiveAmount);
@@ -40,11 +45,12 @@ router.get(`/viewCategory`, viewCategory);
 router.get(`/viewCoupon`, viewCoupon);
 router.get(`/fetchSubcategory`, fetchSubcategory);
 router.put(`/deleteCategory/:categoryId`, deleteCategory);
-router.post(`/updateCategory`, updateCategory);
+router.post(`/updateCategory/:categoryId`, updateCategory);
 router.post(`/createCoupons`, createCoupons);
 router.put(`/deleteCoupons/:couponId`, deleteCoupons);
 router.get("/viewVendors", viewVendors);
 router.get(`/viewParticularVendor/:vendorId`, viewParticularVendor);
+router.get(`/viewParticularDelivery/:deliveryId`, viewParticularDelivery);
 router.get("/viewDelivery", viewDelivery);
 router.get("/viewCustomers", viewCustomers);
 router.get("/viewComplaints", viewComplaints);
@@ -55,4 +61,7 @@ router.post(`/approveVendors/:vendorId`, approveVendors);
 router.post(`/approveDelivery/:deliveryId`, approveDelivery);
 router.post(`/disapproveVendors/:vendorId`, disapproveVendors);
 router.post(`/disapproveDelivery/:deliveryId`, disapproveDelivery);
+router.post(`/updateCharges`, updateCharges);
+router.post(`/addStation`, addStation);
+router.post(`/updateIncentiveAmount`, updateIncentiveAmount);
 module.exports = router;

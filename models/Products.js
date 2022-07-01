@@ -48,6 +48,18 @@ const ProductSchema = mongoose.Schema({
     type: Number,
     default: 0,
   },
+  veg: {
+    type: Boolean,
+    default: true,
+  },
+  bestSeller: {
+    type: Boolean,
+    default: false,
+  },
+  chefSpecial: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const Product = mongoose.model("Product", ProductSchema);

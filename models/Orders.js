@@ -12,6 +12,10 @@ const OrderSchema = mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Store",
     },
+    subTotal: {
+      type: Number,
+      default: 0,
+    },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -65,9 +69,28 @@ const OrderSchema = mongoose.Schema(
     couponCode: {
       type: String,
     },
+    rating: {
+      type: Number,
+      default: 0,
+    },
     address: {
       type: Object,
       required: true,
+    },
+    pickupAddress: { type: Object, required: true },
+    pickuplocation: {
+      type: {
+        type: String,
+        enum: ["Point"],
+      },
+      coordinates: {
+        type: [Number],
+        index: "2dsphere",
+      },
+      formattedAddress: String,
+    },
+    productImage: {
+      type: String,
     },
     location: {
       type: {
@@ -87,11 +110,17 @@ const OrderSchema = mongoose.Schema(
 
 OrderSchema.pre("save", async function (next) {
   const loc = await geocoder.geocode(this.address);
+  const pick = await geocoder.geocode(this.pickupAddress);
   console.log(loc, "123456");
   this.location = {
     type: "Point",
     coordinates: [loc[0].longitude, loc[0].latitude],
     formattedAddress: loc[0].formattedAddress,
+  };
+  this.pickuplocation = {
+    type: "Point",
+    coordinates: [pick[0].longitude, pick[0].latitude],
+    formattedAddress: pick[0].formattedAddress,
   };
   next();
 });

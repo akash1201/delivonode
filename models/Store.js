@@ -49,6 +49,18 @@ const StoreSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    online: {
+      type: Boolean,
+      default: true,
+    },
+    myCoupons: [
+      {
+        couponId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Coupons",
+        },
+      },
+    ],
     storeImage: { type: String, required: true },
     gst: { type: String, minlength: 15, unique: true, required: false },
     ownerPan: { type: String, required: true, unique: true, minlength: 10 },
@@ -70,8 +82,9 @@ const StoreSchema = mongoose.Schema(
     uploadPan: { type: String, required: true },
     terms: { type: Boolean, default: true },
     policy: { type: Boolean, default: true },
-    storeRating: { type: String },
+    storeRating: { type: Number, default: 0 },
     packagingCharge: { type: Number, default: 0 },
+    deliveryStation: { type: String, default: null },
 
     // uploadAadharfront: { type: Buffer, contentType: String, required: true },
     // uploadIds: { type: Buffer, contentType: String, required: false },

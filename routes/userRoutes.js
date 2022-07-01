@@ -29,6 +29,20 @@ const {
   addPrescription,
   fetchStorebySubcategory,
   getsubCategory,
+  addTip,
+  addInstruction,
+  // customDelivery,
+  updateAddress,
+  removeCoins,
+  // prescriptionOrder,
+  viewCoupon,
+  fetchCouponStore,
+  // placeCustomOrder,
+  addFav,
+  orderRating,
+  removeFav,
+  storeReviews,
+  showFav,
 } = require("../controller/userController");
 const { protect } = require("../middleware/authMiddleware.js");
 const { signNewsletter } = require("../controller/NewsController.js");
@@ -40,6 +54,11 @@ const {
 const router = express.Router();
 
 router.post("/register", register);
+router.post(`/addFav`, addFav);
+router.get(`/showFav`, showFav);
+router.post(`/removeFav`, removeFav);
+router.post(`/storeReviews`, storeReviews);
+router.post(`/viewCoupon`, viewCoupon);
 router.post("/addPrescription", addPrescription);
 router.post("/sendmyOtp", sendmyOtp);
 router.post("/sendEmail", sendEmail);
@@ -60,11 +79,13 @@ router.post("/addComplain", addComplain);
 router.put("/discardCart", discardCart);
 router.post("/addReview", addReview);
 router.get("/myorders", myorders);
+router.post(`/updateAddress/:addressId`, updateAddress);
+router.get(`/fetchCouponStore/:couponId`, fetchCouponStore);
 router.get("/particularOrder/:orderId", particularOrder);
 router.get("/myAddress", myAddress);
 router.get(`/fetchBycategory/:categoryId`, protect, fetchBycategory);
 router.get(
-  `/fetchStorebySubcategory/:categoryId`,
+  `/fetchStorebySubcategory/:subcategoryId`,
   protect,
   fetchStorebySubcategory
 );

@@ -3,17 +3,23 @@ const NewsLetter = require("../models/NewsLetter.js");
 
 const signNewsletter = asyncHandler(async (req, res) => {
   try {
-    let { email } = req.body;
+    let { email, userName } = req.body;
     let duplicate = await NewsLetter.findOne({ email: email });
     if (duplicate) {
       return res
         .status(500)
-        .json("You have already Signed Up for our NewsLetter");
+        .json({ mess: "You have already Signed Up for our NewsLetter" });
     }
-    let newsletter = await NewsLetter.create(req.body);
-    res.status(200).json("Thank You for Signing Up to our Newsletter");
+    let obj = {
+      email: email,
+      userName: userName,
+    };
+    let newsletter = await NewsLetter.create({ obj });
+    res
+      .status(200)
+      .json({ mess: "Thank You for Signing Up to our Newsletter" });
   } catch (error) {
-    res.status(500).json(error);
+    res.status(500).json({ mess: error });
   }
 });
 

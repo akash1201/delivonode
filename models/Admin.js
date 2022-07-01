@@ -9,6 +9,7 @@ const AdminSchema = mongoose.Schema(
     },
     lastName: {
       type: String,
+      required: true,
     },
     email: {
       type: String,
@@ -22,6 +23,7 @@ const AdminSchema = mongoose.Schema(
     },
     password: {
       type: String,
+      required: true,
     },
     isAdmin: {
       type: Boolean,
@@ -59,6 +61,31 @@ const AdminSchema = mongoose.Schema(
       type: Number,
       default: 0,
     },
+    customPackaging: {
+      type: Number,
+      default: 0,
+    },
+    customdistanceFee: {
+      type: Number,
+      default: 0,
+    },
+    availableStations: [
+      {
+        city: {
+          type: String,
+        },
+        stationCode: {
+          type: String,
+          unique: true,
+        },
+        lat: {
+          type: String,
+        },
+        long: {
+          type: String,
+        },
+      },
+    ],
   },
   {
     timestamps: true,
