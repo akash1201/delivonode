@@ -29,14 +29,19 @@ const {
   updateCashback,
   viewParticularDelivery,
   updateCharges,
+  sendnotice,
 } = require("../controller/AdminController.js");
+const { signNewsletter } = require("../controller/NewsController.js");
 const { protect } = require("../middleware/authMiddleware.js");
 
 const router = express.Router();
 
 router.post(`/register`, register);
+router.post(`/sendNotice`, sendnotice);
+router.post(`/updateCashback`, updateCashback);
 router.post(`/addStation`, addStation);
 router.post(`/sendIncentive`, sendIncentive);
+router.post("/signNewsletter", signNewsletter);
 router.post(`/settleMonthlyIncentive`, settleMonthlyIncentive);
 router.post(`/updateIncentiveAmount`, updateIncentiveAmount);
 router.post(`/login`, login);

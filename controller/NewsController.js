@@ -14,7 +14,7 @@ const signNewsletter = asyncHandler(async (req, res) => {
       email: email,
       userName: userName,
     };
-    let newsletter = await NewsLetter.create({ obj });
+    let newsletter = await NewsLetter.create(obj);
     res
       .status(200)
       .json({ mess: "Thank You for Signing Up to our Newsletter" });

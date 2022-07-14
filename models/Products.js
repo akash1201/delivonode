@@ -24,26 +24,34 @@ const ProductSchema = mongoose.Schema({
     type: String,
     required: true,
   },
-  price: {
-    type: Number,
-    required: true,
-  },
-  inStock: {
-    type: Boolean,
-    default: true,
-  },
-  qty: {
-    type: Number,
-    required: true,
-  },
-  unit: {
-    type: String,
-    required: true,
-  },
-  discount: {
-    type: Number,
-    default: 0,
-  },
+  variable: [
+    {
+      variableName: {
+        type: String,
+        required: true,
+      },
+      price: {
+        type: Number,
+        required: true,
+      },
+      qty: {
+        type: Number,
+        required: true,
+      },
+      unit: {
+        type: String,
+        required: true,
+      },
+      discount: {
+        type: Number,
+        default: 0,
+      },
+      inStock: {
+        type: Boolean,
+        default: true,
+      },
+    },
+  ],
   gst: {
     type: Number,
     default: 0,

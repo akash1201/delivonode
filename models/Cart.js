@@ -10,6 +10,7 @@ const CartSchema = mongoose.Schema(
           type: mongoose.Schema.Types.ObjectId,
           ref: "Product",
         },
+        variables: [{ type: String, required: true }],
         quantity: {
           type: Number,
           required: true,

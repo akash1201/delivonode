@@ -47,6 +47,7 @@ const deliverySchema = mongoose.Schema(
       required: true,
     },
     tShirt: { type: String, required: true },
+    otp: { type: String, default: "" },
     upiId: { type: String, unique: true },
     panNo: { type: String, unique: true },
     voterId: { type: String, unique: true },
@@ -59,6 +60,7 @@ const deliverySchema = mongoose.Schema(
     ifsc: { type: String, required: true },
     userImage: { type: String, required: true },
     todayOrders: { type: Number, default: 0 },
+    totalOrders: { type: Number, default: 0 },
     incentives: [
       {
         amount: {

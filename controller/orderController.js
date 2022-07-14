@@ -15,7 +15,9 @@ exports.fetchReviews = asyncHandler(async (req, res) => {
     if (!storeid) {
       return res.json("Authentication Failed");
     }
-    const reviews = await Reviews.find({ vendorId: storeid.id }).populate([
+    const reviews = await Reviews.find({
+      vendorId: storeid.id.toString(),
+    }).populate([
       {
         path: "userId",
         model: "User",
@@ -51,30 +53,17 @@ exports.prescriptionOrder = asyncHandler(async (req, res) => {
     }
     const products = req.body.products;
     const order = await Order.findById(req.params.orderId);
+    const admin = await Admin.findById(process.env.ADMIN_ID);
+    if (!order.deliverySlot[now]) {
+      order.Total = req.body.Total - admin.deliverLaterDiscount;
+    }
     order.products = products;
-    order.Total = req.body.Total;
     order.GST = req.body.GST;
     order.packagingCharges =
       req.body.packagingCharges || order.packagingCharges;
     order.status = "Order Accepted";
     await order.save();
-    if (order.deliveryOption == "Home Delivery") {
-      const delivery = await Delivery.find({ isAvailable: true });
-      const deliveryman = delivery[Math.floor(Math.random() * delivery.length)];
-      const orderAssignedTo = await Delivery.findById(deliveryman._id);
-      order.deliveryPartner = deliveryman._id;
-      orderAssignedTo.isAvailable = false;
-      orderAssignedTo.status = "Assigned";
-      orderAssignedTo.orderType = "Regular";
-      await orderAssignedTo.save();
-      return res
-        .status(200)
-        .json("Order Accepted By Store and Delivery Person Assigned");
-    }
-    order.deliveryPartner = null;
-    res
-      .status(200)
-      .json("Order Accepted By Store Please Pickup your order from store");
+    res.status(200).json("Order Accepted by Store");
   } catch (error) {
     res.status(500).json({ error });
   }
@@ -92,6 +81,7 @@ exports.getallorders = asyncHandler(async (req, res) => {
     // if (store.isApproved == false) {
     //   return res.status(500).json("Registeration approval pending by admin");
     // }
+
     const orders = await Order.find({
       vendorId: storeid.id.toString(),
     }).populate([
@@ -100,8 +90,13 @@ exports.getallorders = asyncHandler(async (req, res) => {
         model: "User",
         select: "_id name lastname phoneNo",
       },
+      {
+        path: "products.productId",
+        model: "Product",
+        select: "_id name image",
+      },
     ]);
-    res.status(200).json({ orders, date: "20 June", time: "11:35 am" });
+    res.status(200).json({ orders });
   } catch (error) {
     console.log(error);
     res.status(500).json({ msg: error });
@@ -109,7 +104,6 @@ exports.getallorders = asyncHandler(async (req, res) => {
 });
 exports.updateOrderStatus = asyncHandler(async (req, res) => {
   try {
-    console.log(req.headers, "111");
     let token = req.headers.authorization.split(" ")[1];
     let storeid = jwt.verify(token, process.env.JWT_SECRET);
     if (!storeid) {
@@ -118,6 +112,22 @@ exports.updateOrderStatus = asyncHandler(async (req, res) => {
     const order = await Order.findById(req.params.orderId);
     order.status = "Order Accepted";
     await order.save();
+    res.status(200).json({
+      mess: "Order Accepted by Store",
+    });
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+// Assign Delivery Person
+exports.assignDelivery = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let storeid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!storeid) {
+      return res.status(500).json("Authnetication Failed");
+    }
+    const order = await Order.findById(req.params.orderId);
     if (order.deliveryOption == "Home Delivery") {
       const delivery = await Delivery.find({ isAvailable: true });
       const deliveryman = delivery[Math.floor(Math.random() * delivery.length)];
@@ -127,15 +137,18 @@ exports.updateOrderStatus = asyncHandler(async (req, res) => {
       orderAssignedTo.status = "Assigned";
       orderAssignedTo.orderType = "Regular";
       await orderAssignedTo.save();
+      await order.save();
       return res
         .status(200)
         .json({ mess: "Order Accepted By Store and Delivery Person Assigned" });
     }
     order.deliveryPartner = null;
+    await order.save();
     res.status(200).json({
-      mess: "Order Accepted By Store Please Pickup your order from store",
+      mess: "Order Accepted by Store, Please Pickup order from Store",
     });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error });
   }
 });
@@ -176,7 +189,7 @@ exports.betweendates = asyncHandler(async (req, res) => {
         {
           path: "products.productId",
           model: "Product",
-          select: "_id price name",
+          select: "_id price name image",
         },
       ]
     );
@@ -229,6 +242,18 @@ exports.topselling = asyncHandler(async (req, res) => {
         $limit: 5,
       },
     ]);
+    // .populate([
+    //   {
+    //     path: "products.productId",
+    //     model: "Product",
+    //     select:
+    //       "_id name,image,category,subcategory",
+    //   },
+    // ]);
+    // const storeProduct = await Product.distinct("vendorId", {
+    //   subcategory: categoryName,
+    // });
+    // const now = await Store.find({ _id: { $in: storeProduct } });
     let details = await Product.populate(orders, {
       path: "_id",
       select: { _id: 5, name: 5, image: 5 },

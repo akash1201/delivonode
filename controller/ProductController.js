@@ -24,12 +24,10 @@ const addProduct = asyncHandler(async (req, res) => {
       bestSeller: req.body.bestSeller || false,
       chefSpecial: req.body.chefSpecial || false,
       vendorId: storeid.id,
-      price: req.body.price,
-      qty: req.body.qty,
       gst: category.gstPercent,
-      unit: req.body.unit,
-      discount: req.body.discount,
+      variable: req.body.variable,
     };
+    // send price,qty,discount,unit,inStock as objects in variable array.
     let product = await Product.create(obj);
     res.status(200).json({ mess: "New product added by vendor" });
   } catch (err) {
@@ -108,11 +106,7 @@ const updateProduct = asyncHandler(async (req, res) => {
     let exists = await Product.findById(req.params.productId);
     if (exists) {
       exists.name = req.body.name || exists.name;
-      exists.price = req.body.price || exists.price;
-      exists.qty = req.body.qty || exists.qty;
-      exists.unit = req.body.unit || exists.unit;
-      exists.discount = req.body.discount || exists.discount;
-      exists.inStock = req.body.inStock || exists.inStock;
+      exists.variable = req.body.variable || exists.variable;
       exists.veg = req.body.veg || exists.veg;
       exists.bestSeller = req.body.bestSeller || exists.bestSeller;
       exists.chefSpecial = req.body.chefSpecial || exists.chefSpecial;

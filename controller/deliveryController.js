@@ -3,8 +3,14 @@ const asyncHandler = require("express-async-handler");
 const Delivery = require("../models/Delivery.js");
 const jwt = require("jsonwebtoken");
 const Order = require("../models/Orders.js");
-const generateToken = require("../utils/generateToken.js");
-const CustomDelivery = require("../models/CustomDelivery.js");
+const Complaints = require("../models/Complaints.js");
+const { generateToken, resetPassToken } = require("../utils/generateToken.js");
+const {
+  registrationMail,
+  successfullOrder,
+  forgetPassword,
+  sendMail,
+} = require("../utils/sendMail.js");
 
 const register = asyncHandler(async (req, res) => {
   try {
@@ -17,6 +23,8 @@ const register = asyncHandler(async (req, res) => {
         .json({ mess: "User already exists,please try to login" });
     } else {
       let delivery = await Delivery.create(req.body);
+      const txt = `Thank You for Signing Up with Gravity Bites.Your account will be activated once all your documents are verified by our team. Your Login creationals are userName:- ${email} Password:- ${req.body.password}. Congratulations on beginning this new journey with us.`;
+      registrationMail(txt, email, "New Registration confirmation");
       res.status(200).json({
         _id: delivery._id,
         token: generateToken(delivery._id),
@@ -121,7 +129,7 @@ const assigned = asyncHandler(async (req, res) => {
     const delivery = await Delivery.findById(deliveryid.id);
     if (delivery.isAvailable == false && delivery.orderType == "Regular") {
       let order = await Order.findOne({
-        deliveryPartner: deliveryid.id,
+        deliveryPartner: deliveryid.id.toString(),
         status: "Order Accepted",
       }).populate([
         {
@@ -131,23 +139,24 @@ const assigned = asyncHandler(async (req, res) => {
         },
       ]);
       const deliveryaddress = order.address;
-      const storeaddress = order.vendorId.address;
+      const storeaddress = order.pickupAddress;
       const storename = order.vendorId.storeName;
       return res.status(200).json({ deliveryaddress, storeaddress, storename });
     } else if (
       delivery.isAvailable == false &&
       delivery.orderType == "Custom"
     ) {
-      let customorder = await CustomDelivery.findOne({
-        deliveryPartner: deliveryid.id,
+      let customorder = await Order.findOne({
+        deliveryPartner: deliveryid.id.toString(),
         status: "Order Placed",
       });
       const storeaddress = customorder.pickupAddress;
-      const deliveryaddress = customorder.dropoffAddress;
+      const deliveryaddress = customorder.address;
       const storename = "Custom Delivery";
       return res.status(200).json({ deliveryaddress, storeaddress, storename });
     }
   } catch (error) {
+    console.log(error);
     res.status(500).json({ msg: "Internal server error" });
   }
 });
@@ -174,7 +183,7 @@ const accepted = asyncHandler(async (req, res) => {
         {
           path: "products.productId",
           model: "Product",
-          select: "_id price image qty unit name",
+          select: "_id price image variable name",
         },
       ]);
       delivery.status = "Accepted";
@@ -182,7 +191,7 @@ const accepted = asyncHandler(async (req, res) => {
       await delivery.save();
       order.status = "Pickup Arranged";
       const deliveryaddress = order.address;
-      const storeaddress = order.vendorId.address;
+      const storeaddress = order.pickupAddress;
       await order.save();
       const products = order.products;
       return res.status(200).json({ products, deliveryaddress, storeaddress });
@@ -190,7 +199,7 @@ const accepted = asyncHandler(async (req, res) => {
       delivery.isAvailable == false &&
       delivery.orderType == "Custom"
     ) {
-      let customorder = await CustomDelivery.findOne({
+      let customorder = await Order.findOne({
         deliveryPartner: deliveryid.id,
         status: "Order Placed",
       });
@@ -198,7 +207,7 @@ const accepted = asyncHandler(async (req, res) => {
       delivery.orderReference = customorder._id;
       await delivery.save();
       customorder.status = "Pickup Arranged";
-      const deliveryaddress = customorder.dropoffAddress;
+      const deliveryaddress = customorder.address;
       const storeaddress = customorder.pickupAddress;
       const products = customorder.productImage;
       await customorder.save();
@@ -208,6 +217,60 @@ const accepted = asyncHandler(async (req, res) => {
     res.status(500).json({ msg: "Internal server error" });
   }
 });
+// Decline Delivery Request
+const declineDelivery = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let deliveryid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!deliveryid) {
+      return res.status(500).json({ msg: "User not found" });
+    }
+    let delivery = await Delivery.findById(deliveryid.id);
+    if (delivery.isAvailable == false && delivery.orderType == "Regular") {
+      let order = await Order.findOne({
+        deliveryPartner: deliveryid.id,
+        status: "Order Accepted",
+      }).populate([
+        {
+          path: "vendorId",
+          model: "Store",
+          select: "_id storeName address",
+        },
+        {
+          path: "products.productId",
+          model: "Product",
+          select: "_id price image variable name",
+        },
+      ]);
+      (order.deliveryPartner = ""),
+        (delivery.isAvailable = true),
+        (delivery.status = ""),
+        (delivery.orderType = "");
+      await order.save();
+      await delivery.save();
+      return res.status(200).json({ mess: "Delivery request declined" });
+    } else if (
+      delivery.isAvailable == false &&
+      delivery.orderType == "Custom"
+    ) {
+      let customorder = await Order.findOne({
+        deliveryPartner: deliveryid.id,
+        status: "Order Placed",
+      });
+      (customorder.deliveryPartner = ""),
+        (delivery.isAvailable = true),
+        (delivery.status = ""),
+        (delivery.orderType = "");
+      await customorder.save();
+      await delivery.save();
+      await customorder.save();
+      return res.status(200).json({ mess: "Delivery request declined" });
+    }
+  } catch (error) {
+    res.status(500).json({ msg: "Internal server error" });
+  }
+});
+
 // Marked as Picked
 const picked = asyncHandler(async (req, res) => {
   try {
@@ -217,41 +280,39 @@ const picked = asyncHandler(async (req, res) => {
       return res.status(500).json({ msg: "User not found" });
     }
     let delivery = await Delivery.findById(deliveryid.id);
-    if ((delivery.isAvailable = false && delivery.orderType == "Regular")) {
-      let order = await Order.findOne({
-        deliveryPartner: deliveryid.id,
+    console.log(delivery);
+    if (delivery.isAvailable == false && delivery.orderType == "Regular") {
+      const order = await Order.findOne({
+        deliveryPartner: deliveryid.id.toString(),
         status: "Pickup Arranged",
-      }).populate([
-        {
-          path: "vendorId",
-          model: "Store",
-          select: "_id storeName address",
-        },
-      ]);
+      });
       delivery.status = "Picked";
       await delivery.save();
       order.status = "Out for Delivery";
       await order.save();
-      let deliveryaddress = order.address;
-      let storeaddress = order.vendorId.address;
+      const deliveryaddress = order.address;
+      const storeaddress = order.pickupAddress;
       return res.status(200).json({ deliveryaddress, storeaddress });
     } else if (
-      (delivery.isAvailable = false && delivery.orderType == "Regular")
+      delivery.isAvailable == false &&
+      delivery.orderType == "Custom"
     ) {
-      let customorder = await CustomDelivery.findOne({
-        deliveryPartner: deliveryid.id,
+      const customorder = await Order.findOne({
+        deliveryPartner: deliveryid.id.toString(),
         status: "Pickup Arranged",
       });
+      console.log(customorder, "custom");
 
       delivery.status = "Picked";
       await delivery.save();
       customorder.status = "Out for Delivery";
       await customorder.save();
-      let deliveryaddress = customorder.dropoffAdress;
-      let storeaddress = customorder.pickupAddress;
+      const deliveryaddress = customorder.address;
+      const storeaddress = customorder.pickupAddress;
       return res.status(200).json({ deliveryaddress, storeaddress });
     }
   } catch (error) {
+    console.log(error);
     res.status(500).json({ msg: "Internal server error" });
   }
 });
@@ -265,32 +326,57 @@ const delivered = asyncHandler(async (req, res) => {
       return res.status(500).json({ msg: "User not found" });
     }
     let delivery = await Delivery.findById(deliveryid.id);
-    if ((delivery.isAvailable = false && delivery.orderType == "Regular")) {
+    if (delivery.isAvailable == false && delivery.orderType == "Regular") {
       let order = await Order.findOne({
         deliveryPartner: deliveryid.id,
         status: "Out for Delivery",
-      });
+      }).populate([
+        {
+          path: "userId",
+          model: "User",
+          select: "_id email",
+        },
+      ]);
       order.status = "Delivered";
       await order.save();
       delivery.status = "Delivered";
       delivery.isAvailable = true;
-      delivery.totalOrders += 1;
+      delivery.orderReference = "";
+      delivery.totalOrders = delivery.totalOrders + 1;
+      delivery.todayOrders = delivery.todayOrders + 1;
       await delivery.save();
+      const msg = `Your Order ${order._id} has been successfully delivered by our delivery Partner.`;
+      const mail = order.userId.email;
+      const time = order.updatedAt;
+      successfullOrder(msg, mail, time);
       return res.status(200).json("Order Delivered");
     } else if (
-      (delivery.isAvailable = false && delivery.orderType == "Custom")
+      delivery.isAvailable == false &&
+      delivery.orderType == "Custom"
     ) {
       let customorder = await Order.findOne({
         deliveryPartner: deliveryid.id,
         status: "Out for Delivery",
-      });
+      }).populate([
+        {
+          path: "userId",
+          model: "User",
+          select: "_id email",
+        },
+      ]);
       customorder.status = "Delivered";
       await customorder.save();
       delivery.status = "Delivered";
+      delivery.orderReference = "";
       delivery.isAvailable = true;
-      delivery.totalOrders += 1;
+      delivery.totalOrders = delivery.totalOrders + 1;
+      delivery.todayOrders = delivery.todayOrders + 1;
       await delivery.save();
-      return res.status(200).json("Order Delivered");
+      const msg = `Your Order ${customorder._id} has been successfully delivered by our delivery Partner.`;
+      const mail = customorder.userId.email;
+      const time = customorder.updatedAt;
+      successfullOrder(msg, mail, time);
+      return res.status(200).json({ mess: "Order Delivered" });
     }
   } catch (error) {
     res.status(500).json({ msg: "Internal server error" });
@@ -306,8 +392,9 @@ const currDelivery = asyncHandler(async (req, res) => {
       return res.status(500).json({ msg: "User not found" });
     }
     let delivery = await Delivery.findById(deliveryid.id);
-    await delivery.save();
-    return res.status(200).json("Order Delivered");
+    let order = await Order.findById(delivery.orderReference.toString());
+
+    return res.status(200).json({ mess: order });
   } catch (error) {
     res.status(500).json({ msg: "Internal server error" });
   }
@@ -328,7 +415,7 @@ const ordersDelivered = asyncHandler(async (req, res) => {
       {
         path: "products.productId",
         model: "Product",
-        select: "_id price image qty unit name",
+        select: "_id price image variable name",
       },
     ]);
     let order = orders.length;
@@ -348,6 +435,7 @@ const myProfile = asyncHandler(async (req, res) => {
     console.log(deliveryid.id);
     let delivery = await Delivery.findById(deliveryid.id);
     console.log(delivery);
+    console.log(deliveryid.id);
     res.status(200).json({ delivery });
   } catch (error) {
     console.log(error);
@@ -355,7 +443,107 @@ const myProfile = asyncHandler(async (req, res) => {
   }
 });
 
+//Change Password
+const changePassword = asyncHandler(async (req, res) => {
+  try {
+    let { email } = req.body;
+    let user = await Delivery.findOne({ email: email });
+    if (user && (await user.matchPassword(req.body.password))) {
+      user.password = req.body.newPassword;
+      await user.save();
+      return res.status(200).json({ mess: "Password updated" });
+    }
+    res.status(500).json({ mess: "Invalid email or password" });
+  } catch (error) {
+    res.status(500).json({ mess: "Internal server error" });
+  }
+});
+
+//send Link
+const sendLink = asyncHandler(async (req, res) => {
+  try {
+    const { email } = req.body;
+    let user = await Delivery.findOne({ email: email });
+    if (user) {
+      const token = resetPassToken(user._id);
+      sendMail(token, email, "delivery");
+    }
+    res.status(500).json({ mess: "Email not found " });
+  } catch (error) {
+    res.status(500).json({ mess: "Internal Server Error" });
+  }
+});
+
+// Add Complain
+const addComplain = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let userid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!userid) {
+      return res.status(500).json({ mess: "Authentication Failed" });
+    }
+    let obj = {
+      message: req.body.message,
+      storeId: userid.id,
+      phoneNo: req.body.phoneNo,
+      user: "Delivery",
+    };
+
+    let complain = await Complaints.create(obj);
+    res.status(200).json({ mess: "Complaint Registered" });
+  } catch (err) {
+    res.json({ mess: err.message });
+  }
+});
+// Reset Link
+const resetLink = asyncHandler(async (req, res) => {
+  try {
+    let token = req.params.tokenId;
+    let userid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!userid) {
+      return res.status(500).json({ msg: "User not found" });
+    }
+    let user = await Delivery.findById(userid.id);
+    if (user) {
+      user.password = req.body.newPassword;
+      await user.save();
+      return res.status(200).json({ mess: "Password updated" });
+    }
+    res.status(500).json({ mess: "invalid reset link" });
+  } catch (error) {
+    res.status(500).json({ mess: error });
+  }
+});
+
+//  Get Reviews
+const getReviews = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let deliveryid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!deliveryid) {
+      return res.status(500).json({ mess: "User not found" });
+    }
+    let orders = await Order.find({
+      deliveryPartner: deliveryid.id,
+      status: "Delivered",
+    });
+    let reviews = [];
+    orders.forEach((ele) => {
+      if (ele.deliveryReview != "null") {
+        reviews.push(ele.deliveryReview);
+      }
+    });
+    res.status(200).json({ reviews });
+  } catch (error) {
+    res.status(500).json({ msg: "Internal server error" });
+  }
+});
+
 module.exports = {
+  resetLink,
+  sendLink,
+  getReviews,
+  changePassword,
   myProfile,
   register,
   login,
@@ -364,8 +552,10 @@ module.exports = {
   picked,
   assigned,
   goOffline,
+  addComplain,
   goOnline,
   delivered,
   currDelivery,
   ordersDelivered,
+  declineDelivery,
 };

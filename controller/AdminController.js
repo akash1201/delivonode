@@ -13,6 +13,7 @@ const Category = require("../models/Category.js");
 const Coupons = require("../models/Coupons.js");
 const sendSMS = require("../utils/sendSMS.js");
 const { updateIncentive, updateMonth } = require("../utils/Scheduler.js");
+const { sendNotice } = require("../utils/sendMail.js");
 
 // Add Station for Delivery
 const addStation = asyncHandler(async (req, res) => {
@@ -111,8 +112,9 @@ const updateCashback = asyncHandler(async (req, res) => {
     const category = await Category.find({ parent: "null" });
     vendors.forEach((ele) => {
       category.forEach((element) => {
-        if (element.subcateogry == ele.categories) {
+        if (element.subcategory == ele.categories) {
           ele.cashback = element.cashBack;
+          ele.save();
         }
       });
     });
@@ -401,6 +403,9 @@ const approveVendors = asyncHandler(async (req, res) => {
     // ]);
 
     await vendor.save();
+    let mes =
+      "Thank You for Joining Gravity Bites. Your documents have been verified by our team. Grow your business with us";
+    registrationMail(mes, vendor.email, "Account approved");
     res.status(200).json({ mess: "Vendor Registration Approved" });
   } catch (error) {
     res.status(500).json({ error });
@@ -420,7 +425,11 @@ const disapproveVendors = asyncHandler(async (req, res) => {
     // await Promise.all([
     //   sendMail("Your registration request was not approved", vendor.email),
     // ]);
+
     await vendor.save();
+    let mes =
+      "Your account request has been dis-aaproved by our team as you didn't meet all the requirements to become a valid gravity bites partner.";
+    registrationMail(mes, vendor.email, "Account disapproved");
     res.status(200).json({ mess: "Vendor Registration was disapproved" });
   } catch (error) {
     res.status(500).json({ error });
@@ -446,6 +455,22 @@ const removeVendor = asyncHandler(async (req, res) => {
     res.status(200).json({ mess: "Vendor was removed" });
   } catch (error) {
     res.status(500).json({ error });
+  }
+});
+
+// Send Notice
+const sendnotice = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let adminid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!adminid) {
+      return res.json("Login to continue");
+    }
+    const { message, email } = req.body.user;
+    sendNotice(email, message);
+    res.status(200).json({ mess: "Notice sent to the user mail id" });
+  } catch (error) {
+    res.status(500).json({ mess: "Internal server error" });
   }
 });
 
@@ -481,6 +506,9 @@ const approveDelivery = asyncHandler(async (req, res) => {
     //   sendMail("Your registration request has been approved", delivery.email),
     // ]);
     await delivery.save();
+    let mes =
+      "Congratulations you account has been approved, login in to your account to receive your frst order.";
+    registrationMail(mes, delivery.email, "Account approved");
     res.status(200).json({ mess: "Delivery Person Approved" });
   } catch (error) {
     res.status(500).json({ error });
@@ -501,6 +529,9 @@ const disapproveDelivery = asyncHandler(async (req, res) => {
     //   sendMail("Your registration request was not approved", delivery.email),
     // ]);
     await delivery.save();
+    let mes =
+      "Your account request has been dis-aaproved by our team as you didn't meet all the requirements to become a valid gravity bites partner.";
+    registrationMail(mes, delivery.email, "Account disapproved");
     res.status(200).json({ mess: "Delivery Registration was disapproved" });
   } catch (error) {
     res.status(500).json({ error });
@@ -572,9 +603,12 @@ const addressComplaints = asyncHandler(async (req, res) => {
     const complaint = await Complaints.find({
       _id: req.params.complaintId.toString(),
     });
-    console.log(complaint);
-    await Promise.all([sendSMS(req.body.message, complaint.phoneNo)]);
-    res.status(200).json("Complaint has been addressed");
+    const vendor = await Store.findById(complaint.storeId.toString());
+    // console.log(complaint);
+    // await Promise.all([sendSMS(req.body.message, complaint.phoneNo)]);
+    let mess = req.body.message;
+    registrationMail(mess, vendor.email, "Complaint Addressed ");
+    res.status(200).json({ mess: "Complaint has been addressed" });
   } catch (error) {
     res.status(500).json({ error });
   }
@@ -609,4 +643,5 @@ module.exports = {
   updateCashback,
   viewParticularDelivery,
   updateCharges,
+  sendnotice,
 };

@@ -3,13 +3,19 @@ const asyncHandler = require("express-async-handler");
 //import Store from '../models/Store.js';
 const Store = require("../models/Store.js");
 const jwt = require("jsonwebtoken");
-const generateToken = require("../utils/generateToken.js");
+const { generateToken, resetPassToken } = require("../utils/generateToken.js");
 const Complaints = require("../models/Complaints.js");
 const Category = require("../models/Category.js");
 const Admin = require("../models/Admin.js");
 const Coupons = require("../models/Coupons.js");
 const Menu = require("../models/Menu.js");
 const { Client } = require("@googlemaps/google-maps-services-js");
+const {
+  registrationMail,
+  forgetPassword,
+
+  sendMail,
+} = require("../utils/sendMail.js");
 
 // Terms and Conditions
 const terms = asyncHandler(async (req, res) => {
@@ -152,23 +158,6 @@ const packagingCharge = asyncHandler(async (req, res) => {
     store.save();
 
     res.status(200).json({ mess: "Packaging Charges Updated" });
-  } catch (error) {}
-});
-
-// Send Location to display Map
-const showMap = asyncHandler(async (req, res) => {
-  try {
-    let token = req.headers.authorization.split(" ")[1];
-    let storeid = jwt.verify(token, process.env.JWT_SECRET);
-    if (!storeid) {
-      return res.status(500).json({ msg: "Authentication Failed" });
-    }
-    let store = await Store.findById(storeid.id);
-    // if (store.isApproved == false) {
-    //   return res.status(500).json("Registeration approval pending by admin");
-    // }
-    let location = store.location.coordinates;
-    res.status(200).json({ location });
   } catch (error) {
     res.status(500).json({ error });
   }
@@ -189,6 +178,7 @@ const updateStation = asyncHandler(async (req, res) => {
       let available = admin.availableStations.filter((ele) => {
         return ele.stationCode == myCity;
       });
+      console.log(available, "available");
       if (available) {
         // now check if the store this near the station to deliver food.
         const client = new Client({});
@@ -208,7 +198,8 @@ const updateStation = asyncHandler(async (req, res) => {
             const dist = dt.split(" ");
             const distance = dist[0];
             console.log(distance, "distance");
-            if (distance > 2) {
+            if (parseInt(distance) > 4) {
+              console.log("6451");
               vendor.deliveryStation = req.body.stationCode;
               vendor.save();
               console.log("false");
@@ -257,6 +248,49 @@ const support = asyncHandler(async (req, res) => {
       user: "Vendor",
     });
     await complain.save();
+    const PushNotifications = require("@pusher/push-notifications-server");
+
+    let pushNotifications = new PushNotifications({
+      instanceId: "7b809cb6-4ab5-4ceb-96a1-55d1d94a9a24",
+      secretKey:
+        "8F9F7DFF2E7986F40911345D2A051E6CB7669A108123750E309DA7C439493604",
+    });
+    pushNotifications
+      .publishToInterests(["hello"], {
+        apns: {
+          aps: {
+            alert: "Hello!",
+          },
+        },
+        fcm: {
+          notification: {
+            title: "Hello",
+            body: "Hello, world!",
+          },
+        },
+      })
+      .then((publishResponse) => {
+        console.log("Just published:", publishResponse.publishId);
+      })
+      .catch((error) => {
+        console.log("Error:", error);
+      });
+
+    // let Pusher = require("pusher");
+    // let pusher = new Pusher({
+    //   appId: process.env.PUSHER_APP_ID,
+    //   key: process.env.PUSHER_APP_KEY,
+    //   secret: process.env.PUSHER_APP_SECRET,
+    //   cluster: process.env.PUSHER_APP_CLUSTER,
+    // });
+    // console.log("uly,bj");
+
+    // pusher.trigger(
+    //   "notifications",
+    //   "post_updated",
+    //   post,
+    //   req.headers["x-socket-id"]
+    // );
     res.status(200).json({ mess: "Complaint Registered" });
   } catch (error) {
     res.status(500).json({ error });
@@ -371,20 +405,19 @@ const deleteCoupons = asyncHandler(async (req, res) => {
     if ((coupon.offeredBy = "vendor")) {
       console.log(coupon.offeredBy);
       await Coupons.deleteOne({ _id: req.params.couponId });
-      const result = store.myCoupons.forEach((ele) => {
+      const result = store.myCoupons.filter((ele) => {
         console.log(ele.couponId);
-        // return ele.couponId != ObjectId(req.params.couponId.toString());
+        return ele.couponId.toString() != req.params.couponId;
       });
-      // store.myCoupons = result;
+      store.myCoupons = result;
       await store.save();
       return res.status(200).json({ mess: "Coupon Deleted" });
     }
     if ((coupon.offeredBy = "admin")) {
       const result = store.myCoupons.filter((ele) => {
-        ele = 2;
-        // return ele.couponId != ObjectId(req.params.couponId);
+        return ele.couponId.toString() != req.params.couponId;
       });
-      // store.myCoupons = result;
+      store.myCoupons = result;
       await store.save();
       return res
         .status(200)
@@ -436,9 +469,11 @@ const registerStore = asyncHandler(async (req, res) => {
     let category = await Category.findOne({ subcategory: req.body.categories });
     let obj = {
       cashback: category.cashBack,
+      ...req.body,
     };
-    let store = await Store.create({ ...req.body, obj });
-
+    let store = await Store.create(obj);
+    const txt = `Thank You for Signing Up with Gravity Bites.Your account will be activated once all your documents are verified by our team. Your Login creationals are userName:- ${email} Password:- ${req.body.password}`;
+    registrationMail(txt, email, "New Registration confirmation");
     res.json({
       _id: store._id,
       token: generateToken(store._id),
@@ -449,21 +484,61 @@ const registerStore = asyncHandler(async (req, res) => {
   }
 });
 
-const setStoreStatus = asyncHandler(async (req, res) => {
+//Change Password
+const changePassword = asyncHandler(async (req, res) => {
   try {
-    let token = req.headers.authorization.split(" ")[1];
-    let userid = jwt.verify(token, process.env.JWT_SECRET);
-    console.log(userid.id);
+    let { email } = req.body;
+    let user = await Store.findOne({ email: email });
+    if (user && (await user.matchPassword(req.body.password))) {
+      user.password = req.body.newPassword;
+      await user.save();
+      return res.status(200).json({ msg: "Password updated" });
+    }
+    res.status(500).json({ msg: "Invalid email or password" });
+  } catch (error) {
+    res.status(500).json({ msg: "Internal server error" });
+  }
+});
 
-    await Store.updateOne({ _id: userid.id }, { active: req.body.status });
-    res.json({ msg: "Updated" });
-  } catch (err) {
-    res.status(500).json({ status: 500, msg: err.msg });
+//send Link
+const sendLink = asyncHandler(async (req, res) => {
+  try {
+    const { email } = req.body;
+    let user = await Store.findOne({ email: email });
+    if (user) {
+      const token = resetPassToken(user._id);
+      sendMail(token, email, "vendor");
+    }
+    res.status(500).json({ mess: "Email not found " });
+  } catch (error) {
+    res.status(500).json({ mess: "Internal Server Error" });
+  }
+});
+
+// Reset Link
+const resetLink = asyncHandler(async (req, res) => {
+  try {
+    let token = req.params.tokenId;
+    let userid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!userid) {
+      return res.status(500).json({ msg: "User not found" });
+    }
+    let user = await Store.findById(userid.id);
+    if (user) {
+      user.password = req.body.newPassword;
+      await user.save();
+      return res.status(200).json({ msg: "Password updated" });
+    }
+    res.status(500).json({ mess: "invalid reset link" });
+  } catch (error) {
+    res.status(500).json({ mess: error });
   }
 });
 
 module.exports = {
   goOffline,
+  resetLink,
+  sendLink,
   goOnline,
   addtoMenu,
   showMenu,
@@ -481,4 +556,5 @@ module.exports = {
   terms,
   support,
   showMap,
+  changePassword,
 };

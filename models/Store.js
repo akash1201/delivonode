@@ -23,7 +23,7 @@ const StoreSchema = mongoose.Schema(
     phoneNo: { type: String, required: true, minlength: 10 },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true, minlength: 6 },
-    otp: { type: String },
+    otp: { type: String, default: "" },
     address: Address,
     isApproved: {
       type: Boolean,

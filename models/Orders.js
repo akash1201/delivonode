@@ -16,6 +16,16 @@ const OrderSchema = mongoose.Schema(
       type: Number,
       default: 0,
     },
+    deliverySlot: {
+      deliveryTime: {
+        type: String,
+        required: true,
+      },
+      now: {
+        type: Boolean,
+        default: true,
+      },
+    },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -31,6 +41,10 @@ const OrderSchema = mongoose.Schema(
     packagingCharges: {
       type: Number,
       default: 0,
+    },
+    deliveryReview: {
+      type: String,
+      default: "null",
     },
     baseFare: {
       type: Number,
@@ -57,6 +71,7 @@ const OrderSchema = mongoose.Schema(
     },
     deliveryPartner: {
       type: String,
+      default: "pending",
     },
     deliveryTip: {
       type: Number,
@@ -72,6 +87,10 @@ const OrderSchema = mongoose.Schema(
     rating: {
       type: Number,
       default: 0,
+    },
+    ordertype: {
+      type: String,
+      required: true,
     },
     address: {
       type: Object,

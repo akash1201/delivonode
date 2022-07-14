@@ -29,6 +29,10 @@ const AdminSchema = mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    deliverLaterDiscount: {
+      type: Number,
+      default: 0,
+    },
     serviceFee: {
       type: Number,
       default: 0,

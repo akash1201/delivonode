@@ -42,7 +42,7 @@ const UserSchema = mongoose.Schema(
         },
       },
     ],
-    otp: { type: String },
+    otp: { type: String, default: "" },
     address: Address,
     cashbackAvailable: {
       type: Number,
