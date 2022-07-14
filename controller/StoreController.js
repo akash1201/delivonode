@@ -552,9 +552,9 @@ module.exports = {
   viewCoupon,
   registerStore,
   login,
-  setStoreStatus,
+
   terms,
   support,
-  showMap,
+
   changePassword,
 };

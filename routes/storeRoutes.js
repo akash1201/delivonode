@@ -4,10 +4,9 @@ const express = require("express");
 const {
   registerStore,
   login,
-  setStoreStatus,
+
   terms,
   support,
-  showMap,
   goOffline,
   goOnline,
   addtoMenu,
@@ -52,7 +51,5 @@ router.post(`/addCoupon`, addCoupon);
 router.post(`/createCoupons`, createCoupons);
 router.get("/terms", terms);
 router.post("/support", support);
-router.put(`/set-status`, protect, setStoreStatus);
-router.get("/showMap", showMap);
 
 module.exports = router;
