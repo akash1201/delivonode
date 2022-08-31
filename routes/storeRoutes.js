@@ -20,6 +20,7 @@ const {
   addCoupon,
   viewCoupon,
   sendLink,
+  inStock,
   resetLink,
   changePassword,
 } = require("../controller/StoreController.js");
@@ -33,6 +34,7 @@ router.post(`/register-store`, registerStore);
 router.post(`/login`, login);
 
 router.post(`/changePassword`, changePassword);
+router.post(`/inStock/:productId`, inStock);
 router.post(`/resetLink/:tokenId`, resetLink);
 router.post("/sendstoreOtp", sendstoreOtp);
 router.post("/verifystoreOtp", verifystoreOtp);

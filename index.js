@@ -61,7 +61,7 @@ app.use(`/api/admin`, adminRoutes);
 // const __dirname = path.resolve()
 app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
 
-const PORT = 5000;
+const PORT = 5001;
 
 app.listen(
   PORT,

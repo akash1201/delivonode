@@ -14,6 +14,10 @@ const ComplaintsSchema = mongoose.Schema({
     type: String,
     required: true,
   },
+  status: {
+    type: String,
+    default: "open",
+  },
   message: {
     type: String,
     required: true,

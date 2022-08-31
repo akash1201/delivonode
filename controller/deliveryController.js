@@ -4,6 +4,7 @@ const Delivery = require("../models/Delivery.js");
 const jwt = require("jsonwebtoken");
 const Order = require("../models/Orders.js");
 const Complaints = require("../models/Complaints.js");
+const Admin = require("../models/Admin.js");
 const { generateToken, resetPassToken } = require("../utils/generateToken.js");
 const {
   registrationMail,
@@ -66,17 +67,35 @@ const terms = asyncHandler(async (req, res) => {
     if (!deliveryid) {
       return res.status(500).json({ msg: "User not found" });
     }
-    // const delivery = await Delivery.find({ _id: deliveryid.id.toString() });
-    // if (delivery.isApproved == false) {
-    //   return res.status(500).json("Registeration approval pending by admin");
-    // }
-    let termsofuse =
-      "lorem kwhfiuhwoilfc hfiuwk wehfiwehd wiehfkwenf wiehdfjkmd wehfuih fhirukhk ";
-    let companypolicy =
-      "jhbfwekfh,wekcbz,nmcbdkhfwuefgdjvb,mcnkjshdjc shgduilhilf ksdhfiuwhf shfuihwfc  kushfkjw";
+    const admin = await Admin.findById(process.env.ADMIN_ID);
+    const termsofuse = admin.termsConditions.delivery;
+    const privacyPolicy = admin.termsConditions.privacyPolicy;
+    const aboutUs = admin.termsConditions.aboutUs;
+    res.json({ termsofuse, privacyPolicy, aboutUs });
     res.json({ termsofuse, companypolicy });
   } catch (error) {
     res.status(500).json({ status: 500, msg: error });
+  }
+});
+
+// Check available locations
+const availableStations = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let deliveryid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!deliveryid) {
+      return res.status(500).json({ msg: "User not found" });
+    }
+    const admin = await Admin.findById(process.env.ADMIN_ID);
+    const stations = [];
+    admin.availableStations.forEach((ele) => {
+      if (stations.indexOf(ele.city) == -1) {
+        stations.push(ele.city);
+      }
+    });
+    res.status(200).json({ mess: stations });
+  } catch (error) {
+    res.status(500).json({ mess: "Internal server error" });
   }
 });
 
@@ -558,4 +577,5 @@ module.exports = {
   currDelivery,
   ordersDelivered,
   declineDelivery,
+  availableStations,
 };

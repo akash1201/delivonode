@@ -19,6 +19,7 @@ const {
   declineDelivery,
   addComplain,
   getReviews,
+  availableStations,
 } = require("../controller/deliveryController");
 const { protect } = require("../middleware/authMiddleware.js");
 const {
@@ -33,6 +34,7 @@ router.post(`/changePassword`, changePassword);
 router.post(`/resetLink/:tokenId`, resetLink);
 router.post("/senddeliveryOtp", senddeliveryOtp);
 router.post("/verifydeliveryOtp", verifydeliveryOtp);
+router.get("/availableStations", availableStations);
 router.post(`/sendLink`, sendLink);
 router.post("/login", login);
 router.get("/terms", terms);

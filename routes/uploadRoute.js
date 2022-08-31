@@ -65,30 +65,32 @@ router.post("/uploadsMulti", uploadMulti.array("image", 5), (req, res) => {
   res.send({ imagedata: req.file });
 });
 
-const excelFilter = (req, file, cb) => {
-  if (
-    file.mimetype.includes("excel") ||
-    file.mimetype.includes("spreadsheetml")
-  ) {
+const csvFilter = (req, file, cb) => {
+  if (file.mimetype.includes("csv")) {
     cb(null, true);
   } else {
-    cb("Please upload only excel file.", false);
+    cb("Please upload only csv files", false);
   }
 };
-var storageExcel = multer.diskStorage({
+const storageCSV = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, __basedir + "/resources/static/assets/uploads/");
+    cb(null, __dirname + "/csvuploads/");
   },
   filename: (req, file, cb) => {
-    console.log(file.originalname);
-    cb(null, `${Date.now()}-bezkoder-${file.originalname}`);
+    console.log(file.originalname, "68531");
+    cb(null, `${file.fieldname}-${Date.now()}-bezkoder-${file.originalname}`);
   },
 });
-var uploadFile = multer({ storage: storageExcel, fileFilter: excelFilter });
+const uploadFile = multer({ storage: storageCSV, fileFilter: csvFilter });
 
-router.post("/uploadExcel", uploadFile.single("image"), (req, res) => {
-  console.log(req.file);
-  res.status(200).json({ mess: req.file });
+router.post("/uploadExcel", uploadFile.single("file"), (req, res) => {
+  try {
+    console.log("654312");
+    console.log(req.file.filename);
+    res.status(200).json({ mess: req.file });
+  } catch (error) {
+    res.status(500).json({ mess: "Could not upload the file" });
+  }
 });
 
 module.exports = router;

@@ -453,13 +453,13 @@ const terms = asyncHandler(async (req, res) => {
     if (!userid) {
       return res.status(500).json({ msg: "User not found" });
     }
-    let termsofuse =
-      "lorem kwhfiuhwoilfc hfiuwk wehfiwehd wiehfkwenf wiehdfjkmd wehfuih fhirukhk ";
-    let companypolicy =
-      "jhbfwekfh,wekcbz,nmcbdkhfwuefgdjvb,mcnkjshdjc shgduilhilf ksdhfiuwhf shfuihwfc  kushfkjw";
-    res.json({ termsofuse, companypolicy });
+    const admin = await Admin.findById(process.env.ADMIN_ID);
+    const termsofuse = admin.termsConditions.customer;
+    const privacyPolicy = admin.termsConditions.privacyPolicy;
+    const aboutUs = admin.termsConditions.aboutUs;
+    res.status(200).json({ termsofuse, privacyPolicy, aboutUs });
   } catch (error) {
-    res.status(500).json({ status: 500, msg: error });
+    res.status(500).json({ mess: "Internal Server error" });
   }
 });
 const wallet = asyncHandler(async (req, res) => {
@@ -1190,6 +1190,37 @@ const fetchStorebySubcategory = asyncHandler(async (req, res) => {
 });
 
 // Fetch Products based on store and sub category
+const fetchFirstProducts = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let userid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!userid) {
+      return res.json("Login to continue");
+    }
+    const subCategory = await Product.distinct("subcategory", {
+      vendorId: req.params.vendorId,
+    });
+    const products = [];
+    for (let product of subCategory) {
+      let options = await Product.find({
+        vendorId: req.params.vendorId,
+        subcategory: product,
+      });
+      let obj = {
+        [product]: options,
+      };
+      products.push(obj);
+    }
+    let reviews = await Reviews.find({ vendorId: req.params.vendorId });
+    let totalreviews = reviews.length;
+    res.status(200).json({ totalreviews, subCategory, products });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error });
+  }
+});
+
+// Fetch Products based on store and sub category
 const fetchProducts = asyncHandler(async (req, res) => {
   try {
     let token = req.headers.authorization.split(" ")[1];
@@ -1368,9 +1399,14 @@ const fetchCoupons = asyncHandler(async (req, res) => {
     if (!userid) {
       return res.json("Login to continue");
     }
+    const categories = await Category.findById(req.params.categoryId);
+    console.log(categories);
+    const name = categories.subcategory;
     const coupons = await Coupons.find({
       offeredBy: "admin",
       storeId: process.env.ADMIN_ID,
+      category: name,
+      // Add a category filter over here
     });
     res.status(200).json({ coupons });
   } catch (error) {
@@ -1422,4 +1458,5 @@ module.exports = {
   addNew,
   viewProduct,
   cancelOrder,
+  fetchFirstProducts,
 };

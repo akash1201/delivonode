@@ -3,6 +3,50 @@ const bcrypt = require("bcryptjs");
 
 const AdminSchema = mongoose.Schema(
   {
+    termsConditions: {
+      customer: {
+        type: String,
+        required: true,
+      },
+      vendor: {
+        type: String,
+        required: true,
+      },
+      delivery: {
+        type: String,
+        required: true,
+      },
+      aboutUs: {
+        type: String,
+        required: true,
+      },
+      privacyPolicy: {
+        type: String,
+        required: true,
+      },
+    },
+    // slotNow: [
+    //   {
+    //     slot: {
+    //       type: String,
+    //     },
+    //     isActive: {
+    //       type: Boolean,
+    //       default: true,
+    //     },
+    //   },
+    // ],
+    // slotLater: [
+    //   {
+    //     slot: {
+    //       type: String,
+    //     },
+    //     isActive: {
+    //       type: Boolean,
+    //       default: true,
+    //     },
+    //   },
+    // ],
     firstName: {
       type: String,
       required: true,

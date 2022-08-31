@@ -1,7 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const User = require("../models/User.js");
 const Complaints = require("../models/Complaints");
-const generateToken = require("../utils/generateToken.js");
+const { generateToken } = require("../utils/generateToken.js");
 const jwt = require("jsonwebtoken");
 const Order = require("../models/Orders.js");
 const Delivery = require("../models/Delivery.js");
@@ -11,9 +11,11 @@ const sendMail = require("../utils/sendMail.js");
 const Admin = require("../models/Admin.js");
 const Category = require("../models/Category.js");
 const Coupons = require("../models/Coupons.js");
+const Menu = require("../models/Menu.js");
 const sendSMS = require("../utils/sendSMS.js");
 const { updateIncentive, updateMonth } = require("../utils/Scheduler.js");
 const { sendNotice } = require("../utils/sendMail.js");
+const csv = require("csvtojson");
 
 // Add Station for Delivery
 const addStation = asyncHandler(async (req, res) => {
@@ -100,6 +102,63 @@ const updateIncentiveAmount = asyncHandler(async (req, res) => {
   }
 });
 
+// Upload Menu
+const addMenu = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let adminid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!adminid) {
+      return res.json("Login to continue");
+    }
+    const menu = await Menu.findOne({ vendorId: req.params.vendorId });
+    console.log(menu, "3641865");
+    const { fileName } = req.body;
+    console.log(fileName, "745896");
+    if (menu) {
+      const productArray = await csv().fromFile(
+        `${__dirname}/../routes/csvuploads/${fileName}`
+      );
+      console.log(productArray);
+      menu.menu = [...menu.menu, ...productArray];
+      menu.save();
+      return res.status(200).json({ mess: "Menu Updated" });
+    } else {
+      const productArray = await csv().fromFile(
+        `${__dirname}/../routes/csvuploads/${fileName}`
+      );
+      let newObj = {
+        vendorId: req.params.vendorId,
+        menu: productArray,
+      };
+      const newMenu = await Menu.create(newObj);
+      return res.status(200).json({ mess: "New menu added" });
+    }
+  } catch (error) {
+    res.status(500).json({ mess: "Internal server error" });
+  }
+});
+
+// Display Menu
+const showMenu = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let storeid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!storeid) {
+      return res.status(500).json({ msg: "Authentication Failed" });
+    }
+    const menu = await Menu.findOne({ vendorId: req.params.vendorId });
+    if (menu) {
+      const mymenu = menu.menu;
+      return res.status(200).json({ mymenu });
+    } else {
+      const mymenu = [];
+      return res.status(200).json({ mymenu });
+    }
+  } catch (error) {
+    res.status(500).json({ mess: "Internal server error" });
+  }
+});
+
 // update cashback amount for vendors by category
 const updateCashback = asyncHandler(async (req, res) => {
   try {
@@ -121,6 +180,139 @@ const updateCashback = asyncHandler(async (req, res) => {
     res.status(200).json({ mess: "Cashback Updated for old vendors" });
   } catch (error) {
     res.status(500).json({ mess: error });
+  }
+});
+
+// Terms & Conditions
+const termsConditions = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let adminid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!adminid) {
+      return res.json("Login to continue");
+    }
+    const admin = await Admin.findById(adminid.id);
+    const terms = admin.termsConditions;
+    res.status(200).json({ mess: terms });
+  } catch (error) {
+    res.status(500).json({ mess: "Internal server error" });
+  }
+});
+// Add Slot
+const addSlot = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let adminid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!adminid) {
+      return res.json("Login to continue");
+    }
+    const admin = await Admin.findById(adminid.id);
+    const { isActive, timeInterval, isNow } = req.body;
+    if (isNow) {
+      const obj = {
+        slot: timeInterval,
+        isActive: isActive,
+      };
+      admin.slotNow = [...admin.slotNow, obj];
+      admin.save();
+      return res.status(200).json({ mess: "New time slot added" });
+    }
+    const obj = {
+      slot: timeInterval,
+      isActive: isActive,
+    };
+    admin.slotLater = [...admin.slotLater, obj];
+    admin.save();
+    res.status(200).json({ mess: "New time slot added" });
+  } catch (error) {
+    res.status(500).json({ mess: "Internal server error" });
+  }
+});
+// View Time Slots
+const viewSlots = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let adminid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!adminid) {
+      return res.json("Login to continue");
+    }
+    const admin = await Admin.findById(adminid.id);
+    const slotNow = admin.slotNow;
+    const slotLater = admin.slotLater;
+    res.status(200).json({ slotNow, slotLater });
+  } catch (error) {
+    res.status(500).json({ mess: "Internal server error" });
+  }
+});
+// Remove Slots
+const removeSlot = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let adminid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!adminid) {
+      return res.json("Login to continue");
+    }
+    const admin = await Admin.findById(adminid.id);
+    const { slotIndex, isNow } = req.body;
+    if (isNow) {
+      admin.slotNow.splice(slotIndex, 1);
+      admin.save();
+      return res.status(200).json({ mess: "Time Slot removed " });
+    }
+    admin.slotLater.splice(slotIndex, 1);
+    admin.save();
+    res.status(200).json({ mess: "Time Slot removed " });
+  } catch (error) {
+    res.status(500).json({ mess: "Internal server error" });
+  }
+});
+
+// Toggle Active State of Time Slot
+const toggleSlot = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let adminid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!adminid) {
+      return res.json("Login to continue");
+    }
+    const admin = await Admin.findById(adminid.id);
+    const { slotIndex, isNow } = req.body;
+    if (isNow) {
+      admin.slotNow[slotIndex].isActive = !admin.slotNow[slotIndex];
+      admin.save();
+      return res.status(200).json({ mess: "Time Slot Toggled " });
+    }
+    admin.slotLater[slotIndex].isActive = !admin.slotLater[slotIndex];
+    admin.save();
+    res.status(200).json({ mess: "Time Slot Toggled " });
+  } catch (error) {
+    res.status(500).json({ mess: "Internal server error" });
+  }
+});
+
+// Update Terms & Conditions
+const updateTerms = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let adminid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!adminid) {
+      return res.json("Login to continue");
+    }
+    const exists = await Admin.findById(adminid.id);
+    exists.termsConditions.customer =
+      req.body.customer || exists.termsConditions.customer;
+    exists.termsConditions.vendor =
+      req.body.vendor || exists.termsConditions.vendor;
+    exists.termsConditions.delivery =
+      req.body.delivery || exists.termsConditions.delivery;
+    exists.termsConditions.aboutUs =
+      req.body.aboutUs || exists.termsConditions.aboutUs;
+    exists.termsConditions.privacyPolicy =
+      req.body.privacyPolicy || exists.termsConditions.privacyPolicy;
+    await exists.save();
+    res.status(200).json({ mess: "Terms & Conditions Updated" });
+  } catch (error) {
+    res.status(500).json({ mess: "Internal server error" });
   }
 });
 
@@ -154,7 +346,7 @@ const login = asyncHandler(async (req, res) => {
       return res.status(500).json("User not found");
     }
     if (await admin.matchPassword(password)) {
-      res.json({
+      res.status(200).json({
         _id: admin._id,
         token: generateToken(admin._id),
       });
@@ -162,7 +354,8 @@ const login = asyncHandler(async (req, res) => {
       res.status(500).json({ mess: `Password didn't match` });
     }
   } catch (error) {
-    res.status(500).json({ mess: error });
+    console.log(error);
+    res.status(500).json({ error });
   }
 });
 
@@ -174,7 +367,21 @@ const createCategory = asyncHandler(async (req, res) => {
     if (!adminid) {
       return res.json("Login to continue");
     }
-    const category = await Category.create(req.body);
+    var newParent = "null";
+    if (req.body.parent != "null") {
+      var parent = await Category.findOne({ subcategory: req.body.parent });
+      newParent = parent._id.toString();
+    }
+    let obj = {
+      parent: newParent,
+      image: req.body.image,
+      subcategory: req.body.subcategory,
+      bgColor: "red",
+      hsnCode: req.body.hsnCode,
+      gstPercent: req.body.gstPercent,
+      cashBack: req.body.cashBack,
+    };
+    const category = await Category.create(obj);
     res.status(200).json({ mess: "New Cateogry is Created" });
   } catch (error) {
     res.status(500).json({ mess: error });
@@ -208,12 +415,20 @@ const updateCategory = asyncHandler(async (req, res) => {
     if (!adminid) {
       return res.json("Login to continue");
     }
+    var newParent = "null";
+    if (req.body.parent != "null") {
+      var parent = await Category.findOne({ subcategory: req.body.parent });
+      newParent = parent._id.toString();
+    }
     let exists = await Category.findById(req.params.categoryId);
 
     if (exists) {
       exists.gstPercent = req.body.gstPercent || exists.gstPercent;
       exists.cashBack = req.body.cashBack || exists.cashBack;
       exists.hsnCode = req.body.hsnCode || exists.hsnCode;
+      exists.parent = newParent;
+      exists.image = req.body.image || exists.image;
+      exists.subcategory = req.body.subcategory || exists.subcategory;
       await exists.save();
       return res.json({ mess: "Category Updated" });
     }
@@ -274,8 +489,20 @@ const viewCategory = asyncHandler(async (req, res) => {
     if (!adminid) {
       return res.json("Login to continue");
     }
-    const category = await Category.find();
-    res.status(200).json({ mess: category });
+    const parents = await Category.find({ parent: "null" });
+    const custom = await Category.find({ parent: "custom" });
+    const category = await Category.find({
+      parent: { $ne: "null" },
+      subcategory: { $ne: "custom" },
+    }).populate([
+      {
+        path: "parent",
+        model: "Category",
+        select: "subcategory",
+      },
+    ]);
+    let categories = [...parents, ...custom, ...category];
+    res.status(200).json({ mess: categories });
   } catch (error) {
     res.status(500).json({ mess: error });
   }
@@ -444,15 +671,14 @@ const removeVendor = asyncHandler(async (req, res) => {
     if (!adminid) {
       return res.json("Login to continue");
     }
-    const vendor = await Store.find({ _id: req.params.storeId.toString() });
-    // await Promise.all([
-    //   sendMail("Your account has been suspended", vendor.email),
-    // ]);
-    await Store.deleteOne({
-      _id: req.params.storeId.toString(),
-    });
-
-    res.status(200).json({ mess: "Vendor was removed" });
+    const vendor = await Store.find({ _id: req.params.storeId });
+    if (vendor) {
+      await Store.deleteOne({
+        _id: req.params.storeId,
+      });
+      return res.status(200).json({ mess: "Vendor was removed" });
+    }
+    res.status(500).json({ mess: "Vendor not found" });
   } catch (error) {
     res.status(500).json({ error });
   }
@@ -466,8 +692,8 @@ const sendnotice = asyncHandler(async (req, res) => {
     if (!adminid) {
       return res.json("Login to continue");
     }
-    const { message, email } = req.body.user;
-    sendNotice(email, message);
+    const { message, email, sub } = req.body;
+    sendNotice(email, message, sub);
     res.status(200).json({ mess: "Notice sent to the user mail id" });
   } catch (error) {
     res.status(500).json({ mess: "Internal server error" });
@@ -547,18 +773,17 @@ const removeDelivery = asyncHandler(async (req, res) => {
       return res.json("Login to continue");
     }
     const delivery = await Delivery.find({
-      _id: req.params.deliveryId.toString(),
+      _id: req.params.deliveryId,
     });
-    await Promise.all([
-      sendMail("Your account has been suspended", delivery.email),
-    ]);
-    await Delivery.deleteOne({
-      _id: req.params.deliveryId.toString(),
-    });
-
-    res.status(200).json("Delivery Person was removed");
+    if (delivery) {
+      await Delivery.deleteOne({
+        _id: req.params.deliveryId,
+      });
+      return res.status(200).json("Delivery Person was removed");
+    }
+    res.status(500).json({ mess: "Delivery Person not found" });
   } catch (error) {
-    res.status(500).json({ error });
+    res.status(500).json({ mess: error.response });
   }
 });
 
@@ -585,8 +810,37 @@ const viewComplaints = asyncHandler(async (req, res) => {
     if (!adminid) {
       return res.json("Login to continue");
     }
-    const complaints = await Complaints.find();
-    res.status(200).json({ complaints });
+    const complaintStore = await Complaints.find({ user: "Vendor" }).populate([
+      {
+        path: "storeId",
+        model: "Store",
+        select: "fullName email",
+      },
+    ]);
+    const complaintCustomer = await Complaints.find({
+      user: "Customer",
+    }).populate([
+      {
+        path: "storeId",
+        model: "User",
+        select: "name lastName email",
+      },
+    ]);
+    const complaintDelivery = await Complaints.find({
+      user: "Delivery",
+    }).populate([
+      {
+        path: "storeId",
+        model: "Delivery",
+        select: "name email",
+      },
+    ]);
+    const complaints = [
+      ...complaintStore,
+      ...complaintDelivery,
+      ...complaintCustomer,
+    ];
+    res.status(200).json({ mess: complaints });
   } catch (error) {
     res.status(500).json({ error });
   }
@@ -600,20 +854,36 @@ const addressComplaints = asyncHandler(async (req, res) => {
     if (!adminid) {
       return res.json("Login to continue");
     }
-    const complaint = await Complaints.find({
-      _id: req.params.complaintId.toString(),
-    });
-    const vendor = await Store.findById(complaint.storeId.toString());
-    // console.log(complaint);
-    // await Promise.all([sendSMS(req.body.message, complaint.phoneNo)]);
-    let mess = req.body.message;
-    registrationMail(mess, vendor.email, "Complaint Addressed ");
-    res.status(200).json({ mess: "Complaint has been addressed" });
+    const complaint = await Complaints.findById(req.params.complaintId);
+    if (complaint.user == "Vendor") {
+      const vendor = await Store.findById(complaint.storeId.toString());
+      let mess = req.body.message;
+      complaint.status = "closed";
+      registrationMail(mess, vendor.email, "Complaint Addressed ");
+      return res.status(200).json({ mess: "Complaint has been addressed" });
+    }
+    if (complaint.user == "Customer") {
+      const vendor = await User.findById(complaint.storeId.toString());
+      let mess = req.body.message;
+      complaint.status = "closed";
+      registrationMail(mess, vendor.email, "Complaint Addressed ");
+      return res.status(200).json({ mess: "Complaint has been addressed" });
+    }
+    if (complaint.user == "Delivery") {
+      const vendor = await Delivery.findById(complaint.storeId.toString());
+      let mess = req.body.message;
+      complaint.status = "closed";
+      registrationMail(mess, vendor.email, "Complaint Addressed ");
+      return res.status(200).json({ mess: "Complaint has been addressed" });
+    }
+    res.status(500).json({ mess: "Complaint not found" });
   } catch (error) {
-    res.status(500).json({ error });
+    res.status(500).json({ mess: error.response });
   }
 });
 module.exports = {
+  addMenu,
+  showMenu,
   createCategory,
   updateCategory,
   deleteCategory,
@@ -644,4 +914,10 @@ module.exports = {
   viewParticularDelivery,
   updateCharges,
   sendnotice,
+  updateTerms,
+  termsConditions,
+  addSlot,
+  viewSlots,
+  removeSlot,
+  toggleSlot,
 };

@@ -48,6 +48,7 @@ const {
   sendLink,
   resetLink,
   viewProduct,
+  fetchFirstProducts,
 } = require("../controller/userController");
 const { protect } = require("../middleware/authMiddleware.js");
 
@@ -73,7 +74,7 @@ router.post("/verifymyOtp", verifymyOtp);
 router.post(`/viewProduct`, viewProduct);
 
 router.post("/login", login);
-router.get(`/fetchCoupons`, fetchCoupons);
+router.get(`/fetchCoupons/:categoryId`, fetchCoupons);
 router.get(`/fetchCategories`, fetchCategories);
 router.get(`/wallet`, wallet);
 router.get(`/myaccount`, myaccount);
@@ -100,6 +101,7 @@ router.get(
 );
 router.get("/terms", terms);
 router.get(`/fetchProducts/:vendorId/:subcategoryName`, protect, fetchProducts);
+router.get(`/fetchFirstProducts/:vendorId`, protect, fetchFirstProducts);
 router.post(`/placeOrder`, placeOrder);
 router.post(`/customDelivery`, customDelivery);
 router.post(`/prescriptionOrder`, prescriptionOrder);

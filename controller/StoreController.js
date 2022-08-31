@@ -9,6 +9,7 @@ const Category = require("../models/Category.js");
 const Admin = require("../models/Admin.js");
 const Coupons = require("../models/Coupons.js");
 const Menu = require("../models/Menu.js");
+const Product = require("../models/Products.js");
 const { Client } = require("@googlemaps/google-maps-services-js");
 const {
   registrationMail,
@@ -25,11 +26,11 @@ const terms = asyncHandler(async (req, res) => {
     if (!storeid) {
       return res.status(500).json({ msg: "Authentication Failed" });
     }
-    let termsofuse =
-      "lorem kwhfiuhwoilfc hfiuwk wehfiwehd wiehfkwenf wiehdfjkmd wehfuih fhirukhk ";
-    let companypolicy =
-      "jhbfwekfh,wekcbz,nmcbdkhfwuefgdjvb,mcnkjshdjc shgduilhilf ksdhfiuwhf shfuihwfc  kushfkjw";
-    res.json({ termsofuse, companypolicy });
+    const admin = await Admin.findById(process.env.ADMIN_ID);
+    const termsofuse = admin.termsConditions.vendor;
+    const privacyPolicy = admin.termsConditions.privacyPolicy;
+    const aboutUs = admin.termsConditions.aboutUs;
+    res.json({ termsofuse, privacyPolicy, aboutUs });
   } catch (error) {
     res.status(500).json({ error });
   }
@@ -180,7 +181,7 @@ const updateStation = asyncHandler(async (req, res) => {
       });
       console.log(available, "available");
       if (available) {
-        // now check if the store this near the station to deliver food.
+        // now check if the store is near the station to deliver food.
         const client = new Client({});
         client
           .distancematrix({
@@ -429,6 +430,24 @@ const deleteCoupons = asyncHandler(async (req, res) => {
   }
 });
 
+const inStock = asyncHandler(async (req, res) => {
+  try {
+    let token = req.headers.authorization.split(" ")[1];
+    let userid = jwt.verify(token, process.env.JWT_SECRET);
+    if (!userid) {
+      return res.status(500).json({ msg: "User not found" });
+    }
+    const product = await Product.findById(req.params.productId);
+    product.variable.map((ele) => {
+      ele.inStock = !ele.inStock;
+    });
+    product.save();
+    res.status(200).json({ mess: "Stock Status Updated" });
+  } catch (error) {
+    res.status(200).json({ error });
+  }
+});
+
 // login
 const login = asyncHandler(async (req, res) => {
   try {
@@ -552,7 +571,7 @@ module.exports = {
   viewCoupon,
   registerStore,
   login,
-
+  inStock,
   terms,
   support,
 

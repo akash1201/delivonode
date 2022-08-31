@@ -69,7 +69,7 @@ const StoreSchema = mongoose.Schema(
     accountNo: { type: Number, required: true },
     ifsc: { type: String, required: true },
     expiryDate: { type: String },
-    licenseImage: { type: String },
+    licenseImage: { type: String,default:"null" },
     upiId: { type: String, unique: true, required: false },
     storeManager: { type: String, required: true },
     whatsappUpdate: { type: Boolean, required: true },

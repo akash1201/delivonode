@@ -40,7 +40,7 @@ const sendMail = async (token, to, user) => {
   });
 };
 
-const sendNotice = async (to, message) => {
+const sendNotice = async (to, message, sub) => {
   let transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 465,
@@ -53,7 +53,7 @@ const sendNotice = async (to, message) => {
   return await transporter.sendMail({
     from: `"Gravity Bites" <gravitybites8.in@gmail.com>`, // sender address
     to: to, // list of receivers
-    subject: "Password reset link", // Subject line
+    subject: sub, // Subject line
     text: "Test", // plain text body
     html: message, // html body
   });
